@@ -52,4 +52,4 @@ By submitting code, patches, documentation, or visual assets to this repository,
 2. You grant Arkio Labs Inc. an irrevocable, perpetual, worldwide, royalty-free, exclusive license to reproduce, adapt, license, and distribute your contribution.
 3. You certify that your contribution is your own original work and does not infringe upon any third-party patent, copyright, trademark, trade secret, or proprietary right.
 
-For security reports or vulnerability disclosures, please email: `security@arkiolabs.com`.
+For security reports or vulnerability disclosures, please email: `mallipurapusiva@gmail.com`.

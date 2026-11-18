@@ -249,7 +249,7 @@ private fun PrivacyContent() {
     )
     LegalSection(
         heading = "Contact",
-        body = "Questions or concerns about privacy? Contact Arkio Labs support."
+        body = "Questions or concerns about privacy? Contact Arkio Labs support at mallipurapusiva@gmail.com."
     )
 }
 
@@ -309,7 +309,7 @@ private fun TermsContent() {
     )
     LegalSection(
         heading = "Contact",
-        body = "For questions about these terms, contact Arkio Labs support."
+        body = "For questions about these terms, contact Arkio Labs support at mallipurapusiva@gmail.com."
     )
 }
 

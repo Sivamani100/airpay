@@ -323,4 +323,4 @@ Copyright © 2026 **Arkio Labs Inc.** All Rights Reserved.
 LocalPe, the LocalPe logo, the "LP" monogram, and all associated brand assets, codebases, and algorithms are the exclusive intellectual property of Arkio Labs Inc. Unauthorized reproduction, reverse engineering, decompilation, distribution, or commercial exploitation is strictly prohibited under international copyright laws and trade secret protections.
 
 For enterprise inquiries, carrier integrations, or licensing agreements, contact:
-**Arkio Labs Inc.** — `support@arkiolabs.com`
+**Arkio Labs Inc.** — `mallipurapusiva@gmail.com`
