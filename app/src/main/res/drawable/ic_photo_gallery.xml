@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector android:height="24.0dp" android:width="24.0dp" android:viewportWidth="24.0" android:viewportHeight="24.0"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="@color/downpay_primary" android:pathData="M19.5,4.5v15H4.5V4.5h15m0-1.5H4.5A1.5,1.5,0,0,0,3,4.5v15A1.5,1.5,0,0,0,4.5,21h15A1.5,1.5,0,0,0,21,19.5V4.5A1.5,1.5,0,0,0,19.5,3Z" />
-    <path android:fillColor="@color/downpay_primary" android:pathData="M10.61,15.41,9.39,13.59a0.49 0.49 ,0,0,0-0.81,0l-2,2.63A0.5 0.5 ,0,0,0,7,17H17a0.5 0.5 ,0,0,0,0.39-0.81l-3-3.69a0.5 0.5 ,0,0,0-0.79,0l-2.19,2.91A0.49 0.49 ,0,0,1,10.61,15.41Z" />
+    <path android:fillColor="@color/airpay_primary" android:pathData="M19.5,4.5v15H4.5V4.5h15m0-1.5H4.5A1.5,1.5,0,0,0,3,4.5v15A1.5,1.5,0,0,0,4.5,21h15A1.5,1.5,0,0,0,21,19.5V4.5A1.5,1.5,0,0,0,19.5,3Z" />
+    <path android:fillColor="@color/airpay_primary" android:pathData="M10.61,15.41,9.39,13.59a0.49 0.49 ,0,0,0-0.81,0l-2,2.63A0.5 0.5 ,0,0,0,7,17H17a0.5 0.5 ,0,0,0,0.39-0.81l-3-3.69a0.5 0.5 ,0,0,0-0.79,0l-2.19,2.91A0.49 0.49 ,0,0,1,10.61,15.41Z" />
 </vector>

@@ -1,6 +1,6 @@
 # Third-Party Open Source Software Notices
 
-Downpay incorporates open-source software components licensed under permissive third-party
+Airpay incorporates open-source software components licensed under permissive third-party
 open-source licenses. Arkio Labs Inc. acknowledges the contributions of the open-source community.
 Below are the attributions, copyright notices, and license terms applicable to these components.
 

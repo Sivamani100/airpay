@@ -1,7 +1,7 @@
-# Downpay — Offline UPI Payment System
+# Airpay — Offline UPI Payment System
 
 <p align="center">
-  <img src="app/src/main/res/drawable/ic_downpay_logo.png" width="128" height="128" alt="Downpay Logo" />
+  <img src="app/src/main/res/drawable/ic_airpay_logo.png" width="128" height="128" alt="Airpay Logo" />
 </p>
 
 <p align="center">
@@ -12,7 +12,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Version-1.0.0-5F259F.svg?style=for-the-badge&logo=android" alt="Version 1.0.0" />
-  <img src="https://img.shields.io/badge/Package-com.arkiolabs.downpay-4A148C.svg?style=for-the-badge" alt="Package" />
+  <img src="https://img.shields.io/badge/Package-com.arkiolabs.airpay-4A148C.svg?style=for-the-badge" alt="Package" />
   <img src="https://img.shields.io/badge/Security-Zero--Internet%20Enforced-00875A.svg?style=for-the-badge" alt="Zero-Internet" />
   <img src="https://img.shields.io/badge/Database-AES--256%20SQLCipher-00875A.svg?style=for-the-badge" alt="Encryption" />
   <img src="https://img.shields.io/badge/Architecture-Clean%20%2B%20MVI%2FMVVM-blue.svg?style=for-the-badge" alt="Architecture" />
@@ -66,16 +66,16 @@ The Unified Payments Interface (UPI) is the world's most ubiquitous real-time pa
 
 When packet data drops, consumer payment applications freeze, transactions timeout, and commerce halts. 
 
-**Downpay** resolves this existential vulnerability. Engineered by **Arkio Labs Inc.** (`com.arkiolabs.downpay`), Downpay routes UPI transactions directly over the **cellular baseband signaling plane** (SS7/MAP) through national telecommunications gateways. By automating low-level signaling dialogues, Downpay delivers a modern, tactile, and frictionless smartphone experience that requires **zero bytes of mobile data or Wi-Fi**.
+**Airpay** resolves this existential vulnerability. Engineered by **Arkio Labs Inc.** (`com.arkiolabs.airpay`), Airpay routes UPI transactions directly over the **cellular baseband signaling plane** (SS7/MAP) through national telecommunications gateways. By automating low-level signaling dialogues, Airpay delivers a modern, tactile, and frictionless smartphone experience that requires **zero bytes of mobile data or Wi-Fi**.
 
 > [!IMPORTANT]
-> **Strictly Native Android Architecture (Zero Web / Zero PWA)**: Downpay is engineered exclusively as a 100% native Android application (Kotlin + Jetpack Compose for API 26+). Because Downpay interfaces directly with low-level cellular signaling (GSM/3GPP), Android telephony hardware drivers (`SubscriptionManager`), system window overlay management (`TYPE_APPLICATION_OVERLAY`), and accessibility node inspection trees (`AccessibilityNodeInfo`), it contains **zero web wrappers, zero WebViews, zero service workers, and zero PWA layers**. All UI and computation run bare-metal on the Android ART runtime.
+> **Strictly Native Android Architecture (Zero Web / Zero PWA)**: Airpay is engineered exclusively as a 100% native Android application (Kotlin + Jetpack Compose for API 26+). Because Airpay interfaces directly with low-level cellular signaling (GSM/3GPP), Android telephony hardware drivers (`SubscriptionManager`), system window overlay management (`TYPE_APPLICATION_OVERLAY`), and accessibility node inspection trees (`AccessibilityNodeInfo`), it contains **zero web wrappers, zero WebViews, zero service workers, and zero PWA layers**. All UI and computation run bare-metal on the Android ART runtime.
 
 ---
 
 ## 2. Sovereign Offline Architecture
 
-Downpay adheres strictly to **Clean Architecture** patterns, isolating presentation components from domain financial rules, OS-level accessibility daemons, and cryptographic data layers.
+Airpay adheres strictly to **Clean Architecture** patterns, isolating presentation components from domain financial rules, OS-level accessibility daemons, and cryptographic data layers.
 
 ```mermaid
 flowchart TB
@@ -83,7 +83,7 @@ flowchart TB
         direction TB
         Screens["Screens: Home, Pay, Balance, MyQR, History, Settings, Legal"]
         VM["ViewModels: PayViewModel, BalanceViewModel, HistoryViewModel"]
-        Theme["Downpay Design System: Tokens, Shapes, Monograms, Icons"]
+        Theme["Airpay Design System: Tokens, Shapes, Monograms, Icons"]
         Screens --> VM
         Theme --> Screens
     end
@@ -139,7 +139,7 @@ Unlike packet data (GPRS, EDGE, LTE, 5G NR) which operates on user-plane IP pack
 * **Latency Profile:** Session handshake and message turnaround occurs within **200ms to 600ms**, dramatically faster than establishing TLS handshakes over degraded edge data connections.
 
 ### 3.2 Multi-Carrier Gateway Matrix
-Downpay features a dynamic multi-carrier abstraction layer that tailors its execution pipeline to the host SIM card's Mobile Network Code (MNC):
+Airpay features a dynamic multi-carrier abstraction layer that tailors its execution pipeline to the host SIM card's Mobile Network Code (MNC):
 
 | Carrier | Telephony Mechanism | Automation Strategy | Response Time |
 | :--- | :--- | :--- | :--- |
@@ -149,7 +149,7 @@ Downpay features a dynamic multi-carrier abstraction layer that tailors its exec
 | **Reliance Jio** | Voice Bearer & DTMF Relay | Automated Voice Gateway (`JioVoiceGateway`) with dual-carrier bridge | $\sim 2.8\text{s}$ total flow |
 
 ### 3.3 Dual-SIM Subscription Management
-Modern Android devices in India overwhelmingly utilize Dual-SIM configurations (e.g., SIM 1: Jio, SIM 2: Airtel). Downpay implements intelligent carrier slot resolution:
+Modern Android devices in India overwhelmingly utilize Dual-SIM configurations (e.g., SIM 1: Jio, SIM 2: Airtel). Airpay implements intelligent carrier slot resolution:
 
 ```kotlin
 // Snippet from CarrierDetector.kt
@@ -213,7 +213,7 @@ Android carrier dialogs are notoriously asynchronous: vendor OEMs (Samsung OneUI
 
 `FrameFilter.kt` eliminates duplicate processing using cryptographic frame hashes and timestamp windows:
 $$\Delta t > 800\text{ms} \quad \land \quad \text{Hash}(T_n) \neq \text{Hash}(T_{n-1})$$
-This ensures that Downpay never injects inputs twice or reacts to flickering intermediate renders.
+This ensures that Airpay never injects inputs twice or reacts to flickering intermediate renders.
 
 ---
 
@@ -225,7 +225,7 @@ When dialing carrier codes, standard Android dialogs expose raw numeric menus an
 2. **Flag Safeguards:**
    - `FLAG_NOT_TOUCH_MODAL`: Keeps the overlay active without stealing accessibility focus.
    - `FLAG_SECURE`: Prevents third-party apps from taking screenshots or recording the screen during credential entry.
-3. **Animated Progress Stepper:** Instead of carrier popups, the user sees a smooth Downpay progress pill with live step indicators:
+3. **Animated Progress Stepper:** Instead of carrier popups, the user sees a smooth Airpay progress pill with live step indicators:
    $$\text{Step } k \text{ of } N \implies \text{Progress } \frac{k}{N} \times 100\%$$
 
 ---
@@ -233,7 +233,7 @@ When dialing carrier codes, standard Android dialogs expose raw numeric menus an
 ## 6. Security, Cryptography & Threat Modeling
 
 ### 6.1 The Zero-Internet Principle
-Downpay enforces a **zero-trust offline model**. In `AndroidManifest.xml`:
+Airpay enforces a **zero-trust offline model**. In `AndroidManifest.xml`:
 ```xml
 <!-- PROVEN PRIVACY GUARANTEE: -->
 <!-- <uses-permission android:name="android.permission.INTERNET" /> IS INTENTIONALLY OMITTED -->
@@ -270,7 +270,7 @@ ON `transactions` (`timestamp` DESC, `status`);
 ```
 
 ### 6.3 Ephemeral PIN Buffer Management
-User UPI PINs represent the highest-risk credential in mobile commerce. Downpay implements strict volatile memory handling:
+User UPI PINs represent the highest-risk credential in mobile commerce. Airpay implements strict volatile memory handling:
 
 * PIN digits are collected via `UpiPinSheet` as primitive `CharArray` buffers.
 * The characters are never converted to Java `String` objects, avoiding immutability and memory string-pool retention.
@@ -281,7 +281,7 @@ User UPI PINs represent the highest-risk credential in mobile commerce. Downpay 
 
 ### 6.4 Formal Threat Analysis & Countermeasures
 
-| Threat Vector | Attack Scenario | Downpay Architectural Countermeasure |
+| Threat Vector | Attack Scenario | Airpay Architectural Countermeasure |
 | :--- | :--- | :--- |
 | **Network Eavesdropping** | Man-in-the-Middle on Wi-Fi/4G | **N/A:** Zero internet permissions. Traffic never traverses IP networks. |
 | **Shoulder Surfing** | Observer watches USSD dialog | **Opaque Privacy Overlay:** Dialog covered by `TYPE_APPLICATION_OVERLAY`. |
@@ -295,7 +295,7 @@ User UPI PINs represent the highest-risk credential in mobile commerce. Downpay 
 ## 7. On-Device Computer Vision & QR Pipeline
 
 ### 7.1 CameraX + ML Kit Scanner
-Downpay's QR scanning engine runs completely on-device without external cloud inference:
+Airpay's QR scanning engine runs completely on-device without external cloud inference:
 - **Frame Pipeline:** CameraX `ImageAnalysis` bound to lifecycle with `STRATEGY_KEEP_ONLY_LATEST`.
 - **Inference Engine:** Google ML Kit Barcode Scanning SDK (`com.google.mlkit:barcode-scanning:17.3.0`).
 - **Parsing:** `UpiParser.kt` extracts UPI URI query parameters (`pa`, `pn`, `am`, `cu`, `tn`) according to NPCI specifications:
@@ -305,22 +305,22 @@ Downpay's QR scanning engine runs completely on-device without external cloud in
 Users can receive offline payments by generating standard QR codes locally:
 - **Matrix Encoder:** ZXing Core (`com.google.zxing:core:3.5.3`).
 - **Format:** QR Code ISO/IEC 18004 standard with Reed-Solomon Error Correction Level M/Q.
-- **Monogram Insertion:** Embeds the proprietary Downpay "LP" geometric monogram into the center of the QR matrix with verified quiet zones.
+- **Monogram Insertion:** Embeds the proprietary Airpay "LP" geometric monogram into the center of the QR matrix with verified quiet zones.
 
 ---
 
 ## 8. Complete Architectural Inventory
 
-An exhaustive breakdown of every production component in `app/src/main/java/com/arkiolabs/downpay/`:
+An exhaustive breakdown of every production component in `app/src/main/java/com/arkiolabs/airpay/`:
 
-### 8.1 Data Layer (`com.arkiolabs.downpay.data`)
+### 8.1 Data Layer (`com.arkiolabs.airpay.data`)
 * **`AppDatabase.kt`:** Room database abstract definition; initializes SQLCipher native binaries and applies AES-256 passphrases.
 * **`TransactionEntity.kt`:** Entity definition mapping financial transactions to SQLite records.
 * **`TransactionDao.kt`:** Data Access Object defining transactional inserts, date-range filtering, and summary balance queries.
 * **`HistoryRepository.kt`:** Repository abstraction managing asynchronous Flow-based transaction stream delivery.
 * **`PreferencesRepository.kt`:** Jetpack DataStore wrapper persisting encrypted user settings (preferred SIM, biometric toggles).
 
-### 8.2 Domain Layer (`com.arkiolabs.downpay.domain`)
+### 8.2 Domain Layer (`com.arkiolabs.airpay.domain`)
 * **`ActionRunner.kt`:** Core finite state machine driving multi-step USSD and voice payment workflows.
 * **`Actions.kt`:** Domain action definitions representing user intents (Pay, Check Balance, Cancel).
 * **`BankSmsParser.kt`:** Regex engine parsing bank balance confirmations and debit SMS alerts from cellular towers.
@@ -336,8 +336,8 @@ An exhaustive breakdown of every production component in `app/src/main/java/com/
 * **`UssdEnginePort.kt` & `UssdModels.kt`:** Telephony engine driver interfaces and carrier step definitions.
 * **`Validation.kt`:** Domain outcome wrappers (`Valid`, `Invalid`).
 
-### 8.3 Platform Layer (`com.arkiolabs.downpay.platform`)
-* **`ApkShareUtil.kt`:** Peer-to-peer APK sharing utility leveraging `FileProvider` to distribute Downpay offline.
+### 8.3 Platform Layer (`com.arkiolabs.airpay.platform`)
+* **`ApkShareUtil.kt`:** Peer-to-peer APK sharing utility leveraging `FileProvider` to distribute Airpay offline.
 * **`BankSmsReceiver.kt`:** High-priority `BroadcastReceiver` intercepting incoming bank transaction receipts.
 * **`BiometricHelper.kt`:** AndroidX `BiometricPrompt` controller enabling fingerprint and facial authentication.
 * **`CarrierDetector.kt`:** Hardware telephony manager querying baseband status and dual-SIM slots.
@@ -348,7 +348,7 @@ An exhaustive breakdown of every production component in `app/src/main/java/com/
 * **`SoundManager.kt`:** Audio feedback manager playing subtle tactile tones on payment success.
 * **`UssdAccessibilityService.kt`:** Accessibility service monitoring dialog nodes and executing auto-injections.
 
-### 8.4 Presentation Layer (`com.arkiolabs.downpay.presentation`)
+### 8.4 Presentation Layer (`com.arkiolabs.airpay.presentation`)
 * **`MainActivity.kt`:** Single-activity host orchestrating Compose navigation and system window insets.
 * **`PayViewModel.kt`:** State coordinator for fund transfers, SIM selection, and payment confirmation.
 * **`BalanceViewModel.kt`:** State coordinator for live bank balance inquiries.
@@ -356,7 +356,7 @@ An exhaustive breakdown of every production component in `app/src/main/java/com/
 * **`screens/HomeScreen.kt`:** Primary dashboard featuring quick actions, balance summary, and carrier pills.
 * **`screens/PayScreen.kt`:** Unified payment screen supporting Mobile Number, UPI ID, and Contact selection.
 * **`screens/ScanScreen.kt`:** Viewfinder scanner screen with torch controls and gallery image picker.
-* **`screens/MyQrScreen.kt`:** Personal receiving screen rendering custom Downpay QR codes.
+* **`screens/MyQrScreen.kt`:** Personal receiving screen rendering custom Airpay QR codes.
 * **`screens/BalanceScreen.kt`:** Dedicated bank balance inquiry screen with live USSD progress stepper.
 * **`screens/HistoryScreen.kt`:** Searchable financial ledger displaying past payments and receipt details.
 * **`screens/SettingsScreen.kt`:** App configuration screen for Dual-SIM routing, biometrics, and preferences.
@@ -364,8 +364,8 @@ An exhaustive breakdown of every production component in `app/src/main/java/com/
 * **`screens/FaqScreen.kt`:** Offline Help Center with interactive troubleshooting guides and support contact.
 * **`screens/PaymentResultCards.kt`:** Animated vector receipt cards celebrating successful offline payments.
 * **`screens/onboarding/OnboardingFlow.kt`:** Permission configuration wizard guiding users through Accessibility setup.
-* **`ui/components/DownpayComponents.kt`:** Standardized buttons (`DownpayPrimaryButton`), cards, and containers.
-* **`ui/components/DownpayBottomNav.kt`:** Signature navigation bar with micro-interactions.
+* **`ui/components/AirpayComponents.kt`:** Standardized buttons (`AirpayPrimaryButton`), cards, and containers.
+* **`ui/components/AirpayBottomNav.kt`:** Signature navigation bar with micro-interactions.
 * **`ui/components/UpiPinSheet.kt`:** Virtual security keypad for tactile UPI PIN entry.
 * **`ui/components/StatusBanner.kt`:** Network status indicator displaying active offline carrier mode.
 * **`ui/theme/`:** Complete design system: `Colors.kt`, `Typography.kt`, `Shapes.kt`, `Iconsax.kt`.
@@ -374,10 +374,10 @@ An exhaustive breakdown of every production component in `app/src/main/java/com/
 
 ## 9. Design System & Visual Language
 
-Downpay features an authentic, proprietary visual design language crafted for maximum legibility under outdoor sunlight and high-contrast environments.
+Airpay features an authentic, proprietary visual design language crafted for maximum legibility under outdoor sunlight and high-contrast environments.
 
 ```
-Downpay Primary Brand Palette:
+Airpay Primary Brand Palette:
 ├── Primary Purple:       #5F259F  (Signature Brand Color)
 ├── Primary Dark:         #4A148C  (Status Bars & Elevated Containers)
 ├── Primary Light:        #7B1FA2  (Gradients & Interactive Focus)
@@ -397,7 +397,7 @@ Downpay Primary Brand Palette:
 
 ## 10. Testing Strategy & Property-Based Verification
 
-Downpay maintains a comprehensive automated testing suite located in `app/src/test/`:
+Airpay maintains a comprehensive automated testing suite located in `app/src/test/`:
 
 * **Property-Based Testing (Kotest):** Generates thousands of randomized input variations to prove invariants mathematically:
   - `InputValidatorPropertyTest.kt`: Proves that invalid VPAs and malformed characters can never enter the dialing pipeline.
@@ -422,11 +422,11 @@ Downpay maintains a comprehensive automated testing suite located in `app/src/te
 ### 11.2 Compiling the Debug APK
 ```bash
 # Windows PowerShell
-Set-Location "c:\Downpay\Downpay"
+Set-Location "c:\Airpay\Airpay"
 .\gradlew.bat assembleDebug
 
 # macOS / Linux
-cd /path/to/Downpay
+cd /path/to/Airpay
 ./gradlew assembleDebug
 ```
 The resulting package will be generated at:
@@ -438,7 +438,7 @@ app/build/outputs/apk/debug/app-debug.apk
 For production distribution, release builds enable full ProGuard/R8 obfuscation:
 - Obfuscates class, method, and variable names.
 - Strips unused resources and bytecode instructions.
-- Retains SQLCipher native bindings, Room entities, and accessibility service descriptors via [app/proguard-rules.pro](file:///c:/Downpay/Downpay/app/proguard-rules.pro).
+- Retains SQLCipher native bindings, Room entities, and accessibility service descriptors via [app/proguard-rules.pro](file:///c:/Airpay/Airpay/app/proguard-rules.pro).
 
 ---
 
@@ -447,10 +447,10 @@ For production distribution, release builds enable full ProGuard/R8 obfuscation:
 ### 12.1 Commercial License
 **Copyright © 2026 Arkio Labs Inc. All Rights Reserved.**
 
-Downpay, the Downpay name, the "LP" monogram, the source code, visual designs, and cellular automation algorithms are the proprietary intellectual property of **Arkio Labs Inc.**. Unauthorized redistribution, decompilation, reverse engineering, or commercial use is strictly prohibited under international copyright and intellectual property laws. See [LICENSE](file:///c:/Downpay/Downpay/LICENSE) for complete terms.
+Airpay, the Airpay name, the "LP" monogram, the source code, visual designs, and cellular automation algorithms are the proprietary intellectual property of **Arkio Labs Inc.**. Unauthorized redistribution, decompilation, reverse engineering, or commercial use is strictly prohibited under international copyright and intellectual property laws. See [LICENSE](file:///c:/Airpay/Airpay/LICENSE) for complete terms.
 
 ### 12.2 Third-Party Open Source Attributions
-Downpay incorporates open-source libraries licensed under Apache 2.0, BSD 3-Clause, and SIL OFL. Full attribution notices are documented in [THIRD_PARTY_LICENSES.md](file:///c:/Downpay/Downpay/THIRD_PARTY_LICENSES.md).
+Airpay incorporates open-source libraries licensed under Apache 2.0, BSD 3-Clause, and SIL OFL. Full attribution notices are documented in [THIRD_PARTY_LICENSES.md](file:///c:/Airpay/Airpay/THIRD_PARTY_LICENSES.md).
 
 ### 12.3 Official Contact & Corporate Inquiries
 For commercial licensing, enterprise integration, carrier partnerships, or vulnerability disclosures, contact:

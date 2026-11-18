@@ -17,11 +17,11 @@ val keystoreProps = Properties().apply {
 }
 
 android {
-    namespace = "com.arkiolabs.downpay"
+    namespace = "com.arkiolabs.airpay"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.arkiolabs.downpay"
+        applicationId = "com.arkiolabs.airpay"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

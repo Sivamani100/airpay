@@ -1,15 +1,15 @@
 # Arkio Labs Contributing Guidelines
 
-Thank you for your interest in contributing to **Downpay** (`com.arkiolabs.downpay`), developed and maintained by Arkio Labs Inc.
+Thank you for your interest in contributing to **Airpay** (`com.arkiolabs.airpay`), developed and maintained by Arkio Labs Inc.
 
-Downpay is a mission-critical offline financial utility engineered to enable fast, reliable, and secure UPI transactions without an active internet connection. To maintain the highest standards of financial security, code quality, and privacy compliance, all contributors must adhere strictly to these guidelines.
+Airpay is a mission-critical offline financial utility engineered to enable fast, reliable, and secure UPI transactions without an active internet connection. To maintain the highest standards of financial security, code quality, and privacy compliance, all contributors must adhere strictly to these guidelines.
 
 ---
 
 ## 1. Core Architectural Pillars
 
 ### 1.1 Zero-Internet Policy (`android.permission.INTERNET` is strictly forbidden)
-Downpay is fundamentally engineered around zero internet dependency:
+Airpay is fundamentally engineered around zero internet dependency:
 - The Android Manifest **MUST NEVER** request `android.permission.INTERNET`.
 - No HTTP/HTTPS networking libraries (e.g., OkHttp, Retrofit, Ktor, Volley) are permitted.
 - No remote analytics, crashlytics, or telemetry SDKs are allowed.

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Arkio Labs Downpay Brand Palette -->
-    <color name="downpay_primary">#5F259F</color>
-    <color name="downpay_primary_dark">#4A1580</color>
-    <color name="downpay_primary_light">#7A3BB8</color>
-    <color name="downpay_primary_bg">#F4EBFB</color>
-    <color name="downpay_primary_card">#ECE0F8</color>
+    <!-- Arkio Labs Airpay Brand Palette -->
+    <color name="airpay_primary">#5F259F</color>
+    <color name="airpay_primary_dark">#4A1580</color>
+    <color name="airpay_primary_light">#7A3BB8</color>
+    <color name="airpay_primary_bg">#F4EBFB</color>
+    <color name="airpay_primary_card">#ECE0F8</color>
     
     <!-- Neutral Base Colors -->
     <color name="transparent">#00000000</color>
@@ -13,18 +13,18 @@
     <color name="black">#000000</color>
     
     <!-- UI Surface & Text Colors -->
-    <color name="downpay_surface">#FFFFFF</color>
-    <color name="downpay_background">#F5F6F8</color>
-    <color name="downpay_text_primary">#1A1A1A</color>
-    <color name="downpay_text_secondary">#666666</color>
-    <color name="downpay_text_tertiary">#9E9E9E</color>
-    <color name="downpay_border">#E5E7EB</color>
-    <color name="downpay_divider">#F0F0F0</color>
-    <color name="downpay_green">#16A34A</color>
-    <color name="downpay_green_bg">#EBF9F1</color>
-    <color name="downpay_red">#DC2626</color>
-    <color name="downpay_red_bg">#FEF2F2</color>
-    <color name="downpay_blue">#0084FF</color>
-    <color name="downpay_banner_bg">#D7F0FE</color>
-    <color name="downpay_banner_text">#0C5A8A</color>
+    <color name="airpay_surface">#FFFFFF</color>
+    <color name="airpay_background">#F5F6F8</color>
+    <color name="airpay_text_primary">#1A1A1A</color>
+    <color name="airpay_text_secondary">#666666</color>
+    <color name="airpay_text_tertiary">#9E9E9E</color>
+    <color name="airpay_border">#E5E7EB</color>
+    <color name="airpay_divider">#F0F0F0</color>
+    <color name="airpay_green">#16A34A</color>
+    <color name="airpay_green_bg">#EBF9F1</color>
+    <color name="airpay_red">#DC2626</color>
+    <color name="airpay_red_bg">#FEF2F2</color>
+    <color name="airpay_blue">#0084FF</color>
+    <color name="airpay_banner_bg">#D7F0FE</color>
+    <color name="airpay_banner_text">#0C5A8A</color>
 </resources>

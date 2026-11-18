@@ -1,21 +1,21 @@
 ARKIO LABS PROPRIETARY SOFTWARE LICENSE AGREEMENT
 
 Copyright (c) 2026 Arkio Labs Inc. All Rights Reserved.
-Product: Downpay (Offline UPI Payment System)
-Package: com.arkiolabs.downpay
+Product: Airpay (Offline UPI Payment System)
+Package: com.arkiolabs.airpay
 
 IMPORTANT — READ CAREFULLY:
 This Proprietary Software License Agreement ("Agreement") is a legally binding contract
 between you ("Licensee" or "User") and Arkio Labs Inc. ("Arkio Labs", "Licensor", "Company", "We").
 This Agreement governs all use, installation, copying, distribution, and execution of the
-Downpay software application, including all updates, patches, documentation, and associated
+Airpay software application, including all updates, patches, documentation, and associated
 source code, binary packages, user interfaces, vector assets, and system architectures
 (collectively, the "Software").
 
 1. OWNERSHIP AND INTELLECTUAL PROPERTY
 The Software, including its source code, object code, user interface designs, visual assets,
 USSD automation algorithms, cellular state machine models, cryptographic implementation,
-and brand identity ("Downpay"), is the sole and exclusive proprietary intellectual property
+and brand identity ("Airpay"), is the sole and exclusive proprietary intellectual property
 of Arkio Labs Inc. The Software is protected by copyright laws, international copyright
 treaties, trade secret laws, and other intellectual property rights. All rights not expressly
 granted under this Agreement are strictly reserved by Arkio Labs Inc.

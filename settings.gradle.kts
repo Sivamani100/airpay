@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Downpay"
+rootProject.name = "Airpay"
 include(":app")
