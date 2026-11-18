@@ -355,7 +355,7 @@ private fun BalanceInitialScreen(
                     }
 
                     Image(
-                        painter = painterResource(id = R.drawable.coin_without_stars),
+                        painter = painterResource(id = R.drawable.home_gold_loan),
                         contentDescription = "Gold Coins",
                         modifier = Modifier.size(44.dp)
                     )

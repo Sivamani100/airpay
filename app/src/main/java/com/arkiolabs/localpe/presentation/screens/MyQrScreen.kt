@@ -34,6 +34,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -193,14 +195,15 @@ fun MyQrScreen(
                     modifier = Modifier
                         .size(52.dp)
                         .clip(CircleShape)
+                        .background(LocalPeColors.PurpleTint)
                         .border(1.5.dp, LocalPeColors.Primary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.localpe_user_avatar),
+                    Icon(
+                        imageVector = Icons.Default.Person,
                         contentDescription = "User Avatar",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        tint = LocalPeColors.Primary,
+                        modifier = Modifier.size(32.dp)
                     )
                 }
 

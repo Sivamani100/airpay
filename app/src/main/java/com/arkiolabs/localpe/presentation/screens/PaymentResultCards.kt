@@ -64,7 +64,6 @@ import kotlinx.coroutines.launch
  *  - Bold hero card with animated stroke reveal.
  *  - Geometric particle burst upon payment confirmation.
  *  - Clear feedback animations on failure.
- */
  *  - Staggered text reveal so the eye reads label → result → CTA in order.
  *
  * All animations are driven from a single Animatable timeline (0..1) so the

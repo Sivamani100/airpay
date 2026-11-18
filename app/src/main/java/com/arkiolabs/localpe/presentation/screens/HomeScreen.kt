@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.SignalCellularAlt
@@ -226,20 +227,25 @@ private fun HomeHeaderWithHeroBanner(
             .fillMaxWidth()
             .height(240.dp)
     ) {
-        // Hero Banner Image / Background
-        Image(
-            painter = painterResource(id = R.drawable.localpe_home_hero_banner),
-            contentDescription = "LocalPe Offline UPI Banner",
+        // Hero Banner Gradient Background
+        Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(
+                    androidx.compose.ui.graphics.Brush.verticalGradient(
+                        listOf(
+                            Color(0xFF4A148C),
+                            Color(0xFF5F259F)
+                        )
+                    )
+                )
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
                     view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     onBannerClick()
-                },
-            contentScale = ContentScale.Crop
+                }
         )
 
         // Top Row Overlay: Profile with mini QR badge, title/mode pill, and Help icon
@@ -265,14 +271,15 @@ private fun HomeHeaderWithHeroBanner(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
+                        .background(Color(0xFF7B1FA2))
                         .border(1.5.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.localpe_user_avatar),
+                    Icon(
+                        imageVector = Icons.Default.Person,
                         contentDescription = "Profile",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
 
@@ -399,7 +406,7 @@ private fun MoneyTransfersSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.coin_without_stars),
+                    painter = painterResource(id = R.drawable.home_referandearn),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp)
                 )
