@@ -24,7 +24,7 @@
 -dontwarn kotlinx.coroutines.**
 -keep class kotlinx.coroutines.** { *; }
 
-# ─── Kotlin Reflect (used by R.drawable/R.raw reflection in easter eggs) ────────
+# ─── Android Resources R-class reflection safeguard ────────────────────────────
 -keep class com.arkiolabs.localpe.R$* { *; }
 
 # ─── LocalPe Application class ──────────────────────────────────────────────────
