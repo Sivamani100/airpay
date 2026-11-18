@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Arkio Labs LocalPe Brand Palette -->
-    <color name="localpe_primary">#5F259F</color>
-    <color name="localpe_primary_dark">#4A1580</color>
-    <color name="localpe_primary_light">#7A3BB8</color>
-    <color name="localpe_primary_bg">#F4EBFB</color>
-    <color name="localpe_primary_card">#ECE0F8</color>
+    <!-- Arkio Labs Downpay Brand Palette -->
+    <color name="downpay_primary">#5F259F</color>
+    <color name="downpay_primary_dark">#4A1580</color>
+    <color name="downpay_primary_light">#7A3BB8</color>
+    <color name="downpay_primary_bg">#F4EBFB</color>
+    <color name="downpay_primary_card">#ECE0F8</color>
     
     <!-- Neutral Base Colors -->
     <color name="transparent">#00000000</color>
@@ -13,18 +13,18 @@
     <color name="black">#000000</color>
     
     <!-- UI Surface & Text Colors -->
-    <color name="localpe_surface">#FFFFFF</color>
-    <color name="localpe_background">#F5F6F8</color>
-    <color name="localpe_text_primary">#1A1A1A</color>
-    <color name="localpe_text_secondary">#666666</color>
-    <color name="localpe_text_tertiary">#9E9E9E</color>
-    <color name="localpe_border">#E5E7EB</color>
-    <color name="localpe_divider">#F0F0F0</color>
-    <color name="localpe_green">#16A34A</color>
-    <color name="localpe_green_bg">#EBF9F1</color>
-    <color name="localpe_red">#DC2626</color>
-    <color name="localpe_red_bg">#FEF2F2</color>
-    <color name="localpe_blue">#0084FF</color>
-    <color name="localpe_banner_bg">#D7F0FE</color>
-    <color name="localpe_banner_text">#0C5A8A</color>
+    <color name="downpay_surface">#FFFFFF</color>
+    <color name="downpay_background">#F5F6F8</color>
+    <color name="downpay_text_primary">#1A1A1A</color>
+    <color name="downpay_text_secondary">#666666</color>
+    <color name="downpay_text_tertiary">#9E9E9E</color>
+    <color name="downpay_border">#E5E7EB</color>
+    <color name="downpay_divider">#F0F0F0</color>
+    <color name="downpay_green">#16A34A</color>
+    <color name="downpay_green_bg">#EBF9F1</color>
+    <color name="downpay_red">#DC2626</color>
+    <color name="downpay_red_bg">#FEF2F2</color>
+    <color name="downpay_blue">#0084FF</color>
+    <color name="downpay_banner_bg">#D7F0FE</color>
+    <color name="downpay_banner_text">#0C5A8A</color>
 </resources>

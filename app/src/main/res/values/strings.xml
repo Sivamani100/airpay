@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">LocalPe</string>
-    <string name="accessibility_service_label">LocalPe USSD Automation</string>
-    <string name="accessibility_service_description">LocalPe uses this service to read and interact with cellular dialogs for offline UPI payments. It monitors carrier dialog windows to automate multi-step payment sessions.</string>
+    <string name="app_name">Downpay</string>
+    <string name="accessibility_service_label">Downpay USSD Automation</string>
+    <string name="accessibility_service_description">Downpay uses this service to read and interact with cellular dialogs for offline UPI payments. It monitors carrier dialog windows to automate multi-step payment sessions.</string>
 </resources>

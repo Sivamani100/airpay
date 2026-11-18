@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LocalPe"
+rootProject.name = "Downpay"
 include(":app")

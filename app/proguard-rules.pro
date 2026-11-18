@@ -6,7 +6,7 @@
 -dontwarn net.sqlcipher.**
 
 # ─── Room ───────────────────────────────────────────────────────────────────────
--keep class com.arkiolabs.localpe.data.** { *; }
+-keep class com.arkiolabs.downpay.data.** { *; }
 # Room uses reflection for DAOs
 -keep class * extends androidx.room.RoomDatabase { *; }
 -keep @androidx.room.Entity class * { *; }
@@ -25,10 +25,10 @@
 -keep class kotlinx.coroutines.** { *; }
 
 # ─── Android Resources R-class reflection safeguard ────────────────────────────
--keep class com.arkiolabs.localpe.R$* { *; }
+-keep class com.arkiolabs.downpay.R$* { *; }
 
-# ─── LocalPe Application class ──────────────────────────────────────────────────
--keep class com.arkiolabs.localpe.LocalPeApplication { *; }
+# ─── Downpay Application class ──────────────────────────────────────────────────
+-keep class com.arkiolabs.downpay.DownpayApplication { *; }
 
 # ─── ML Kit Barcode ─────────────────────────────────────────────────────────────
 -keep class com.google.mlkit.** { *; }
