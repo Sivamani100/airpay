@@ -68,6 +68,9 @@ When packet data drops, consumer payment applications freeze, transactions timeo
 
 **LocalPe** resolves this existential vulnerability. Engineered by **Arkio Labs Inc.** (`com.arkiolabs.localpe`), LocalPe routes UPI transactions directly over the **cellular baseband signaling plane** (SS7/MAP) through national telecommunications gateways. By automating low-level signaling dialogues, LocalPe delivers a modern, tactile, and frictionless smartphone experience that requires **zero bytes of mobile data or Wi-Fi**.
 
+> [!IMPORTANT]
+> **Strictly Native Android Architecture (Zero Web / Zero PWA)**: LocalPe is engineered exclusively as a 100% native Android application (Kotlin + Jetpack Compose for API 26+). Because LocalPe interfaces directly with low-level cellular signaling (GSM/3GPP), Android telephony hardware drivers (`SubscriptionManager`), system window overlay management (`TYPE_APPLICATION_OVERLAY`), and accessibility node inspection trees (`AccessibilityNodeInfo`), it contains **zero web wrappers, zero WebViews, zero service workers, and zero PWA layers**. All UI and computation run bare-metal on the Android ART runtime.
+
 ---
 
 ## 2. Sovereign Offline Architecture

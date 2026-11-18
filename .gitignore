@@ -37,7 +37,4 @@ keystore.properties
 *.jks
 *.keystore
 
-# Node modules (reference projects)
-node_modules/
-.next/
-/References
+
