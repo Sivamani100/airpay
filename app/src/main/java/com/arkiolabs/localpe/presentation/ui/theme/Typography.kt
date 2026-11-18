@@ -39,7 +39,8 @@ val LocalPeFont = InterFont
 /** Alias ensuring all existing references instantly use LocalPe's Inter font */
 val ClashGrotesk = InterFont
 
-object NeoPopType {
+/** Authentic LocalPe Typography System */
+object LocalPeType {
     val Display = LocalPeFont
     val Body = LocalPeFont
     val MonoFamily = LocalPeFont
@@ -143,17 +144,21 @@ object NeoPopType {
     )
 }
 
-val NeoPopTypography = Typography(
-    displayLarge = NeoPopType.DisplayLarge,
-    displayMedium = NeoPopType.DisplayMedium,
-    displaySmall = NeoPopType.DisplaySmall,
-    headlineLarge = NeoPopType.HeadlineLarge,
-    titleLarge = NeoPopType.TitleLarge,
-    titleMedium = NeoPopType.TitleMedium,
-    bodyLarge = NeoPopType.BodyLarge,
-    bodyMedium = NeoPopType.BodyMedium,
-    bodySmall = NeoPopType.BodySmall,
-    labelLarge = NeoPopType.LabelLarge,
-    labelMedium = NeoPopType.LabelMedium,
-    labelSmall = NeoPopType.LabelSmall
+val NeoPopType = LocalPeType
+
+val LocalPeTypography = Typography(
+    displayLarge = LocalPeType.DisplayLarge,
+    displayMedium = LocalPeType.DisplayMedium,
+    displaySmall = LocalPeType.DisplaySmall,
+    headlineLarge = LocalPeType.HeadlineLarge,
+    titleLarge = LocalPeType.TitleLarge,
+    titleMedium = LocalPeType.TitleMedium,
+    bodyLarge = LocalPeType.BodyLarge,
+    bodyMedium = LocalPeType.BodyMedium,
+    bodySmall = LocalPeType.BodySmall,
+    labelLarge = LocalPeType.LabelLarge,
+    labelMedium = LocalPeType.LabelMedium,
+    labelSmall = LocalPeType.LabelSmall
 )
+
+val NeoPopTypography = LocalPeTypography

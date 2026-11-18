@@ -46,8 +46,8 @@ fun LocalPeTheme(content: @Composable () -> Unit) {
     }
     MaterialTheme(
         colorScheme = LocalPeColorScheme,
-        typography = NeoPopTypography,
-        shapes = NeoPopShapes,
+        typography = LocalPeTypography,
+        shapes = LocalPeShapes,
         content = content
     )
 }

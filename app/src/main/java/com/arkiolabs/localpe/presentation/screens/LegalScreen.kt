@@ -38,9 +38,6 @@ import androidx.compose.ui.res.painterResource
 import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
-import com.arkiolabs.localpe.presentation.ui.components.NeoPopCard
-import com.arkiolabs.localpe.presentation.ui.theme.NeoPopColors
-import com.arkiolabs.localpe.presentation.ui.theme.NeoPopType
 
 /**
  * Effective date stamped on every legal screen.
@@ -398,13 +395,16 @@ private fun LegalSection(
     body: String,
     modifier: Modifier = Modifier
 ) {
-    NeoPopCard(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        surfaceColor = Color.White
+            .padding(vertical = 4.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.White)
+            .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp))
+            .padding(14.dp)
     ) {
-        Column(Modifier.padding(4.dp)) {
+        Column {
             Text(
                 text = heading,
                 fontFamily = ClashGrotesk,

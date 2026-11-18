@@ -170,7 +170,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
     override fun updateMinimal(progress: Int, total: Int, label: String) {
         handler.post {
             minimalLabel?.text = label.uppercase() + "…"
-            minimalLabel?.setTextColor(NEOPOP_WHITE)
+            minimalLabel?.setTextColor(OVERLAY_WHITE)
             val safeTotal = total.coerceAtLeast(1)
             val displayedStep = (progress + 1).coerceIn(1, safeTotal)
             minimalStepCount?.text = "STEP $displayedStep / $safeTotal"
@@ -194,7 +194,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
             // Prefer minimal bar feedback if it's already up.
             if (minimalView != null) {
                 minimalLabel?.text = title.uppercase()
-                minimalLabel?.setTextColor(NEOPOP_DANGER)
+                minimalLabel?.setTextColor(OVERLAY_DANGER)
                 minimalStepCount?.text = message.take(40)
                 handler.postDelayed({ hide() }, holdMs)
                 return@post
@@ -203,7 +203,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
                 show(title, message, "")
             }
             spinnerView?.visibility = View.GONE
-            titleView?.setTextColor(NEOPOP_DANGER)
+            titleView?.setTextColor(OVERLAY_DANGER)
             titleView?.text = title
             subtitleView?.text = message
             stepLabelView?.text = "TAP CANCEL TO DISMISS"
@@ -763,7 +763,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
         }
 
         val spinner = ProgressBar(context).apply {
-            indeterminateTintList = android.content.res.ColorStateList.valueOf(NEOPOP_ACCENT)
+            indeterminateTintList = android.content.res.ColorStateList.valueOf(OVERLAY_ACCENT)
             val lp = LinearLayout.LayoutParams(dp(18), dp(18))
             lp.rightMargin = dp(10)
             layoutParams = lp
@@ -771,7 +771,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         minimalLabel = TextView(context).apply {
             text = label.uppercase() + "…"
-            setTextColor(NEOPOP_WHITE)
+            setTextColor(OVERLAY_WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
             letterSpacing = 0.12f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
@@ -785,7 +785,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         minimalStepCount = TextView(context).apply {
             text = "STEP $displayedStep / $safeTotal"
-            setTextColor(NEOPOP_TEXT_SECONDARY)
+            setTextColor(OVERLAY_TEXT_SECONDARY)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
             letterSpacing = 0.1f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
@@ -797,7 +797,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         // Bottom: 2dp progress track with lime fill
         minimalProgressTrack = FrameLayout(context).apply {
-            setBackgroundColor(NEOPOP_BORDER)
+            setBackgroundColor(OVERLAY_BORDER)
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 dp(2)
@@ -807,7 +807,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
             layoutParams = lp
         }
         minimalProgressFill = View(context).apply {
-            setBackgroundColor(NEOPOP_ACCENT)
+            setBackgroundColor(OVERLAY_ACCENT)
             val fraction = (progress.toFloat() / safeTotal).coerceIn(0f, 1f)
             val lp = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -828,22 +828,8 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
     private fun minimalBarBg(): GradientDrawable {
         return GradientDrawable().apply {
             cornerRadius = dp(16).toFloat()
-            setColor(NEOPOP_MINIMAL_FILL)
-            setStroke(dp(1), NEOPOP_ACCENT)
-        }
-    }
-
-    private fun neoPopCardBg(): GradientDrawable {
-        return GradientDrawable().apply {
-            setColor(NEOPOP_SURFACE_HIGH)
-            setStroke(dp(1), NEOPOP_BORDER)
-        }
-    }
-
-    private fun neoPopButtonBg(stroke: Int): GradientDrawable {
-        return GradientDrawable().apply {
-            setColor(Color.TRANSPARENT)
-            setStroke(dp(1), stroke)
+            setColor(OVERLAY_MINIMAL_FILL)
+            setStroke(dp(1), OVERLAY_ACCENT)
         }
     }
 
@@ -858,14 +844,14 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
         private const val LOCALPE_TEXT_MUTED = 0xFF757575.toInt()
         private const val LOCALPE_SUCCESS = 0xFF00875A.toInt()
 
-        // NeoPOP palette (mirrors presentation/ui/theme/Colors.kt)
-        private const val NEOPOP_DIM = 0xFF000000.toInt() // 100% Opaque black so dialer is completely invisible
-        private const val NEOPOP_SURFACE_HIGH = 0xFF16181D.toInt()
-        private const val NEOPOP_BORDER = 0xFF2A2D34.toInt()
-        private const val NEOPOP_WHITE = 0xFFFFFFFF.toInt()
-        private const val NEOPOP_TEXT_SECONDARY = 0xFF9BA1A8.toInt()
-        private const val NEOPOP_ACCENT = 0xFFC5F542.toInt()
-        private const val NEOPOP_DANGER = 0xFFFF4D4D.toInt()
-        private const val NEOPOP_MINIMAL_FILL = 0xFF000000.toInt() // 100% opaque
+        // Overlay status bar palette
+        private const val OVERLAY_DIM = 0xFF000000.toInt() // 100% Opaque black so dialer is completely invisible
+        private const val OVERLAY_SURFACE_HIGH = 0xFF16181D.toInt()
+        private const val OVERLAY_BORDER = 0xFF2A2D34.toInt()
+        private const val OVERLAY_WHITE = 0xFFFFFFFF.toInt()
+        private const val OVERLAY_TEXT_SECONDARY = 0xFF9BA1A8.toInt()
+        private const val OVERLAY_ACCENT = 0xFFC5F542.toInt()
+        private const val OVERLAY_DANGER = 0xFFFF4D4D.toInt()
+        private const val OVERLAY_MINIMAL_FILL = 0xFF000000.toInt() // 100% opaque
     }
 }

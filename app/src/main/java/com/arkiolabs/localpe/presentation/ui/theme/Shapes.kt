@@ -5,13 +5,14 @@ import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
 /**
- * NeoPOP softened: cards round to 8dp (still geometric, less harsh on
- * smaller surfaces). Buttons stay sharp on their own NeoPopButton path.
+ * LocalPe Shapes: clean rounded corners for cards and dialogs.
  */
-val NeoPopShapes = Shapes(
+val LocalPeShapes = Shapes(
     extraSmall = RoundedCornerShape(2.dp),
     small = RoundedCornerShape(4.dp),
     medium = RoundedCornerShape(8.dp),
     large = RoundedCornerShape(8.dp),
     extraLarge = RoundedCornerShape(12.dp)
 )
+
+val NeoPopShapes = LocalPeShapes

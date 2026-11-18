@@ -47,8 +47,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.arkiolabs.localpe.domain.SessionState
-import com.arkiolabs.localpe.presentation.ui.components.NeoPopAccentCard
-import com.arkiolabs.localpe.presentation.ui.components.NeoPopPrimaryButton
+import com.arkiolabs.localpe.presentation.ui.components.LocalPeAccentCard
+import com.arkiolabs.localpe.presentation.ui.components.LocalPePrimaryButton
 import com.arkiolabs.localpe.presentation.ui.theme.NeoPopColors
 import com.arkiolabs.localpe.presentation.ui.theme.NeoPopType
 import kotlin.math.PI
@@ -60,14 +60,11 @@ import kotlinx.coroutines.launch
 /**
  * Visually-rich result cards for the Pay flow.
  *
- * The design intent is to keep this distinct from typical UPI apps (which
- * rely on rounded check-mark Lottie loops). Instead we lean fully into the
- * NeoPOP language already used in this app:
- *
- *  - Sharp square hero (no circles).
- *  - Stroke-drawn check / cross — animated reveal, not a static glyph.
- *  - Geometric square "confetti" burst (lime + white tiles), not round dots.
- *  - Glitch-shake + scan-lines on failure, lifted from arcade/CRT vocab.
+ * Distinct from typical UPI apps:
+ *  - Bold hero card with animated stroke reveal.
+ *  - Geometric particle burst upon payment confirmation.
+ *  - Clear feedback animations on failure.
+ */
  *  - Staggered text reveal so the eye reads label → result → CTA in order.
  *
  * All animations are driven from a single Animatable timeline (0..1) so the
@@ -132,7 +129,7 @@ internal fun SessionSuccessCard(state: SessionState.Success, onDone: () -> Unit)
                     alpha = cardEnter
                 }
         ) {
-            NeoPopAccentCard(
+            LocalPeAccentCard(
                 accent = NeoPopColors.Success,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -187,7 +184,7 @@ internal fun SessionSuccessCard(state: SessionState.Success, onDone: () -> Unit)
         }
         Spacer(Modifier.height(20.dp))
         Box(Modifier.alpha(ctaAlpha)) {
-            NeoPopPrimaryButton(
+            LocalPePrimaryButton(
                 text = "Done",
                 onClick = { if (ctaAlpha > 0.5f) onDone() },
                 modifier = Modifier.fillMaxWidth()
@@ -276,7 +273,7 @@ internal fun SessionFailedCard(
                     alpha = cardEnter
                 }
         ) {
-            NeoPopAccentCard(
+            LocalPeAccentCard(
                 accent = NeoPopColors.Danger,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -348,7 +345,7 @@ internal fun SessionFailedCard(
         }
         Spacer(Modifier.height(20.dp))
         Box(Modifier.alpha(ctaAlpha)) {
-            NeoPopPrimaryButton(
+            LocalPePrimaryButton(
                 text = "Try Again",
                 onClick = { if (ctaAlpha > 0.5f) onRetry() },
                 modifier = Modifier.fillMaxWidth()

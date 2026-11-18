@@ -27,31 +27,76 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * LocalPe styled button: smooth rounded corners, vibrant purple fill, white text,
- * tactile press feedback and haptics.
+ * Clean LocalPe Card component.
  */
 @Composable
-fun NeoPopButton(
+fun LocalPeCard(
+    modifier: Modifier = Modifier,
+    surfaceColor: Color = LocalPeColors.Surface,
+    borderColor: Color = LocalPeColors.Border,
+    cornerRadius: Dp = 16.dp,
+    contentPadding: PaddingValues = PaddingValues(16.dp),
+    content: @Composable () -> Unit
+) {
+    val shape = RoundedCornerShape(cornerRadius)
+    Box(
+        modifier = modifier
+            .shadow(elevation = 1.dp, shape = shape)
+            .clip(shape)
+            .background(surfaceColor)
+            .border(width = 1.dp, color = borderColor, shape = shape)
+            .padding(contentPadding)
+    ) {
+        content()
+    }
+}
+
+/**
+ * LocalPe Accent Card with colored state border.
+ */
+@Composable
+fun LocalPeAccentCard(
+    accent: Color,
+    modifier: Modifier = Modifier,
+    cornerRadius: Dp = 16.dp,
+    contentPadding: PaddingValues = PaddingValues(16.dp),
+    content: @Composable () -> Unit
+) {
+    val shape = RoundedCornerShape(cornerRadius)
+    Box(
+        modifier = modifier
+            .shadow(elevation = 1.dp, shape = shape)
+            .clip(shape)
+            .background(LocalPeColors.Surface)
+            .border(width = 1.5.dp, color = accent, shape = shape)
+            .padding(contentPadding)
+    ) {
+        content()
+    }
+}
+
+/**
+ * LocalPe interactive Button.
+ */
+@Composable
+fun LocalPeButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     color: Color = LocalPeColors.Primary,
-    rightColor: Color = Color.Transparent,
-    bottomColor: Color = Color.Transparent,
     contentColor: Color = Color.White,
-    depth: Dp = 0.dp,
     enabled: Boolean = true,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
@@ -127,16 +172,15 @@ fun NeoPopButton(
 }
 
 @Composable
-fun NeoPopPrimaryButton(
+fun LocalPePrimaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     leadingIcon: ImageVector? = null,
-    trailingIcon: ImageVector? = null,
-    depth: Dp = 0.dp
+    trailingIcon: ImageVector? = null
 ) {
-    NeoPopButton(
+    LocalPeButton(
         text = text,
         onClick = onClick,
         modifier = modifier,
@@ -149,7 +193,7 @@ fun NeoPopPrimaryButton(
 }
 
 @Composable
-fun NeoPopSecondaryButton(
+fun LocalPeSecondaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -215,70 +259,5 @@ fun NeoPopSecondaryButton(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun NeoPopDangerButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: ImageVector? = null,
-    depth: Dp = 0.dp
-) {
-    NeoPopButton(
-        text = text,
-        onClick = onClick,
-        modifier = modifier,
-        color = LocalPeColors.DangerRed,
-        contentColor = Color.White,
-        enabled = enabled,
-        leadingIcon = leadingIcon
-    )
-}
-
-@Composable
-fun NeoPopDangerOutlinedButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true
-) {
-    val view = LocalView.current
-    val shape = RoundedCornerShape(12.dp)
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled) 0.98f else 1f,
-        label = "danger_press"
-    )
-
-    Box(
-        modifier = modifier
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .clip(shape)
-            .background(LocalPeColors.DangerTint)
-            .border(width = 1.dp, color = LocalPeColors.DangerRed.copy(alpha = 0.4f), shape = shape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = {
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                    onClick()
-                }
-            )
-            .padding(horizontal = 20.dp, vertical = 14.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            color = LocalPeColors.DangerRed,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
     }
 }
