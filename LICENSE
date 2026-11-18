@@ -1,0 +1,96 @@
+ARKIO LABS PROPRIETARY SOFTWARE LICENSE AGREEMENT
+
+Copyright (c) 2026 Arkio Labs Inc. All Rights Reserved.
+Product: LocalPe (Offline UPI Payment System)
+Package: com.arkiolabs.localpe
+
+IMPORTANT — READ CAREFULLY:
+This Proprietary Software License Agreement ("Agreement") is a legally binding contract
+between you ("Licensee" or "User") and Arkio Labs Inc. ("Arkio Labs", "Licensor", "Company", "We").
+This Agreement governs all use, installation, copying, distribution, and execution of the
+LocalPe software application, including all updates, patches, documentation, and associated
+source code, binary packages, user interfaces, vector assets, and system architectures
+(collectively, the "Software").
+
+1. OWNERSHIP AND INTELLECTUAL PROPERTY
+The Software, including its source code, object code, user interface designs, visual assets,
+USSD automation algorithms, cellular state machine models, cryptographic implementation,
+and brand identity ("LocalPe"), is the sole and exclusive proprietary intellectual property
+of Arkio Labs Inc. The Software is protected by copyright laws, international copyright
+treaties, trade secret laws, and other intellectual property rights. All rights not expressly
+granted under this Agreement are strictly reserved by Arkio Labs Inc.
+
+2. GRANT OF LICENSE
+Subject to the terms and restrictions of this Agreement, Arkio Labs Inc. grants you a personal,
+non-exclusive, non-transferable, revocable, and limited license to install and execute the
+Software in binary executable format (APK/AAB) on personal mobile devices solely for your
+lawful personal or internal business financial operations.
+
+3. RESTRICTIONS ON USE
+You shall NOT, directly or indirectly:
+(a) Decompile, disassemble, reverse engineer, decrypt, analyze, or attempt to derive the
+    source code, underlying algorithms, or internal protocols of the Software or any part thereof;
+(b) Copy, modify, adapt, alter, translate, or create derivative works of the Software;
+(c) Sublicense, rent, lease, loan, sell, resell, distribute, host, outsource, or commercially
+    exploit the Software or any portion thereof to any third party without explicit prior written
+    authorization from Arkio Labs Inc.;
+(d) Remove, obscure, deface, or alter any proprietary notices, copyright marks, trademarks,
+    or brand identifiers of Arkio Labs Inc. affixed to or contained within the Software;
+(e) Circumvent, disable, bypass, or tamper with any digital rights management, security checks,
+    integrity validations, or runtime safeguards implemented within the Software;
+(f) Utilize the Software for fraudulent transactions, unauthorized network probing, financial
+    manipulation, automated dialer abuse, money laundering, or any activity prohibited under
+    the Information Technology Act (2000), Reserve Bank of India (RBI) regulations, or
+    applicable international laws.
+
+4. TELECOMMUNICATIONS & CELLULAR USSD OPERATIONS
+The Software functions as an on-device accessibility client that automates standard cellular
+telecommunications dialogs over carrier signaling networks (e.g., *99# and related USSD protocols).
+Licensee acknowledges that:
+(a) All financial debits, credits, account queries, and authentications are executed directly
+    by the Licensee's designated banking institution and telecom service provider;
+(b) Arkio Labs Inc. does not operate a payment gateway, payment aggregator, or financial wallet;
+(c) Arkio Labs Inc. neither handles nor stores customer funds, and has no capacity to reverse,
+    reissue, refund, or alter confirmed banking transactions;
+(d) Telecom carrier session fees and bank UPI limits apply independently of this Software.
+
+5. ZERO-INTERNET & PRIVACY GUARANTEE
+The Software is strictly engineered without the `android.permission.INTERNET` permission.
+All credential processing, USSD session state parsing, contact lookup, and transaction logging
+occur entirely locally on the user's device. Database records are encrypted at rest using
+AES-256 (SQLCipher). Arkio Labs Inc. collects zero telemetry, zero analytics, zero location data,
+and zero user credentials from the device.
+
+6. DISCLAIMER OF WARRANTIES
+TO THE MAXIMUM EXTENT PERMITTED UNDER APPLICABLE LAW, THE SOFTWARE IS PROVIDED ON AN "AS IS"
+AND "AS AVAILABLE" BASIS, WITH ALL FAULTS AND WITHOUT WARRANTY OF ANY KIND. ARKIO LABS INC.
+EXPRESSLY DISCLAIMS ALL WARRANTIES, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE,
+INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+TITLE, QUIET ENJOYMENT, ACCURACY, AND NON-INFRINGEMENT. ARKIO LABS INC. DOES NOT WARRANT THAT
+THE SOFTWARE WILL MEET YOUR REQUIREMENTS, OPERATE WITHOUT INTERRUPTION, BE ERROR-FREE, OR BE
+COMPATIBLE WITH EVERY CELLULAR NETWORK, TELECOM CARRIER, OR DEVICE-SPECIFIC ANDROID FORK.
+
+7. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL ARKIO LABS INC., ITS DIRECTORS,
+OFFICERS, EMPLOYEES, AFFILIATES, AGENTS, OR LICENSORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, PUNITIVE, OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT
+LIMITATION, LOSS OF PROFITS, LOSS OF DATA, DEVICE DAMAGE, FINANCIAL LOSS, MISSED PAYMENTS,
+CARRIER SURCHARGES, OR BUSINESS INTERRUPTION) ARISING OUT OF OR IN CONNECTION WITH THE USE,
+INABILITY TO USE, OR PERFORMANCE OF THE SOFTWARE, HOWEVER CAUSED AND UNDER ANY THEORY OF
+LIABILITY, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+8. GOVERNING LAW AND JURISDICTION
+This Agreement shall be governed by, construed, and enforced in accordance with the laws
+of India, without regard to its conflict of law principles. Any legal suit, action, or
+proceeding arising out of or related to this Agreement or the Software shall be instituted
+exclusively in the competent courts of India.
+
+9. ENTIRE AGREEMENT
+This Agreement constitutes the entire understanding between Licensee and Arkio Labs Inc.
+concerning the Software and supersedes all prior agreements, representations, discussions,
+and understandings, whether oral or written.
+
+For inquiries regarding commercial licensing, distribution agreements, or enterprise integration:
+Arkio Labs Inc.
+Legal & Compliance Division
+support@arkiolabs.com
