@@ -1,24 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- LocalPe Signature Brand Colors -->
+    <!-- Arkio Labs LocalPe Brand Palette -->
     <color name="localpe_primary">#5F259F</color>
     <color name="localpe_primary_dark">#4A1580</color>
     <color name="localpe_primary_light">#7A3BB8</color>
     <color name="localpe_primary_bg">#F4EBFB</color>
     <color name="localpe_primary_card">#ECE0F8</color>
     
-    <!-- Exact LocalPe APK Mapped Colors -->
-    <color name="Base.Color.Purple.700">#670fc4</color>
-    <color name="Base.Color.Neutral.White">#FFFFFF</color>
-    <color name="Semantic.Color.Neutral.Black">#000000</color>
-    <color name="Semantic.Color.Neutral.White">#FFFFFF</color>
-    
-    <color name="colorCategoryIconPrimary">#670fc4</color>
-    <color name="colorCategoryIconTertiary">#7c26d9</color>
-    <color name="colorIconMedium">#5F259F</color>
-    <color name="colorPrimaryDark">#4A1580</color>
-    <color name="colorWhiteExclusive">#FFFFFF</color>
-    <color name="lego_colorUIBrand">#670fc4</color>
+    <!-- Neutral Base Colors -->
     <color name="transparent">#00000000</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>

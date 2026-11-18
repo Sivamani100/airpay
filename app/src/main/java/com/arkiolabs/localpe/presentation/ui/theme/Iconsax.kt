@@ -9,14 +9,14 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 /**
- * Authentic Iconsax Icon Set (Linear / Outline style).
- * Replaces standard Material icons throughout LocalPe with modern, sleek Iconsax visuals.
+ * Arkio Labs LocalPe Vector Icon System.
+ * Clean, modern linear icon set crafted specifically for LocalPe financial and navigation flows.
  */
-object Iconsax {
+object LocalPeIcons {
 
     val Search: ImageVector by lazy {
         ImageVector.Builder(
-            name = "Iconsax.Search",
+            name = "LocalPeIcons.Search",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
             viewportWidth = 24f,
@@ -619,3 +619,5 @@ object Iconsax {
         }.build()
     }
 }
+
+val Iconsax = LocalPeIcons

@@ -10,14 +10,11 @@ import androidx.compose.ui.unit.sp
 import com.arkiolabs.localpe.R
 
 /**
- * Authentic LocalPe Typography.
+ * Arkio Labs LocalPe Typography System.
  *
- * In LocalPe's decompiled styles.xml:
- *   <item name="android:fontFamily">@font/inter</item>
- *   <item name="fontFamily">@font/inter</item>
- *
- * All screens, headers, buttons, numbers, and labels strictly use Inter
- * to match LocalPe's signature look and feel.
+ * Official typography specifications:
+ * Uses Inter and Nunito font families for crisp financial data representation,
+ * high legibility on outdoor sunlight displays, and modern geometric styling.
  */
 val InterFont = FontFamily(
     Font(R.font.inter_regular, FontWeight.Normal),

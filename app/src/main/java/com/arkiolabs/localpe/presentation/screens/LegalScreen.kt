@@ -297,7 +297,7 @@ private fun TermsContent() {
     )
     LegalSection(
         heading = "Limitation of liability",
-        body = "To the maximum extent permitted by law, Arkio Labs and the authors of LocalPe are not liable for any direct, indirect, incidental or consequential loss arising from your use of the app — including lost funds, missed payments, carrier downtime, locked PINs, device-specific quirks, or third-party fees. Your sole remedy if you are unhappy with LocalPe is to stop using it and uninstall it."
+        body = "To the maximum extent permitted by law, Arkio Labs Inc. and its affiliates are not liable for any direct, indirect, incidental or consequential loss arising from your use of the app — including lost funds, missed payments, carrier downtime, locked PINs, device-specific quirks, or third-party fees. Your sole remedy if you are unhappy with LocalPe is to stop using it and uninstall it."
     )
     LegalSection(
         heading = "Changes to these terms",
