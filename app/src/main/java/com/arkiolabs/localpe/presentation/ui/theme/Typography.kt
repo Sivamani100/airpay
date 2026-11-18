@@ -1,0 +1,159 @@
+package com.arkiolabs.localpe.presentation.ui.theme
+
+import androidx.compose.material3.Typography
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
+import com.arkiolabs.localpe.R
+
+/**
+ * Authentic PhonePe Typography.
+ *
+ * In PhonePe's decompiled styles.xml:
+ *   <item name="android:fontFamily">@font/inter</item>
+ *   <item name="fontFamily">@font/inter</item>
+ *
+ * All screens, headers, buttons, numbers, and labels strictly use Inter
+ * to match PhonePe's signature look and feel.
+ */
+val InterFont = FontFamily(
+    Font(R.font.inter_regular, FontWeight.Normal),
+    Font(R.font.inter_medium, FontWeight.Medium),
+    Font(R.font.inter_medium, FontWeight.SemiBold),
+    Font(R.font.inter_bold, FontWeight.Bold)
+)
+
+val NunitoFont = FontFamily(
+    Font(R.font.nunito_sans_10pt_regular, FontWeight.Normal),
+    Font(R.font.nunito_sans_10pt_semibold, FontWeight.Medium),
+    Font(R.font.nunito_sans_10pt_bold, FontWeight.SemiBold),
+    Font(R.font.nunito_sans_10pt_extrabold, FontWeight.Bold)
+)
+
+/** Authentic PhonePe Font Family */
+val PhonePeFont = InterFont
+
+/** Alias ensuring all existing references instantly use PhonePe's Inter font */
+val ClashGrotesk = InterFont
+
+object NeoPopType {
+    val Display = PhonePeFont
+    val Body = PhonePeFont
+    val MonoFamily = PhonePeFont
+
+    val DisplayLarge = TextStyle(
+        fontFamily = Display,
+        fontWeight = FontWeight.Bold,
+        fontSize = 30.sp,
+        letterSpacing = (-0.02).em,
+        lineHeight = 34.sp
+    )
+    val DisplayMedium = TextStyle(
+        fontFamily = Display,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        letterSpacing = (-0.02).em,
+        lineHeight = 28.sp
+    )
+    val DisplaySmall = TextStyle(
+        fontFamily = Display,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        letterSpacing = (-0.01).em,
+        lineHeight = 24.sp
+    )
+    val HeadlineLarge = TextStyle(
+        fontFamily = Display,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        letterSpacing = (-0.01).em,
+        lineHeight = 24.sp
+    )
+    val TitleLarge = TextStyle(
+        fontFamily = Display,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 17.sp,
+        lineHeight = 22.sp
+    )
+    val TitleMedium = TextStyle(
+        fontFamily = Display,
+        fontWeight = FontWeight.Medium,
+        fontSize = 15.sp,
+        lineHeight = 20.sp
+    )
+    val BodyLarge = TextStyle(
+        fontFamily = Body,
+        fontWeight = FontWeight.Normal,
+        fontSize = 15.sp,
+        lineHeight = 22.sp
+    )
+    val BodyMedium = TextStyle(
+        fontFamily = Body,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    )
+    val BodySmall = TextStyle(
+        fontFamily = Body,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp
+    )
+    val LabelLarge = TextStyle(
+        fontFamily = Body,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        letterSpacing = 0.01.em
+    )
+    val LabelMedium = TextStyle(
+        fontFamily = Body,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        letterSpacing = 0.02.em
+    )
+    val LabelSmall = TextStyle(
+        fontFamily = Body,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        letterSpacing = 0.02.em
+    )
+    val Mono = TextStyle(
+        fontFamily = MonoFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 13.sp,
+        fontFeatureSettings = "tnum"
+    )
+    val MonoLarge = TextStyle(
+        fontFamily = Display,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp,
+        letterSpacing = (-0.02).em,
+        fontFeatureSettings = "tnum"
+    )
+
+    /** Bold tabular text for financial amounts ("₹ 1,500.00"). */
+    val MonoAmount = TextStyle(
+        fontFamily = Display,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        fontFeatureSettings = "tnum"
+    )
+}
+
+val NeoPopTypography = Typography(
+    displayLarge = NeoPopType.DisplayLarge,
+    displayMedium = NeoPopType.DisplayMedium,
+    displaySmall = NeoPopType.DisplaySmall,
+    headlineLarge = NeoPopType.HeadlineLarge,
+    titleLarge = NeoPopType.TitleLarge,
+    titleMedium = NeoPopType.TitleMedium,
+    bodyLarge = NeoPopType.BodyLarge,
+    bodyMedium = NeoPopType.BodyMedium,
+    bodySmall = NeoPopType.BodySmall,
+    labelLarge = NeoPopType.LabelLarge,
+    labelMedium = NeoPopType.LabelMedium,
+    labelSmall = NeoPopType.LabelSmall
+)

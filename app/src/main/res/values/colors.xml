@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- PhonePe Signature Brand Colors -->
+    <color name="phonepe_primary">#5F259F</color>
+    <color name="phonepe_primary_dark">#4A1580</color>
+    <color name="phonepe_primary_light">#7A3BB8</color>
+    <color name="phonepe_purple_bg">#F4EBFB</color>
+    <color name="phonepe_purple_card">#ECE0F8</color>
+    
+    <!-- Exact PhonePe APK Mapped Colors -->
+    <color name="Base.Color.Purple.700">#670fc4</color>
+    <color name="Base.Color.Neutral.White">#FFFFFF</color>
+    <color name="Semantic.Color.Neutral.Black">#000000</color>
+    <color name="Semantic.Color.Neutral.White">#FFFFFF</color>
+    
+    <color name="colorCategoryIconPrimary">#670fc4</color>
+    <color name="colorCategoryIconTertiary">#7c26d9</color>
+    <color name="colorIconMedium">#5F259F</color>
+    <color name="colorPrimaryDark">#4A1580</color>
+    <color name="colorWhiteExclusive">#FFFFFF</color>
+    <color name="lego_colorUIBrand">#670fc4</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    
+    <!-- UI Surface & Text Colors -->
+    <color name="phonepe_surface">#FFFFFF</color>
+    <color name="phonepe_background">#F5F6F8</color>
+    <color name="phonepe_text_primary">#1A1A1A</color>
+    <color name="phonepe_text_secondary">#666666</color>
+    <color name="phonepe_text_tertiary">#9E9E9E</color>
+    <color name="phonepe_border">#E5E7EB</color>
+    <color name="phonepe_divider">#F0F0F0</color>
+    <color name="phonepe_green">#16A34A</color>
+    <color name="phonepe_green_bg">#EBF9F1</color>
+    <color name="phonepe_red">#DC2626</color>
+    <color name="phonepe_red_bg">#FEF2F2</color>
+    <color name="phonepe_blue">#0084FF</color>
+    <color name="phonepe_banner_bg">#D7F0FE</color>
+    <color name="phonepe_banner_text">#0C5A8A</color>
+</resources>

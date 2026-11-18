@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector android:height="24.0dp" android:width="24.0dp" android:autoMirrored="true" android:viewportWidth="24.0" android:viewportHeight="24.0"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="@color/lego_colorUIBrand" android:pathData="M12,20.5C16.694,20.5 20.5,16.694 20.5,12C20.5,7.306 16.694,3.5 12,3.5C7.306,3.5 3.5,7.306 3.5,12C3.5,16.694 7.306,20.5 12,20.5ZM12,22C17.523,22 22,17.523 22,12C22,6.477 17.523,2 12,2C6.477,2 2,6.477 2,12C2,17.523 6.477,22 12,22Z" android:fillType="evenOdd" />
+    <path android:fillColor="@color/lego_colorUIBrand" android:pathData="M7.499,12.441C7.808,12.165 8.282,12.191 8.559,12.5L11.851,16.174C11.906,16.235 11.96,16.25 12,16.25C12.04,16.25 12.094,16.235 12.149,16.174L15.441,12.5C15.718,12.191 16.192,12.165 16.5,12.441C16.809,12.718 16.835,13.192 16.559,13.5L13.266,17.175C12.579,17.942 11.421,17.942 10.734,17.175L7.441,13.5C7.165,13.192 7.191,12.718 7.499,12.441Z" android:fillType="evenOdd" />
+    <path android:fillColor="@color/lego_colorUIBrand" android:pathData="M12,6.254C11.588,6.254 11.254,6.588 11.254,7L11.254,17C11.254,17.412 11.588,17.746 12,17.746C12.412,17.746 12.746,17.412 12.746,17L12.746,7C12.746,6.588 12.412,6.254 12,6.254Z" android:fillType="evenOdd" />
+</vector>
