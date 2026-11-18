@@ -69,17 +69,17 @@ import com.arkiolabs.localpe.presentation.permissions.PermissionStatus
 import com.arkiolabs.localpe.presentation.permissions.openAccessibilitySettings
 import com.arkiolabs.localpe.presentation.permissions.openOverlaySettings
 import com.arkiolabs.localpe.presentation.permissions.rememberPermissionLaunchers
-import com.arkiolabs.localpe.presentation.ui.components.PhonePeLottieAnimation
+import com.arkiolabs.localpe.presentation.ui.components.LocalPeLottieAnimation
 import com.arkiolabs.localpe.presentation.ui.components.StatusBanner
 import com.arkiolabs.localpe.presentation.ui.components.UpiPinScreen
 import com.arkiolabs.localpe.presentation.ui.components.JioRegistrationSheet
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import kotlinx.coroutines.launch
 
 /**
- * Authentic PhonePe Styled Send Money (Pay) Screen.
+ * Authentic LocalPe Styled Send Money (Pay) Screen.
  *
  * Implements:
  *  - Header with Back arrow, "Send Money", "to any UPI app", Help (?) icon.
@@ -138,7 +138,7 @@ fun PayScreen(
     Box(
         modifier
             .fillMaxSize()
-            .background(PhonePeColors.Background)
+            .background(LocalPeColors.Background)
             .statusBarsPadding()
     ) {
         when (val s = session) {
@@ -177,26 +177,26 @@ fun PayScreen(
                         } else null
                     )
                 } else {
-                    PhonePePayForm(
+                    LocalPePayForm(
                         ui = ui,
                         mode = mode,
                         permissions = permissions,
                         onProceed = {
                             if (isJio && !jioRegistered) {
                                 showJioRegistrationSheet = true
-                                return@PhonePePayForm
+                                return@LocalPePayForm
                             }
                             if (!isJio && !permissions.accessibility) {
                                 openAccessibilitySettings(context)
-                                return@PhonePePayForm
+                                return@LocalPePayForm
                             }
                             if (!permissions.overlay) {
                                 openOverlaySettings(context)
-                                return@PhonePePayForm
+                                return@LocalPePayForm
                             }
                             if (mode == OperationMode.MANUAL) {
                                 viewModel.attemptPayment()
-                                return@PhonePePayForm
+                                return@LocalPePayForm
                             }
                             // If biometric is enabled and saved PIN exists, prompt fingerprint directly!
                             if (biometricEnabled && !savedPin.isNullOrBlank()) {
@@ -230,7 +230,7 @@ fun PayScreen(
                     )
                 }
             }
-            is SessionState.Running -> PhonePeSessionRunningCard(s, onCancel = viewModel::cancelSession)
+            is SessionState.Running -> LocalPeSessionRunningCard(s, onCancel = viewModel::cancelSession)
             is SessionState.Success -> SessionSuccessCard(s, onDone = viewModel::dismissSession)
             is SessionState.Failed -> SessionFailedCard(
                 state = s,
@@ -240,7 +240,7 @@ fun PayScreen(
         }
 
         // Floating Toast / Snackbar banner
-        PhonePeSnackbar(
+        LocalPeSnackbar(
             message = snackbar,
             onDismiss = viewModel::dismissSnackbar,
             modifier = Modifier
@@ -266,7 +266,7 @@ fun PayScreen(
 }
 
 @Composable
-private fun PhonePePayForm(
+private fun LocalPePayForm(
     ui: PayUiState,
     mode: OperationMode,
     permissions: PermissionStatus,
@@ -291,9 +291,9 @@ private fun PhonePePayForm(
             .fillMaxSize()
             .imePadding()
     ) {
-        // ── Top Navigation Bar (PhonePe Style) ───────────────────
+        // ── Top Navigation Bar (LocalPe Style) ───────────────────
         Surface(
-            color = PhonePeColors.Surface,
+            color = LocalPeColors.Surface,
             shadowElevation = 1.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -313,7 +313,7 @@ private fun PhonePePayForm(
                     Icon(
                         painter = painterResource(id = R.drawable.bottom_nav_history_selected),
                         contentDescription = "History",
-                        tint = PhonePeColors.TextPrimary,
+                        tint = LocalPeColors.TextPrimary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -326,12 +326,12 @@ private fun PhonePePayForm(
                         fontFamily = ClashGrotesk,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = PhonePeColors.TextPrimary
+                        color = LocalPeColors.TextPrimary
                     )
                     Text(
                         text = "Direct Offline SIM Network",
                         fontSize = 11.sp,
-                        color = PhonePeColors.TextSecondary
+                        color = LocalPeColors.TextSecondary
                     )
                 }
 
@@ -346,7 +346,7 @@ private fun PhonePePayForm(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_qr_scan),
                         contentDescription = "Scan QR",
-                        tint = PhonePeColors.Primary,
+                        tint = LocalPeColors.Primary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -364,7 +364,7 @@ private fun PhonePePayForm(
                     Icon(
                         imageVector = Iconsax.InfoCircle,
                         contentDescription = "Help",
-                        tint = PhonePeColors.TextPrimary,
+                        tint = LocalPeColors.TextPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -413,19 +413,19 @@ private fun PhonePePayForm(
             // ── Recipient Card ───────────────────────────────────────
             val cardShape = RoundedCornerShape(16.dp)
             Surface(
-                color = PhonePeColors.Surface,
+                color = LocalPeColors.Surface,
                 shape = cardShape,
                 shadowElevation = 1.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, PhonePeColors.Border, cardShape)
+                    .border(1.dp, LocalPeColors.Border, cardShape)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "Transfer to",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = PhonePeColors.TextSecondary
+                        color = LocalPeColors.TextSecondary
                     )
 
                     Spacer(Modifier.height(10.dp))
@@ -435,8 +435,8 @@ private fun PhonePePayForm(
                             modifier = Modifier
                                 .size(46.dp)
                                 .clip(CircleShape)
-                                .background(PhonePeColors.PurpleTint)
-                                .border(1.5.dp, PhonePeColors.Primary, CircleShape),
+                                .background(LocalPeColors.PurpleTint)
+                                .border(1.5.dp, LocalPeColors.Primary, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -444,7 +444,7 @@ private fun PhonePePayForm(
                                 fontSize = 18.sp,
                                 fontFamily = ClashGrotesk,
                                 fontWeight = FontWeight.Bold,
-                                color = PhonePeColors.Primary
+                                color = LocalPeColors.Primary
                             )
                         }
 
@@ -456,7 +456,7 @@ private fun PhonePePayForm(
                                 fontSize = 15.sp,
                                 fontFamily = ClashGrotesk,
                                 fontWeight = FontWeight.Bold,
-                                color = PhonePeColors.TextPrimary
+                                color = LocalPeColors.TextPrimary
                             )
                             Spacer(Modifier.height(2.dp))
                             BasicTextField(
@@ -465,10 +465,10 @@ private fun PhonePePayForm(
                                 singleLine = true,
                                 textStyle = TextStyle(
                                     fontSize = 13.sp,
-                                    color = PhonePeColors.TextSecondary,
+                                    color = LocalPeColors.TextSecondary,
                                     fontWeight = FontWeight.Medium
                                 ),
-                                cursorBrush = SolidColor(PhonePeColors.Primary),
+                                cursorBrush = SolidColor(LocalPeColors.Primary),
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -477,7 +477,7 @@ private fun PhonePePayForm(
                             Icon(
                                 imageVector = Iconsax.TickCircle,
                                 contentDescription = "Verified",
-                                tint = PhonePeColors.SuccessGreen,
+                                tint = LocalPeColors.SuccessGreen,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -488,7 +488,7 @@ private fun PhonePePayForm(
                         Text(
                             text = ui.errors[FormField.VPA] ?: "",
                             fontSize = 12.sp,
-                            color = PhonePeColors.DangerRed
+                            color = LocalPeColors.DangerRed
                         )
                     }
                 }
@@ -498,19 +498,19 @@ private fun PhonePePayForm(
 
             // ── Amount Card ──────────────────────────────────────────
             Surface(
-                color = PhonePeColors.Surface,
+                color = LocalPeColors.Surface,
                 shape = cardShape,
                 shadowElevation = 1.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, PhonePeColors.Border, cardShape)
+                    .border(1.dp, LocalPeColors.Border, cardShape)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
                     Text(
                         text = "Enter Amount",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = PhonePeColors.TextSecondary
+                        color = LocalPeColors.TextSecondary
                     )
 
                     Spacer(Modifier.height(12.dp))
@@ -524,7 +524,7 @@ private fun PhonePePayForm(
                             fontSize = 34.sp,
                             fontFamily = ClashGrotesk,
                             fontWeight = FontWeight.Bold,
-                            color = PhonePeColors.TextPrimary
+                            color = LocalPeColors.TextPrimary
                         )
 
                         Spacer(Modifier.width(8.dp))
@@ -536,7 +536,7 @@ private fun PhonePePayForm(
                                     fontSize = 34.sp,
                                     fontFamily = ClashGrotesk,
                                     fontWeight = FontWeight.Bold,
-                                    color = PhonePeColors.TextMuted
+                                    color = LocalPeColors.TextMuted
                                 )
                             }
                             BasicTextField(
@@ -547,10 +547,10 @@ private fun PhonePePayForm(
                                 textStyle = TextStyle(
                                     fontSize = 34.sp,
                                     fontFamily = ClashGrotesk,
-                                    color = PhonePeColors.TextPrimary,
+                                    color = LocalPeColors.TextPrimary,
                                     fontWeight = FontWeight.Bold
                                 ),
-                                cursorBrush = SolidColor(PhonePeColors.Primary),
+                                cursorBrush = SolidColor(LocalPeColors.Primary),
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -561,7 +561,7 @@ private fun PhonePePayForm(
                         Text(
                             text = ui.errors[FormField.AMOUNT] ?: "",
                             fontSize = 12.sp,
-                            color = PhonePeColors.DangerRed
+                            color = LocalPeColors.DangerRed
                         )
                     }
 
@@ -576,8 +576,8 @@ private fun PhonePePayForm(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(PhonePeColors.PurpleTint)
-                                    .border(1.dp, PhonePeColors.PurpleBorder, RoundedCornerShape(8.dp))
+                                    .background(LocalPeColors.PurpleTint)
+                                    .border(1.dp, LocalPeColors.PurpleBorder, RoundedCornerShape(8.dp))
                                     .clickable {
                                         view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                                         val current = ui.amount.toDoubleOrNull() ?: 0.0
@@ -591,7 +591,7 @@ private fun PhonePePayForm(
                                     fontSize = 12.sp,
                                     fontFamily = ClashGrotesk,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = PhonePeColors.Primary
+                                    color = LocalPeColors.Primary
                                 )
                             }
                         }
@@ -604,14 +604,14 @@ private fun PhonePePayForm(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(PhonePeColors.Background)
+                            .background(LocalPeColors.Background)
                             .padding(horizontal = 12.dp, vertical = 10.dp)
                     ) {
                         if (ui.note.isEmpty()) {
                             Text(
                                 text = "Add a note (e.g. Dinner, Groceries)",
                                 fontSize = 13.sp,
-                                color = PhonePeColors.TextSecondary
+                                color = LocalPeColors.TextSecondary
                             )
                         }
                         BasicTextField(
@@ -620,9 +620,9 @@ private fun PhonePePayForm(
                             singleLine = true,
                             textStyle = TextStyle(
                                 fontSize = 13.sp,
-                                color = PhonePeColors.TextPrimary
+                                color = LocalPeColors.TextPrimary
                             ),
-                            cursorBrush = SolidColor(PhonePeColors.Primary),
+                            cursorBrush = SolidColor(LocalPeColors.Primary),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -634,7 +634,7 @@ private fun PhonePePayForm(
 
         // ── Fixed Bottom Button: PROCEED TO PAY ───────────────────
         Surface(
-            color = PhonePeColors.Surface,
+            color = LocalPeColors.Surface,
             shadowElevation = 4.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -646,7 +646,7 @@ private fun PhonePePayForm(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(btnShape)
-                        .background(if (isEnabled) PhonePeColors.Primary else PhonePeColors.Primary.copy(alpha = 0.5f))
+                        .background(if (isEnabled) LocalPeColors.Primary else LocalPeColors.Primary.copy(alpha = 0.5f))
                         .clickable(enabled = isEnabled) {
                             view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
                             keyboard?.hide()
@@ -669,7 +669,7 @@ private fun PhonePePayForm(
 }
 
 @Composable
-private fun PhonePeSessionRunningCard(state: SessionState.Running, onCancel: () -> Unit) {
+private fun LocalPeSessionRunningCard(state: SessionState.Running, onCancel: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -679,13 +679,13 @@ private fun PhonePeSessionRunningCard(state: SessionState.Running, onCancel: () 
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = PhonePeColors.Surface,
+            color = LocalPeColors.Surface,
             shadowElevation = 2.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
-                    .border(1.dp, PhonePeColors.Border, RoundedCornerShape(16.dp))
+                    .border(1.dp, LocalPeColors.Border, RoundedCornerShape(16.dp))
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -694,19 +694,19 @@ private fun PhonePeSessionRunningCard(state: SessionState.Running, onCancel: () 
                     fontSize = 18.sp,
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.TextPrimary
+                    color = LocalPeColors.TextPrimary
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = state.label,
                     fontSize = 14.sp,
-                    color = PhonePeColors.TextSecondary
+                    color = LocalPeColors.TextSecondary
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = "Step ${state.stepIndex + 1} of ${state.total}",
                     fontSize = 12.sp,
-                    color = PhonePeColors.TextMuted
+                    color = LocalPeColors.TextMuted
                 )
                 Spacer(Modifier.height(20.dp))
                 LinearProgressIndicator(
@@ -715,8 +715,8 @@ private fun PhonePeSessionRunningCard(state: SessionState.Running, onCancel: () 
                         .fillMaxWidth()
                         .height(6.dp)
                         .clip(RoundedCornerShape(3.dp)),
-                    color = PhonePeColors.Primary,
-                    trackColor = PhonePeColors.Border
+                    color = LocalPeColors.Primary,
+                    trackColor = LocalPeColors.Border
                 )
             }
         }
@@ -724,7 +724,7 @@ private fun PhonePeSessionRunningCard(state: SessionState.Running, onCancel: () 
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, PhonePeColors.Danger, RoundedCornerShape(12.dp))
+                .border(1.dp, LocalPeColors.Danger, RoundedCornerShape(12.dp))
                 .clickable { onCancel() }
                 .padding(horizontal = 24.dp, vertical = 10.dp)
         ) {
@@ -732,14 +732,14 @@ private fun PhonePeSessionRunningCard(state: SessionState.Running, onCancel: () 
                 text = "Cancel Transaction",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = PhonePeColors.Danger
+                color = LocalPeColors.Danger
             )
         }
     }
 }
 
 @Composable
-private fun PhonePeSnackbar(
+private fun LocalPeSnackbar(
     message: String?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -759,7 +759,7 @@ private fun PhonePeSnackbar(
         if (message != null) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = PhonePeColors.DarkNavy,
+                color = LocalPeColors.DarkNavy,
                 shadowElevation = 6.dp,
                 modifier = Modifier.padding(horizontal = 24.dp)
             ) {

@@ -103,7 +103,7 @@ class ActionRunnerStepMatchPropertyTest : FunSpec({
 
     // Variable map generator
     val varsArb = arbitrary {
-        val vpa = Arb.element("user@bank", "merchant@upi", "test.user@ybl", "shop-99@paytm").bind()
+        val vpa = Arb.element("user@bank", "merchant@upi", "test.user@ybl", "shop-99@bankupi").bind()
         val amount = Arb.element("100", "500.50", "1", "4999.99").bind()
         val note = Arb.element("payment", "rent", "food", "transfer").bind()
         val pin = Arb.element("123456", "654321", "111111", "999999").bind()

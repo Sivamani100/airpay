@@ -23,7 +23,7 @@ fun NeoPopBottomNav(
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    PhonePeBottomNav(
+    LocalPeBottomNav(
         currentRoute = selectedKey,
         onNavigate = onSelect,
         modifier = modifier

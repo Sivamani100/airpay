@@ -36,10 +36,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * PhonePe styled button: smooth rounded corners, vibrant purple fill, white text,
+ * LocalPe styled button: smooth rounded corners, vibrant purple fill, white text,
  * tactile press feedback and haptics.
  */
 @Composable
@@ -47,7 +47,7 @@ fun NeoPopButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    color: Color = PhonePeColors.Primary,
+    color: Color = LocalPeColors.Primary,
     rightColor: Color = Color.Transparent,
     bottomColor: Color = Color.Transparent,
     contentColor: Color = Color.White,
@@ -140,7 +140,7 @@ fun NeoPopPrimaryButton(
         text = text,
         onClick = onClick,
         modifier = modifier,
-        color = PhonePeColors.Primary,
+        color = LocalPeColors.Primary,
         contentColor = Color.White,
         enabled = enabled,
         leadingIcon = leadingIcon,
@@ -171,8 +171,8 @@ fun NeoPopSecondaryButton(
         modifier = modifier
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(shape)
-            .background(PhonePeColors.PurpleTint)
-            .border(width = 1.dp, color = PhonePeColors.PurpleBorder, shape = shape)
+            .background(LocalPeColors.PurpleTint)
+            .border(width = 1.dp, color = LocalPeColors.PurpleBorder, shape = shape)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -194,14 +194,14 @@ fun NeoPopSecondaryButton(
                 Icon(
                     imageVector = leadingIcon,
                     contentDescription = null,
-                    tint = PhonePeColors.Primary,
+                    tint = LocalPeColors.Primary,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(8.dp))
             }
             Text(
                 text = text,
-                color = PhonePeColors.Primary,
+                color = LocalPeColors.Primary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -210,7 +210,7 @@ fun NeoPopSecondaryButton(
                 Icon(
                     imageVector = trailingIcon,
                     contentDescription = null,
-                    tint = PhonePeColors.Primary,
+                    tint = LocalPeColors.Primary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -231,7 +231,7 @@ fun NeoPopDangerButton(
         text = text,
         onClick = onClick,
         modifier = modifier,
-        color = PhonePeColors.DangerRed,
+        color = LocalPeColors.DangerRed,
         contentColor = Color.White,
         enabled = enabled,
         leadingIcon = leadingIcon
@@ -258,8 +258,8 @@ fun NeoPopDangerOutlinedButton(
         modifier = modifier
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(shape)
-            .background(PhonePeColors.DangerTint)
-            .border(width = 1.dp, color = PhonePeColors.DangerRed.copy(alpha = 0.4f), shape = shape)
+            .background(LocalPeColors.DangerTint)
+            .border(width = 1.dp, color = LocalPeColors.DangerRed.copy(alpha = 0.4f), shape = shape)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -274,7 +274,7 @@ fun NeoPopDangerOutlinedButton(
     ) {
         Text(
             text = text,
-            color = PhonePeColors.DangerRed,
+            color = LocalPeColors.DangerRed,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.fillMaxWidth(),

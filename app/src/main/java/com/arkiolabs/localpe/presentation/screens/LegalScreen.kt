@@ -37,7 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import com.arkiolabs.localpe.presentation.ui.components.NeoPopCard
 import com.arkiolabs.localpe.presentation.ui.theme.NeoPopColors
 import com.arkiolabs.localpe.presentation.ui.theme.NeoPopType
@@ -189,7 +189,7 @@ private fun LegalTab(
     Box(
         modifier
             .clip(shape)
-            .background(if (selected) PhonePeColors.Primary else Color(0xFFF4F0FB))
+            .background(if (selected) LocalPeColors.Primary else Color(0xFFF4F0FB))
             .clickable {
                 view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 onClick()
@@ -223,7 +223,7 @@ private fun PrivacyContent() {
     )
     LegalSection(
         heading = "Your UPI PIN",
-        body = "Your UPI PIN lives only in volatile memory and is wiped within 500 milliseconds of any session ending (success, failure, timeout or cancel) and on app backgrounding. It is never written to storage, never logged, never sent over the network, and is masked as four bullets in any UI surface that might display it. The carrier-side handling of your PIN is the same path BHIM and your bank's own app use."
+        body = "Your UPI PIN lives only in volatile memory and is wiped within 500 milliseconds of any session ending (success, failure, timeout or cancel) and on app backgrounding. It is never written to storage, never logged, never sent over the network, and is masked as four bullets in any UI surface that might display it. The carrier-side handling of your PIN is the same path LocalPe and your bank's own app use."
     )
     LegalSection(
         heading = "Encrypted history",
@@ -315,7 +315,7 @@ private fun TermsContent() {
     )
 }
 
-// ─── Internal layout primitives (PhonePe Clean White Style) ───────────────────
+// ─── Internal layout primitives (LocalPe Clean White Style) ───────────────────
 
 @Composable
 private fun LegalDocumentScaffold(

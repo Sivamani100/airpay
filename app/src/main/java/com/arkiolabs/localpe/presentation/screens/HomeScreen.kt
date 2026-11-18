@@ -60,12 +60,12 @@ import com.arkiolabs.localpe.presentation.PayViewModel
 import com.arkiolabs.localpe.presentation.permissions.PermissionStatus
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * Authentic PhonePe Home Screen.
+ * Authentic LocalPe Home Screen.
  *
- * Designed exactly to mirror the PhonePe screenshots:
+ * Designed exactly to mirror the LocalPe screenshots:
  *  - Clean pure white background (#FFFFFF) with NO heavy boxed card wrappers.
  *  - Top hero banner area with Profile Avatar (mini QR badge), Mode Pill, and Help (?) icon.
  *  - "Money Transfers" 4 circular purple action items directly on white background.
@@ -106,7 +106,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // ── Top Bar & Hero Promotional Banner Area (PhonePe Style) ────
+            // ── Top Bar & Hero Promotional Banner Area (LocalPe Style) ────
             HomeHeaderWithHeroBanner(
                 mode = mode,
                 onProfileClick = onNavigateMyQr,
@@ -124,7 +124,7 @@ fun HomeScreen(
                 )
             }
 
-            // ── Quick Explore Pills Row (PhonePe side-by-side pills) ─────
+            // ── Quick Explore Pills Row (LocalPe side-by-side pills) ─────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -132,8 +132,8 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 QuickActionPill(
-                    iconRes = R.drawable.ic_phonepe_qr_icon_monochrome,
-                    iconTint = PhonePeColors.Primary,
+                    iconRes = R.drawable.ic_localpe_qr_icon_monochrome,
+                    iconTint = LocalPeColors.Primary,
                     title = "Explore Offline UPI",
                     onClick = onNavigateFaq,
                     modifier = Modifier.weight(1f)
@@ -158,7 +158,7 @@ fun HomeScreen(
                     .background(Color(0xFFF4F4F6))
             )
 
-            // ── Offline Utilities & Tools Section (Clean Flat PhonePe Grid) ──
+            // ── Offline Utilities & Tools Section (Clean Flat LocalPe Grid) ──
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
                 OfflineUtilitiesSection(
                     onRechargeClick = onNavigateToMobile,
@@ -210,7 +210,7 @@ fun HomeScreen(
 }
 
 /**
- * Top App Bar + Hero Promotional Banner (Signature PhonePe Sky Blue Banner).
+ * Top App Bar + Hero Promotional Banner (Signature LocalPe Sky Blue Banner).
  */
 @Composable
 private fun HomeHeaderWithHeroBanner(
@@ -228,7 +228,7 @@ private fun HomeHeaderWithHeroBanner(
     ) {
         // Hero Banner Image / Background
         Image(
-            painter = painterResource(id = R.drawable.phonepe_home_hero_banner),
+            painter = painterResource(id = R.drawable.localpe_home_hero_banner),
             contentDescription = "LocalPe Offline UPI Banner",
             modifier = Modifier
                 .fillMaxSize()
@@ -269,7 +269,7 @@ private fun HomeHeaderWithHeroBanner(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.phonepe_user_avatar),
+                        painter = painterResource(id = R.drawable.localpe_user_avatar),
                         contentDescription = "Profile",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -289,7 +289,7 @@ private fun HomeHeaderWithHeroBanner(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_qr_scan),
                         contentDescription = null,
-                        tint = PhonePeColors.Primary,
+                        tint = LocalPeColors.Primary,
                         modifier = Modifier.size(11.dp)
                     )
                 }
@@ -353,7 +353,7 @@ private fun HomeHeaderWithHeroBanner(
 }
 
 /**
- * Signature PhonePe "Money Transfers" Section:
+ * Signature LocalPe "Money Transfers" Section:
  *  - Flat on white background (NO card container, NO drop shadow).
  *  - Header: "Money Transfers" on left, "Refer -> ₹100" peach pill on right.
  *  - 4 authentic purple circular action buttons with labels below.
@@ -383,7 +383,7 @@ private fun MoneyTransfersSection(
                 color = Color(0xFF1C1C1E)
             )
 
-            // Exact PhonePe Refer -> ₹100 peach pill with golden coin (shares APK via Bluetooth/Nearby/Files)
+            // Exact LocalPe Refer -> ₹100 peach pill with golden coin (shares APK via Bluetooth/Nearby/Files)
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
@@ -415,26 +415,26 @@ private fun MoneyTransfersSection(
 
         Spacer(Modifier.height(18.dp))
 
-        // 4 Circular Buttons Row (Exact PhonePe 3D Vector Icons, Flat on White)
+        // 4 Circular Buttons Row (Exact LocalPe 3D Vector Icons, Flat on White)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            PhonePeActionTile(
+            LocalPeActionTile(
                 label = "To Mobile\nNumber",
                 iconResId = R.drawable.to_mobile_number,
                 onClick = onToMobileClick,
                 modifier = Modifier.weight(1f)
             )
 
-            PhonePeActionTile(
+            LocalPeActionTile(
                 label = "To Bank &\nSelf A/c",
                 iconResId = R.drawable.to_bank_self_account,
                 onClick = onToBankClick,
                 modifier = Modifier.weight(1f)
             )
 
-            PhonePeActionTile(
+            LocalPeActionTile(
                 label = "LocalPe\nWallet",
                 badge = "Offer",
                 iconResId = R.drawable.wallet_home,
@@ -442,7 +442,7 @@ private fun MoneyTransfersSection(
                 modifier = Modifier.weight(1f)
             )
 
-            PhonePeActionTile(
+            LocalPeActionTile(
                 label = "Check\nBalance",
                 iconResId = R.drawable.check_balance_v1,
                 onClick = onCheckBalanceClick,
@@ -453,10 +453,10 @@ private fun MoneyTransfersSection(
 }
 
 /**
- * Authentic PhonePe Action Tile (Circular 3D Icon + Centered 2-line Label).
+ * Authentic LocalPe Action Tile (Circular 3D Icon + Centered 2-line Label).
  */
 @Composable
-private fun PhonePeActionTile(
+private fun LocalPeActionTile(
     label: String,
     @DrawableRes iconResId: Int,
     onClick: () -> Unit,
@@ -523,7 +523,7 @@ private fun PhonePeActionTile(
 }
 
 /**
- * Quick Action Mini Card Pill (PhonePe Explore style).
+ * Quick Action Mini Card Pill (LocalPe Explore style).
  */
 @Composable
 private fun QuickActionPill(
@@ -571,7 +571,7 @@ private fun QuickActionPill(
 
 /**
  * Offline Utilities & Services Section: 4 squircle icons + 2 horizontal pills below.
- * Clean, flat PhonePe grid using LocalPe's own offline payment features.
+ * Clean, flat LocalPe grid using LocalPe's own offline payment features.
  */
 @Composable
 private fun OfflineUtilitiesSection(
@@ -591,7 +591,7 @@ private fun OfflineUtilitiesSection(
 
         Spacer(Modifier.height(14.dp))
 
-        // 4 Squircle Items Row (LocalPe Features with Authentic PhonePe Vectors)
+        // 4 Squircle Items Row (LocalPe Features with Authentic LocalPe Vectors)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -605,7 +605,7 @@ private fun OfflineUtilitiesSection(
 
             HomeSquircleItem(
                 label = "Receive\nvia QR",
-                iconResId = R.drawable.ic_phonepe_qr_icon_monochrome,
+                iconResId = R.drawable.ic_localpe_qr_icon_monochrome,
                 onClick = onQrClick,
                 modifier = Modifier.weight(1f)
             )
@@ -634,7 +634,7 @@ private fun OfflineUtilitiesSection(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Left Pill: Carrier voice status (Exact PhonePe status style)
+            // Left Pill: Carrier voice status (Exact LocalPe status style)
             Row(
                 modifier = Modifier
                     .weight(1f)
@@ -679,14 +679,14 @@ private fun OfflineUtilitiesSection(
                     text = "Settings",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = "→",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
             }
         }
@@ -694,7 +694,7 @@ private fun OfflineUtilitiesSection(
 }
 
 /**
- * Authentic PhonePe Squircle Item with optional badge overlay.
+ * Authentic LocalPe Squircle Item with optional badge overlay.
  */
 @Composable
 private fun HomeSquircleItem(
@@ -794,7 +794,7 @@ private fun RecentTransfersSection(
                 text = "View All →",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = PhonePeColors.Primary,
+                color = LocalPeColors.Primary,
                 modifier = Modifier.clickable { onViewAll() }
             )
         }
@@ -810,13 +810,13 @@ private fun RecentTransfersSection(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(PhonePeColors.PurpleTint),
+                        .background(LocalPeColors.PurpleTint),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Iconsax.Call,
                         contentDescription = null,
-                        tint = PhonePeColors.Primary,
+                        tint = LocalPeColors.Primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -880,8 +880,8 @@ private fun RecipientBubbleItem(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(PhonePeColors.PurpleTint)
-                .border(1.dp, PhonePeColors.Primary.copy(alpha = 0.25f), CircleShape),
+                .background(LocalPeColors.PurpleTint)
+                .border(1.dp, LocalPeColors.Primary.copy(alpha = 0.25f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -889,7 +889,7 @@ private fun RecipientBubbleItem(
                 fontFamily = ClashGrotesk,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = PhonePeColors.Primary
+                color = LocalPeColors.Primary
             )
         }
 
@@ -931,7 +931,7 @@ private fun SecurityAndCarrierSection(
                 Icon(
                     imageVector = Iconsax.ShieldSecurity,
                     contentDescription = null,
-                    tint = PhonePeColors.SuccessGreen,
+                    tint = LocalPeColors.SuccessGreen,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(8.dp))
@@ -948,7 +948,7 @@ private fun SecurityAndCarrierSection(
                 text = "Settings →",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = PhonePeColors.Primary,
+                color = LocalPeColors.Primary,
                 modifier = Modifier.clickable { onManageSettings() }
             )
         }
@@ -984,7 +984,7 @@ private fun SecurityAndCarrierSection(
 
         Spacer(Modifier.height(14.dp))
 
-        // Official Trust Badges Row (BHIM UPI + Bharat Connect + NPCI)
+        // Official Trust Badges Row (LocalPe UPI + Bharat Connect + NPCI)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -995,8 +995,8 @@ private fun SecurityAndCarrierSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.bhim_upi_orange_border),
-                contentDescription = "BHIM UPI",
+                painter = painterResource(id = R.drawable.upi_orange_border),
+                contentDescription = "LocalPe UPI",
                 modifier = Modifier.size(26.dp),
                 contentScale = ContentScale.Fit
             )
@@ -1023,7 +1023,7 @@ private fun CarrierPill(name: String, supported: Boolean, modifier: Modifier = M
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(6.dp))
-            .background(if (supported) PhonePeColors.SuccessTint else PhonePeColors.DangerTint)
+            .background(if (supported) LocalPeColors.SuccessTint else LocalPeColors.DangerTint)
             .padding(vertical = 5.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -1031,7 +1031,7 @@ private fun CarrierPill(name: String, supported: Boolean, modifier: Modifier = M
             text = if (supported) "$name ✓" else "$name ✗",
             fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
-            color = if (supported) PhonePeColors.SuccessGreen else PhonePeColors.DangerRed
+            color = if (supported) LocalPeColors.SuccessGreen else LocalPeColors.DangerRed
         )
     }
 }

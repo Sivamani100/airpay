@@ -35,10 +35,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * PhonePe styled text field: clean rounded card, light border with vibrant
+ * LocalPe styled text field: clean rounded card, light border with vibrant
  * purple accent border on focus, helper label and inline error.
  */
 @Composable
@@ -58,7 +58,7 @@ fun NeoPopTextField(
     textStyle: TextStyle = TextStyle(
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium,
-        color = PhonePeColors.TextPrimary
+        color = LocalPeColors.TextPrimary
     )
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -67,17 +67,17 @@ fun NeoPopTextField(
 
     val borderColor by animateColorAsState(
         targetValue = when {
-            hasError -> PhonePeColors.DangerRed
-            focused -> PhonePeColors.Primary
-            else -> PhonePeColors.Border
+            hasError -> LocalPeColors.DangerRed
+            focused -> LocalPeColors.Primary
+            else -> LocalPeColors.Border
         },
         label = "field_border"
     )
 
     val labelColor = when {
-        hasError -> PhonePeColors.DangerRed
-        focused -> PhonePeColors.Primary
-        else -> PhonePeColors.TextSecondary
+        hasError -> LocalPeColors.DangerRed
+        focused -> LocalPeColors.Primary
+        else -> LocalPeColors.TextSecondary
     }
 
     val shape = RoundedCornerShape(12.dp)
@@ -95,7 +95,7 @@ fun NeoPopTextField(
             Modifier
                 .fillMaxWidth()
                 .clip(shape)
-                .background(PhonePeColors.Surface)
+                .background(LocalPeColors.Surface)
                 .border(
                     width = if (focused || hasError) 1.5.dp else 1.dp,
                     color = borderColor,
@@ -111,7 +111,7 @@ fun NeoPopTextField(
                     Icon(
                         imageVector = leadingIcon,
                         contentDescription = null,
-                        tint = if (focused) PhonePeColors.Primary else PhonePeColors.TextSecondary,
+                        tint = if (focused) LocalPeColors.Primary else LocalPeColors.TextSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(Modifier.width(10.dp))
@@ -122,7 +122,7 @@ fun NeoPopTextField(
                         Text(
                             text = placeholder,
                             fontSize = 15.sp,
-                            color = PhonePeColors.TextMuted
+                            color = LocalPeColors.TextMuted
                         )
                     }
                     BasicTextField(
@@ -134,7 +134,7 @@ fun NeoPopTextField(
                         textStyle = textStyle,
                         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                         visualTransformation = visualTransformation,
-                        cursorBrush = SolidColor(PhonePeColors.Primary),
+                        cursorBrush = SolidColor(LocalPeColors.Primary),
                         interactionSource = interactionSource
                     )
                 }
@@ -154,14 +154,14 @@ fun NeoPopTextField(
                 Icon(
                     imageVector = Icons.Default.Error,
                     contentDescription = null,
-                    tint = PhonePeColors.DangerRed,
+                    tint = LocalPeColors.DangerRed,
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = error,
                     fontSize = 12.sp,
-                    color = PhonePeColors.DangerRed
+                    color = LocalPeColors.DangerRed
                 )
             }
         }

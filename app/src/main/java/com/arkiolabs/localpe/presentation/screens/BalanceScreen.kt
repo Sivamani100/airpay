@@ -56,25 +56,25 @@ import com.arkiolabs.localpe.platform.BiometricHelper
 import com.arkiolabs.localpe.platform.SoundManager
 import com.arkiolabs.localpe.presentation.BalanceViewModel
 import com.arkiolabs.localpe.presentation.HistoryViewModel
-import com.arkiolabs.localpe.presentation.ui.components.PhonePeLottieAnimation
+import com.arkiolabs.localpe.presentation.ui.components.LocalPeLottieAnimation
 import com.arkiolabs.localpe.presentation.ui.components.UpiPinScreen
 import com.arkiolabs.localpe.presentation.ui.components.JioRegistrationSheet
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 /**
- * Dedicated PhonePe Check Balance Screen.
+ * Dedicated LocalPe Check Balance Screen.
  *
  * Implements:
  *  - Fresh check flow (does not display stale cached balances).
  *  - One-tap Biometric Fingerprint authorization.
  *  - NPCI UPI PIN Screen matching user screenshot.
- *  - Live animated USSD verification with PhonePe worm loader.
+ *  - Live animated USSD verification with LocalPe worm loader.
  *  - Dedicated full-screen Available Balance display with celebratory tick.
  *  - Zero visible *99# or carrier internal codes.
  */
@@ -123,7 +123,7 @@ fun BalanceScreen(
     Box(
         modifier
             .fillMaxSize()
-            .background(PhonePeColors.Background)
+            .background(LocalPeColors.Background)
             .statusBarsPadding()
     ) {
         when (val s = session) {
@@ -255,7 +255,7 @@ private fun BalanceInitialScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // ── Top Bar Header (PhonePe Style) ──────────────────────────
+        // ── Top Bar Header (LocalPe Style) ──────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -364,7 +364,7 @@ private fun BalanceInitialScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Flat Payment Method Items (Exact PhonePe Screenshot) ──
+            // ── Flat Payment Method Items (Exact LocalPe Screenshot) ──
             // 1. Primary Bank Account (State Bank of India)
             Row(
                 modifier = Modifier
@@ -417,7 +417,7 @@ private fun BalanceInitialScreen(
                 )
             }
 
-            // 2. PhonePe / LocalPe Wallet
+            // 2. LocalPe / LocalPe Wallet
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -458,7 +458,7 @@ private fun BalanceInitialScreen(
                     text = "Activate",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
             }
 
@@ -496,7 +496,7 @@ private fun BalanceInitialScreen(
                     text = "Link Now",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
             }
 
@@ -567,7 +567,7 @@ private fun BalanceInitialScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(R.drawable.bhim_upi_orange_border),
+                    painter = painterResource(R.drawable.upi_orange_border),
                     contentDescription = "POWERED BY UPI",
                     modifier = Modifier.height(24.dp)
                 )
@@ -587,7 +587,7 @@ private fun BalanceRunningView(state: SessionState.Running, onCancel: () -> Unit
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        PhonePeLottieAnimation(
+        LocalPeLottieAnimation(
             assetName = "worm_loader_light.json",
             modifier = Modifier.size(110.dp)
         )
@@ -597,13 +597,13 @@ private fun BalanceRunningView(state: SessionState.Running, onCancel: () -> Unit
             fontSize = 18.sp,
             fontFamily = ClashGrotesk,
             fontWeight = FontWeight.Bold,
-            color = PhonePeColors.TextPrimary
+            color = LocalPeColors.TextPrimary
         )
         Spacer(Modifier.height(8.dp))
         Text(
             text = "Querying your bank through cellular network...",
             fontSize = 13.sp,
-            color = PhonePeColors.TextSecondary,
+            color = LocalPeColors.TextSecondary,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(20.dp))
@@ -613,14 +613,14 @@ private fun BalanceRunningView(state: SessionState.Running, onCancel: () -> Unit
                 .fillMaxWidth(0.7f)
                 .height(4.dp)
                 .clip(RoundedCornerShape(2.dp)),
-            color = PhonePeColors.Primary,
-            trackColor = PhonePeColors.PurpleTint
+            color = LocalPeColors.Primary,
+            trackColor = LocalPeColors.PurpleTint
         )
         Spacer(Modifier.height(24.dp))
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
-                .background(PhonePeColors.DangerTint)
+                .background(LocalPeColors.DangerTint)
                 .clickable { onCancel() }
                 .padding(horizontal = 24.dp, vertical = 10.dp),
             contentAlignment = Alignment.Center
@@ -629,7 +629,7 @@ private fun BalanceRunningView(state: SessionState.Running, onCancel: () -> Unit
                 text = "Cancel",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = PhonePeColors.DangerRed
+                color = LocalPeColors.DangerRed
             )
         }
     }
@@ -648,18 +648,18 @@ private fun BalanceSuccessDedicatedView(resultText: String, onDone: () -> Unit) 
         verticalArrangement = Arrangement.Center
     ) {
         Surface(
-            color = PhonePeColors.Surface,
+            color = LocalPeColors.Surface,
             shape = cardShape,
             shadowElevation = 2.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.5.dp, PhonePeColors.SuccessGreen, cardShape)
+                .border(1.5.dp, LocalPeColors.SuccessGreen, cardShape)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                PhonePeLottieAnimation(
+                LocalPeLottieAnimation(
                     assetName = "tick_success.json",
                     modifier = Modifier.size(90.dp),
                     iterations = 1
@@ -670,7 +670,7 @@ private fun BalanceSuccessDedicatedView(resultText: String, onDone: () -> Unit) 
                     fontSize = 12.sp,
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.SemiBold,
-                    color = PhonePeColors.TextSecondary,
+                    color = LocalPeColors.TextSecondary,
                     letterSpacing = 1.sp
                 )
                 Spacer(Modifier.height(4.dp))
@@ -679,7 +679,7 @@ private fun BalanceSuccessDedicatedView(resultText: String, onDone: () -> Unit) 
                     fontSize = 15.sp,
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Medium,
-                    color = PhonePeColors.TextPrimary
+                    color = LocalPeColors.TextPrimary
                 )
                 Spacer(Modifier.height(10.dp))
                 if (parsed != null) {
@@ -688,7 +688,7 @@ private fun BalanceSuccessDedicatedView(resultText: String, onDone: () -> Unit) 
                         fontSize = 36.sp,
                         fontFamily = ClashGrotesk,
                         fontWeight = FontWeight.ExtraBold,
-                        color = PhonePeColors.TextPrimary
+                        color = LocalPeColors.TextPrimary
                     )
                 } else {
                     Text(
@@ -696,7 +696,7 @@ private fun BalanceSuccessDedicatedView(resultText: String, onDone: () -> Unit) 
                         fontSize = 15.sp,
                         fontFamily = ClashGrotesk,
                         fontWeight = FontWeight.SemiBold,
-                        color = PhonePeColors.TextPrimary,
+                        color = LocalPeColors.TextPrimary,
                         textAlign = TextAlign.Center,
                         lineHeight = 22.sp
                     )
@@ -705,14 +705,14 @@ private fun BalanceSuccessDedicatedView(resultText: String, onDone: () -> Unit) 
                 Text(
                     text = "Checked on ${formatTimestamp(System.currentTimeMillis())}",
                     fontSize = 11.sp,
-                    color = PhonePeColors.TextMuted
+                    color = LocalPeColors.TextMuted
                 )
                 Spacer(Modifier.height(24.dp))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(PhonePeColors.Primary)
+                        .background(LocalPeColors.Primary)
                         .clickable { onDone() }
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center
@@ -742,12 +742,12 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
         verticalArrangement = Arrangement.Center
     ) {
         Surface(
-            color = PhonePeColors.Surface,
+            color = LocalPeColors.Surface,
             shape = cardShape,
             shadowElevation = 2.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, PhonePeColors.DangerRed, cardShape)
+                .border(1.dp, LocalPeColors.DangerRed, cardShape)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -758,13 +758,13 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
                     fontSize = 17.sp,
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.DangerRed
+                    color = LocalPeColors.DangerRed
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = message,
                     fontSize = 13.sp,
-                    color = PhonePeColors.TextSecondary,
+                    color = LocalPeColors.TextSecondary,
                     textAlign = TextAlign.Center
                 )
                 Spacer(Modifier.height(20.dp))
@@ -776,7 +776,7 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(PhonePeColors.PurpleTint)
+                            .background(LocalPeColors.PurpleTint)
                             .clickable { onBack() }
                             .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center
@@ -785,14 +785,14 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
                             text = "Back",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = PhonePeColors.Primary
+                            color = LocalPeColors.Primary
                         )
                     }
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(PhonePeColors.Primary)
+                            .background(LocalPeColors.Primary)
                             .clickable { onRetry() }
                             .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center

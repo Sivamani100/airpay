@@ -43,10 +43,10 @@ import androidx.compose.ui.unit.sp
 import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * Authentic NPCI / PhonePe Fullscreen UPI PIN Entry Interface.
+ * Authentic NPCI / LocalPe Fullscreen UPI PIN Entry Interface.
  * Faithfully matches the exact layout, colors, amber summary banner, and custom numeric keypad
  * from the official NPCI UPI PIN screen screenshot.
  */
@@ -83,7 +83,7 @@ fun UpiPinScreen(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
-                        painter = painterResource(R.drawable.bhim_upi_orange_border),
+                        painter = painterResource(R.drawable.upi_orange_border),
                         contentDescription = "UPI",
                         modifier = Modifier.height(18.dp)
                     )
@@ -196,7 +196,7 @@ fun UpiPinScreen(
                 fontSize = 12.sp,
                 fontFamily = ClashGrotesk,
                 fontWeight = if (pin.length >= 4) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (pin.length >= 4) PhonePeColors.SuccessGreen else Color(0xFF64748B)
+                color = if (pin.length >= 4) LocalPeColors.SuccessGreen else Color(0xFF64748B)
             )
 
             Spacer(Modifier.height(18.dp))
@@ -231,7 +231,7 @@ fun UpiPinScreen(
             Icon(
                 imageVector = Iconsax.TickCircle,
                 contentDescription = null,
-                tint = if (pin.length in 4..6) PhonePeColors.SuccessGreen else Color.Transparent,
+                tint = if (pin.length in 4..6) LocalPeColors.SuccessGreen else Color.Transparent,
                 modifier = Modifier.size(20.dp)
             )
 
@@ -240,7 +240,7 @@ fun UpiPinScreen(
                 Text(
                     text = errorMessage,
                     fontSize = 12.sp,
-                    color = PhonePeColors.DangerRed,
+                    color = LocalPeColors.DangerRed,
                     textAlign = TextAlign.Center
                 )
             }
@@ -272,7 +272,7 @@ fun UpiPinScreen(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(PhonePeColors.PurpleTint)
+                        .background(LocalPeColors.PurpleTint)
                         .clickable { onBiometricRequested() }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -280,7 +280,7 @@ fun UpiPinScreen(
                     Icon(
                         imageVector = Iconsax.Fingerprint,
                         contentDescription = "Biometric",
-                        tint = PhonePeColors.Primary,
+                        tint = LocalPeColors.Primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(8.dp))
@@ -289,7 +289,7 @@ fun UpiPinScreen(
                         fontSize = 12.sp,
                         fontFamily = ClashGrotesk,
                         fontWeight = FontWeight.Bold,
-                        color = PhonePeColors.Primary
+                        color = LocalPeColors.Primary
                     )
                 }
             }

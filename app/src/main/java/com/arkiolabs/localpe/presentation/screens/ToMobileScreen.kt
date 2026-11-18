@@ -62,14 +62,14 @@ import com.arkiolabs.localpe.platform.ContactItem
 import com.arkiolabs.localpe.platform.ContactsHelper
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * Authentic PhonePe Styled "Send Money / To Mobile Number" Screen.
+ * Authentic LocalPe Styled "Send Money / To Mobile Number" Screen.
  *
- * Implements the exact layout from PhonePe screenshots:
+ * Implements the exact layout from LocalPe screenshots:
  *  - Top bar with Back arrow, Refresh, Help (?), and 3-dots menu.
- *  - "Send Money" header with "to any UPI app [PhonePe] [BHIM] [GPay] [Paytm]".
+ *  - "Send Money" header with "to any UPI app [LocalPe] [LocalPe] [online UPI] [online wallets]".
  *  - Search bar: "#F5F3FB", search icon, "Search any contact / name".
  *  - "Split expenses [New]" row.
  *  - "PAYMENTS & CHAT" flat list with contact avatar, UPI badge, last activity, green dot, time.
@@ -201,10 +201,10 @@ fun ToMobileScreen(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "PhonePe · BHIM · GPay · Paytm",
+                        text = "All Indian Banks · Jio · Airtel · Vi · BSNL",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = PhonePeColors.Primary
+                        color = LocalPeColors.Primary
                     )
                 }
             }
@@ -246,7 +246,7 @@ fun ToMobileScreen(
                                 fontSize = 14.sp,
                                 color = Color(0xFF1C1C1E)
                             ),
-                            cursorBrush = SolidColor(PhonePeColors.Primary),
+                            cursorBrush = SolidColor(LocalPeColors.Primary),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -283,7 +283,7 @@ fun ToMobileScreen(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(PhonePeColors.Primary),
+                            .background(LocalPeColors.Primary),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -299,7 +299,7 @@ fun ToMobileScreen(
                             text = "Pay to +91 $normalizedPhone",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = PhonePeColors.Primary
+                            color = LocalPeColors.Primary
                         )
                         Text(
                             text = "Direct offline SIM payment",
@@ -311,7 +311,7 @@ fun ToMobileScreen(
                         text = "Pay →",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = PhonePeColors.Primary
+                        color = LocalPeColors.Primary
                     )
                 }
             }
@@ -334,7 +334,7 @@ fun ToMobileScreen(
                     Icon(
                         imageVector = Icons.Default.Dialpad,
                         contentDescription = null,
-                        tint = PhonePeColors.Primary,
+                        tint = LocalPeColors.Primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -395,13 +395,13 @@ fun ToMobileScreen(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .background(PhonePeColors.PurpleTint),
+                            .background(LocalPeColors.PurpleTint),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
-                            tint = PhonePeColors.Primary,
+                            tint = LocalPeColors.Primary,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -411,7 +411,7 @@ fun ToMobileScreen(
                             text = "Access Contacts",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = PhonePeColors.Primary
+                            color = LocalPeColors.Primary
                         )
                         Text(
                             text = "Tap to sync contacts for quick offline pay",
@@ -429,7 +429,7 @@ fun ToMobileScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 items(filteredContacts, key = { it.phone }) { contact ->
-                    ContactPhonePeRow(
+                    ContactLocalPeRow(
                         contact = contact,
                         onClick = {
                             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
@@ -459,7 +459,7 @@ fun ToMobileScreen(
             }
         }
 
-        // ── Floating "+ New Payment" Purple Button (PhonePe Style) ──
+        // ── Floating "+ New Payment" Purple Button (LocalPe Style) ──
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -468,7 +468,7 @@ fun ToMobileScreen(
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(24.dp))
-                    .background(PhonePeColors.Primary)
+                    .background(LocalPeColors.Primary)
                     .clickable {
                         view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                         // Trigger direct pay input
@@ -496,7 +496,7 @@ fun ToMobileScreen(
 }
 
 @Composable
-private fun ContactPhonePeRow(
+private fun ContactLocalPeRow(
     contact: ContactItem,
     onClick: () -> Unit
 ) {
@@ -513,7 +513,7 @@ private fun ContactPhonePeRow(
                 modifier = Modifier
                     .size(42.dp)
                     .clip(CircleShape)
-                    .background(PhonePeColors.PurpleTint),
+                    .background(LocalPeColors.PurpleTint),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -521,7 +521,7 @@ private fun ContactPhonePeRow(
                     fontFamily = ClashGrotesk,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
             }
 

@@ -81,20 +81,17 @@ import com.arkiolabs.localpe.presentation.permissions.openOverlaySettings
 import com.arkiolabs.localpe.presentation.permissions.rememberPermissionLaunchers
 import com.arkiolabs.localpe.presentation.permissions.rememberPermissionStatus
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import kotlinx.coroutines.launch
 
-private val bhimStep1ImageRes: Int? = R.drawable.bhim_step1
-private val bhimStep2ImageRes: Int? = R.drawable.bhim_step2
-private val bhimStep3ImageRes: Int? = R.drawable.bhim_step3
-
-private const val TUTORIAL_VIDEO_URL: String =
-    "https://youtube.com/playlist?list=PL6zhuU_l94t1y25MDt96Z-MltD3S6iPFj&si=GNlanTwR-IcfOBI"
+private val setupStep1ImageRes: Int? = R.drawable.step1_guide
+private val setupStep2ImageRes: Int? = R.drawable.step2_guide
+private val setupStep3ImageRes: Int? = R.drawable.step3_guide
 
 /**
- * Authentic PhonePe Styled Onboarding Flow.
+ * Authentic LocalPe Styled Onboarding Flow.
  *
- * Designed on pure white (#FFFFFF) with signature PhonePe purple accents,
+ * Designed on pure white (#FFFFFF) with signature LocalPe purple accents,
  * Inter typography, and clean cards.
  */
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
@@ -122,7 +119,7 @@ fun OnboardingFlow(onComplete: () -> Unit) {
                 0 -> WelcomePage()
                 1 -> Star99ExplainerPage()
                 2 -> Star99BankingSetupPage()
-                3 -> BhimSetupPage(onSkip = {
+                3 -> OfflineSetupPage(onSkip = {
                     scope.launch { pagerState.animateScrollToPage(4) }
                 })
                 4 -> PermissionsPage(permissions = permissions)
@@ -150,7 +147,7 @@ fun OnboardingFlow(onComplete: () -> Unit) {
                     .fillMaxWidth()
                     .height(50.dp)
                     .clip(RoundedCornerShape(25.dp))
-                    .background(PhonePeColors.Primary)
+                    .background(LocalPeColors.Primary)
                     .clickable {
                         view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                         if (isLast) {
@@ -191,7 +188,7 @@ private fun PageIndicator(current: Int, total: Int) {
                 Modifier
                     .size(width = width, height = 7.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(if (isActive) PhonePeColors.Primary else Color(0xFFE0E0E0))
+                    .background(if (isActive) LocalPeColors.Primary else Color(0xFFE0E0E0))
             )
             if (i < total - 1) Spacer(Modifier.width(6.dp))
         }
@@ -226,7 +223,7 @@ private fun WelcomePage() {
                     .size(12.dp)
                     .alpha(pulse)
                     .clip(CircleShape)
-                    .background(PhonePeColors.Primary)
+                    .background(LocalPeColors.Primary)
             )
             Spacer(Modifier.width(10.dp))
             Text(
@@ -234,7 +231,7 @@ private fun WelcomePage() {
                 fontSize = 12.sp,
                 fontFamily = ClashGrotesk,
                 fontWeight = FontWeight.Bold,
-                color = PhonePeColors.Primary
+                color = LocalPeColors.Primary
             )
         }
 
@@ -251,41 +248,11 @@ private fun WelcomePage() {
         Spacer(Modifier.height(10.dp))
 
         Text(
-            text = "Send money over UPI without internet or mobile data. Direct cellular voice channel via *99# and VoLTE.",
+            text = "LocalPe enables seamless UPI payments without requiring internet or active mobile data. Directly communicates with carrier cellular networks using *99# and offline banking channels.",
             fontSize = 15.sp,
             color = Color(0xFF555555),
             lineHeight = 22.sp
         )
-
-        TUTORIAL_VIDEO_URL?.let { url ->
-            Spacer(Modifier.height(24.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFFF4F0FB))
-                    .clickable {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        runCatching { context.startActivity(intent) }
-                    }
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    tint = PhonePeColors.Primary,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = "Watch tutorial video",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = PhonePeColors.Primary
-                )
-            }
-        }
     }
 }
 
@@ -306,7 +273,7 @@ private fun Star99ExplainerPage() {
             fontSize = 12.sp,
             fontFamily = ClashGrotesk,
             fontWeight = FontWeight.Bold,
-            color = PhonePeColors.Primary
+            color = LocalPeColors.Primary
         )
 
         Spacer(Modifier.height(6.dp))
@@ -406,7 +373,7 @@ private fun Star99BankingSetupPage() {
                 fontSize = 11.sp,
                 fontFamily = ClashGrotesk,
                 fontWeight = FontWeight.Bold,
-                color = PhonePeColors.Primary
+                color = LocalPeColors.Primary
             )
         }
 
@@ -452,7 +419,7 @@ private fun Star99BankingSetupPage() {
                 .fillMaxWidth()
                 .height(46.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(PhonePeColors.Primary)
+                .background(LocalPeColors.Primary)
                 .clickable {
                     val dialIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:*99${Uri.encode("#")}"))
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -479,12 +446,12 @@ private fun Star99BankingSetupPage() {
     }
 }
 
-// ── Page 4: BHIM setup ──
+// ── Page 4: LocalPe setup ──
 
 @Composable
-private fun BhimSetupPage(onSkip: () -> Unit) {
+private fun OfflineSetupPage(onSkip: () -> Unit) {
     val cardShape = RoundedCornerShape(12.dp)
-    val bhimContext = LocalContext.current
+    val setupContext = LocalContext.current
 
     Column(
         Modifier
@@ -493,17 +460,17 @@ private fun BhimSetupPage(onSkip: () -> Unit) {
             .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
         Text(
-            text = "BHIM INTEGRATION",
+            text = "OFFLINE ACTIVATION",
             fontSize = 11.sp,
             fontFamily = ClashGrotesk,
             fontWeight = FontWeight.Bold,
-            color = PhonePeColors.Primary
+            color = LocalPeColors.Primary
         )
 
         Spacer(Modifier.height(6.dp))
 
         Text(
-            text = "Enable USSD in BHIM",
+            text = "Configure Offline Access",
             fontSize = 22.sp,
             fontFamily = ClashGrotesk,
             fontWeight = FontWeight.Bold,
@@ -513,7 +480,7 @@ private fun BhimSetupPage(onSkip: () -> Unit) {
         Spacer(Modifier.height(6.dp))
 
         Text(
-            text = "If you use the BHIM app, turn on *99# under Settings.",
+            text = "Ensure your bank-linked mobile SIM is ready for offline USSD queries.",
             fontSize = 13.sp,
             color = Color(0xFF555555)
         )
@@ -529,14 +496,14 @@ private fun BhimSetupPage(onSkip: () -> Unit) {
                 .padding(16.dp)
         ) {
             Column {
-                OnboardingStep(1, "Open BHIM app → tap your profile avatar (top-left)")
-                OnboardingImageSlot(res = bhimStep1ImageRes)
+                OnboardingStep(1, "Select your primary bank SIM in your device settings")
+                OnboardingImageSlot(res = setupStep1ImageRes)
                 Spacer(Modifier.height(12.dp))
-                OnboardingStep(2, "Scroll down → tap Settings")
-                OnboardingImageSlot(res = bhimStep2ImageRes)
+                OnboardingStep(2, "Confirm cellular balance or outgoing SMS/USSD is active")
+                OnboardingImageSlot(res = setupStep2ImageRes)
                 Spacer(Modifier.height(12.dp))
-                OnboardingStep(3, "Find \"USSD service (*99#)\" under Account → toggle ON")
-                OnboardingImageSlot(res = bhimStep3ImageRes)
+                OnboardingStep(3, "Grant accessibility permission for seamless automatic payments")
+                OnboardingImageSlot(res = setupStep3ImageRes)
             }
         }
 
@@ -550,10 +517,10 @@ private fun BhimSetupPage(onSkip: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Already done? Skip →",
+                text = "Already configured? Continue →",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = PhonePeColors.Primary
+                color = LocalPeColors.Primary
             )
         }
     }
@@ -627,7 +594,7 @@ private fun PermissionsPage(permissions: PermissionStatus) {
             fontSize = 11.sp,
             fontFamily = ClashGrotesk,
             fontWeight = FontWeight.Bold,
-            color = PhonePeColors.Primary
+            color = LocalPeColors.Primary
         )
 
         Spacer(Modifier.height(6.dp))
@@ -671,7 +638,7 @@ private fun OnboardingPermissionCard(info: OnboardingPermInfo) {
             Icon(
                 imageVector = info.icon,
                 contentDescription = null,
-                tint = if (info.granted) Color(0xFF2E7D32) else PhonePeColors.Primary,
+                tint = if (info.granted) Color(0xFF2E7D32) else LocalPeColors.Primary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -712,7 +679,7 @@ private fun OnboardingPermissionCard(info: OnboardingPermInfo) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
-                    .background(PhonePeColors.Primary)
+                    .background(LocalPeColors.Primary)
                     .clickable { info.onGrant() }
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
@@ -760,7 +727,7 @@ private fun ReadyPage() {
             fontSize = 12.sp,
             fontFamily = ClashGrotesk,
             fontWeight = FontWeight.Bold,
-            color = PhonePeColors.Primary
+            color = LocalPeColors.Primary
         )
 
         Spacer(Modifier.height(8.dp))
@@ -795,7 +762,7 @@ private fun OnboardingStep(index: Int, text: String) {
             modifier = Modifier
                 .size(20.dp)
                 .clip(CircleShape)
-                .background(PhonePeColors.Primary),
+                .background(LocalPeColors.Primary),
             contentAlignment = Alignment.Center
         ) {
             Text(

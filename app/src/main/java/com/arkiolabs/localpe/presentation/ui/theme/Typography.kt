@@ -10,14 +10,14 @@ import androidx.compose.ui.unit.sp
 import com.arkiolabs.localpe.R
 
 /**
- * Authentic PhonePe Typography.
+ * Authentic LocalPe Typography.
  *
- * In PhonePe's decompiled styles.xml:
+ * In LocalPe's decompiled styles.xml:
  *   <item name="android:fontFamily">@font/inter</item>
  *   <item name="fontFamily">@font/inter</item>
  *
  * All screens, headers, buttons, numbers, and labels strictly use Inter
- * to match PhonePe's signature look and feel.
+ * to match LocalPe's signature look and feel.
  */
 val InterFont = FontFamily(
     Font(R.font.inter_regular, FontWeight.Normal),
@@ -33,16 +33,16 @@ val NunitoFont = FontFamily(
     Font(R.font.nunito_sans_10pt_extrabold, FontWeight.Bold)
 )
 
-/** Authentic PhonePe Font Family */
-val PhonePeFont = InterFont
+/** Authentic LocalPe Font Family */
+val LocalPeFont = InterFont
 
-/** Alias ensuring all existing references instantly use PhonePe's Inter font */
+/** Alias ensuring all existing references instantly use LocalPe's Inter font */
 val ClashGrotesk = InterFont
 
 object NeoPopType {
-    val Display = PhonePeFont
-    val Body = PhonePeFont
-    val MonoFamily = PhonePeFont
+    val Display = LocalPeFont
+    val Body = LocalPeFont
+    val MonoFamily = LocalPeFont
 
     val DisplayLarge = TextStyle(
         fontFamily = Display,

@@ -55,7 +55,7 @@ import com.arkiolabs.localpe.domain.RecipientResolver
 import com.arkiolabs.localpe.presentation.HistoryViewModel
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 enum class ToUpiTab {
     DASHBOARD,
@@ -64,9 +64,9 @@ enum class ToUpiTab {
 }
 
 /**
- * Authentic PhonePe Styled "To Bank & Self A/c / To UPI ID" Screen.
+ * Authentic LocalPe Styled "To Bank & Self A/c / To UPI ID" Screen.
  *
- * Implements the exact layout from PhonePe screenshots:
+ * Implements the exact layout from LocalPe screenshots:
  *  - Header: "Send Money" / "Zero wait time • Zero fee".
  *  - Two action cards: "To Self Bank Account" & "To Account Number & IFSC".
  *  - "@ To UPI ID or Number" entry row.
@@ -185,7 +185,7 @@ fun ToUpiScreen(
 
                     Spacer(Modifier.height(20.dp))
 
-                    // Two Big Action Cards Row (Exact PhonePe Screenshot)
+                    // Two Big Action Cards Row (Exact LocalPe Screenshot)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -233,7 +233,7 @@ fun ToUpiScreen(
                                 fontSize = 20.sp,
                                 fontFamily = ClashGrotesk,
                                 fontWeight = FontWeight.Bold,
-                                color = PhonePeColors.Primary
+                                color = LocalPeColors.Primary
                             )
                         }
 
@@ -276,7 +276,7 @@ fun ToUpiScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.bhim_upi_orange_border),
+                            painter = painterResource(R.drawable.upi_orange_border),
                             contentDescription = "POWERED BY UPI",
                             modifier = Modifier.height(26.dp)
                         )
@@ -304,7 +304,7 @@ fun ToUpiScreen(
                             text = "UPI ID / Number",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = PhonePeColors.Primary
+                            color = LocalPeColors.Primary
                         )
 
                         Spacer(Modifier.height(6.dp))
@@ -317,7 +317,7 @@ fun ToUpiScreen(
                                 .clip(boxShape)
                                 .border(
                                     width = 1.5.dp,
-                                    color = if (isVerified) Color(0xFF00875A) else PhonePeColors.Primary,
+                                    color = if (isVerified) Color(0xFF00875A) else LocalPeColors.Primary,
                                     shape = boxShape
                                 )
                                 .padding(horizontal = 14.dp, vertical = 10.dp),
@@ -343,7 +343,7 @@ fun ToUpiScreen(
                                         fontWeight = FontWeight.Medium,
                                         color = Color(0xFF1C1C1E)
                                     ),
-                                    cursorBrush = SolidColor(PhonePeColors.Primary),
+                                    cursorBrush = SolidColor(LocalPeColors.Primary),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -437,14 +437,14 @@ fun ToUpiScreen(
                                     onValueChange = { nickname = it },
                                     singleLine = true,
                                     textStyle = TextStyle(fontSize = 13.sp, color = Color(0xFF1C1C1E)),
-                                    cursorBrush = SolidColor(PhonePeColors.Primary),
+                                    cursorBrush = SolidColor(LocalPeColors.Primary),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
                         }
                     }
 
-                    // PROCEED Button at bottom (Exact PhonePe Screenshot)
+                    // PROCEED Button at bottom (Exact LocalPe Screenshot)
                     if (isVerified) {
                         Box(
                             modifier = Modifier
@@ -456,7 +456,7 @@ fun ToUpiScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(PhonePeColors.Primary)
+                                    .background(LocalPeColors.Primary)
                                     .clickable {
                                         view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
                                         onUpiValidated(upiInput, verifiedPayeeName)
@@ -522,7 +522,7 @@ fun ToUpiScreen(
                         )
                     }
 
-                    // Floating "+ Bank Account" purple FAB (PhonePe Style)
+                    // Floating "+ Bank Account" purple FAB (LocalPe Style)
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
@@ -531,7 +531,7 @@ fun ToUpiScreen(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(24.dp))
-                                .background(PhonePeColors.Primary)
+                                .background(LocalPeColors.Primary)
                                 .clickable {
                                     activeTab = ToUpiTab.UPI_ID_ENTRY
                                 }

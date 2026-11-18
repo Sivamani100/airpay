@@ -48,7 +48,7 @@ class QrAutofillPropertyTest : FunSpec({
     )
 
     val arbVpaHandle = Arb.of(
-        "upi", "okaxis", "ybl", "paytm", "oksbi",
+        "upi", "okaxis", "ybl", "bankupi", "oksbi",
         "apl", "ibl", "icici", "hdfc", "bank"
     )
 

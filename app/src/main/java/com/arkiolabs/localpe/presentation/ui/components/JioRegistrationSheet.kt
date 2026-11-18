@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 private val POPULAR_BANKS = listOf(
     "State Bank of India",
@@ -114,7 +114,7 @@ fun JioRegistrationSheet(
                     fontSize = 11.sp,
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.Primary,
+                    color = LocalPeColors.Primary,
                     letterSpacing = 0.5.sp
                 )
             }
@@ -163,7 +163,7 @@ fun JioRegistrationSheet(
                                 .clip(RoundedCornerShape(10.dp))
                                 .border(
                                     width = if (isSelected) 1.5.dp else 1.dp,
-                                    color = if (isSelected) PhonePeColors.Primary else Color(0xFFE2E8F0),
+                                    color = if (isSelected) LocalPeColors.Primary else Color(0xFFE2E8F0),
                                     shape = RoundedCornerShape(10.dp)
                                 )
                                 .background(if (isSelected) Color(0xFFF5F3FB) else Color.White)
@@ -179,14 +179,14 @@ fun JioRegistrationSheet(
                                 text = bank,
                                 fontSize = 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) PhonePeColors.Primary else Color(0xFF1E293B)
+                                color = if (isSelected) LocalPeColors.Primary else Color(0xFF1E293B)
                             )
                             if (isSelected) {
                                 Box(
                                     modifier = Modifier
                                         .size(18.dp)
                                         .clip(CircleShape)
-                                        .background(PhonePeColors.Primary),
+                                        .background(LocalPeColors.Primary),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
@@ -224,7 +224,7 @@ fun JioRegistrationSheet(
                                 .clip(RoundedCornerShape(8.dp))
                                 .border(
                                     width = if (isSelected) 1.5.dp else 1.dp,
-                                    color = if (isSelected) PhonePeColors.Primary else Color(0xFFE2E8F0),
+                                    color = if (isSelected) LocalPeColors.Primary else Color(0xFFE2E8F0),
                                     shape = RoundedCornerShape(8.dp)
                                 )
                                 .background(if (isSelected) Color(0xFFEDE7F6) else Color.White)
@@ -239,7 +239,7 @@ fun JioRegistrationSheet(
                                 text = lang,
                                 fontSize = 13.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) PhonePeColors.Primary else Color(0xFF475569)
+                                color = if (isSelected) LocalPeColors.Primary else Color(0xFF475569)
                             )
                         }
                     }
@@ -253,7 +253,7 @@ fun JioRegistrationSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(PhonePeColors.Primary)
+                        .background(LocalPeColors.Primary)
                         .clickable {
                             view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
                             isCallStepActive = true
@@ -327,7 +327,7 @@ fun JioRegistrationSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(PhonePeColors.SuccessGreen)
+                        .background(LocalPeColors.SuccessGreen)
                         .clickable {
                             view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
                             onRegistrationConfirmed(selectedBank, selectedLanguage.first)

@@ -22,10 +22,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * PhonePe style UPI PIN display row.
+ * LocalPe style UPI PIN display row.
  * Rounded boxes with vibrant purple accent when active/filled, and a crisp
  * security bullet dot for filled digits.
  */
@@ -58,17 +58,17 @@ fun PinBoxes(
 
             val borderColor by animateColorAsState(
                 targetValue = when {
-                    filled -> PhonePeColors.Primary
-                    isActive -> PhonePeColors.Primary
-                    else -> PhonePeColors.Border
+                    filled -> LocalPeColors.Primary
+                    isActive -> LocalPeColors.Primary
+                    else -> LocalPeColors.Border
                 },
                 label = "pin_border_$index"
             )
 
             val fillColor = when {
-                filled -> PhonePeColors.PurpleTint
-                isActive -> PhonePeColors.Surface
-                else -> PhonePeColors.SurfaceVariant
+                filled -> LocalPeColors.PurpleTint
+                isActive -> LocalPeColors.Surface
+                else -> LocalPeColors.SurfaceVariant
             }
 
             Box(
@@ -88,14 +88,14 @@ fun PinBoxes(
                         Modifier
                             .size(12.dp)
                             .clip(CircleShape)
-                            .background(PhonePeColors.Primary)
+                            .background(LocalPeColors.Primary)
                     )
                 } else if (isActive) {
                     Box(
                         Modifier
                             .size(14.dp, 2.dp)
                             .alpha(pulseAlpha)
-                            .background(PhonePeColors.Primary)
+                            .background(LocalPeColors.Primary)
                     )
                 }
             }

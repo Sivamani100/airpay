@@ -4,11 +4,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /**
- * Authentic PhonePe design palette.
+ * Authentic LocalPe design palette.
  * Signature deep purple, soft purple tints, clean white surfaces,
  * crisp dark typography, and light gray dividers.
  */
-object PhonePeColors {
+object LocalPeColors {
     // Primary Purple
     val Primary = Color(0xFF5F259F)
     val PrimaryDark = Color(0xFF4A148C)
@@ -59,7 +59,7 @@ object PhonePeColors {
 }
 
 /**
- * Backward compatibility alias mapping NeoPop tokens to the PhonePe design language.
+ * Backward compatibility alias mapping NeoPop tokens to the LocalPe design language.
  */
 object NeoPopColors {
     val Black = Color(0xFFF6F7FA)

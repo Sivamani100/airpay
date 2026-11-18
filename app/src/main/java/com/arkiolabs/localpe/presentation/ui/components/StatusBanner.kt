@@ -29,12 +29,12 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 enum class BannerSeverity { Warn, Danger }
 
 /**
- * PhonePe style status notification card: soft pastel background, rounded corners,
+ * LocalPe style status notification card: soft pastel background, rounded corners,
  * clear action pill button.
  */
 @Composable
@@ -49,12 +49,12 @@ fun StatusBanner(
 ) {
     val view = LocalView.current
     val accentColor = when (severity) {
-        BannerSeverity.Warn -> PhonePeColors.AccentOrange
-        BannerSeverity.Danger -> PhonePeColors.DangerRed
+        BannerSeverity.Warn -> LocalPeColors.AccentOrange
+        BannerSeverity.Danger -> LocalPeColors.DangerRed
     }
     val bgColor = when (severity) {
-        BannerSeverity.Warn -> PhonePeColors.AccentOrangeTint
-        BannerSeverity.Danger -> PhonePeColors.DangerTint
+        BannerSeverity.Warn -> LocalPeColors.AccentOrangeTint
+        BannerSeverity.Danger -> LocalPeColors.DangerTint
     }
     val shape = RoundedCornerShape(12.dp)
 
@@ -79,12 +79,12 @@ fun StatusBanner(
                     text = title,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.TextPrimary
+                    color = LocalPeColors.TextPrimary
                 )
                 Text(
                     text = message,
                     fontSize = 12.sp,
-                    color = PhonePeColors.TextSecondary,
+                    color = LocalPeColors.TextSecondary,
                     lineHeight = 16.sp
                 )
             }

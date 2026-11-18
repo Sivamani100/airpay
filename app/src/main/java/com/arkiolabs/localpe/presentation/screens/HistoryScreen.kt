@@ -57,15 +57,15 @@ import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.data.TransactionEntity
 import com.arkiolabs.localpe.presentation.HistoryViewModel
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 /**
- * Authentic PhonePe Styled Transaction History Screen.
+ * Authentic LocalPe Styled Transaction History Screen.
  *
- * Implements the exact layout from PhonePe screenshot:
+ * Implements the exact layout from LocalPe screenshot:
  *  - Header: "History" title on left, "My Statements" pill on right, Help (?) icon.
  *  - Search bar: Lavender tint (#F5F3FB) with search icon and filter icon.
  *  - Month summary header: "November 2026" on left, "+ ₹3,913.2 >" on right.
@@ -105,7 +105,7 @@ fun HistoryScreen(
             .background(Color.White)
             .statusBarsPadding()
     ) {
-        // ── Top Header Row (PhonePe Style) ──────────────────────────
+        // ── Top Header Row (LocalPe Style) ──────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -176,7 +176,7 @@ fun HistoryScreen(
             }
         }
 
-        // ── Search & Filter Bar (PhonePe Style) ─────────────────────
+        // ── Search & Filter Bar (LocalPe Style) ─────────────────────
         val pillShape = RoundedCornerShape(24.dp)
         Box(
             modifier = Modifier
@@ -213,7 +213,7 @@ fun HistoryScreen(
                             fontSize = 14.sp,
                             color = Color(0xFF1C1C1E)
                         ),
-                        cursorBrush = SolidColor(PhonePeColors.Primary),
+                        cursorBrush = SolidColor(LocalPeColors.Primary),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -231,7 +231,7 @@ fun HistoryScreen(
 
         Spacer(Modifier.height(14.dp))
 
-        // ── Month Summary Header (PhonePe Style) ────────────────────
+        // ── Month Summary Header (LocalPe Style) ────────────────────
         val currentMonth = remember {
             SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(Date())
         }
@@ -256,7 +256,7 @@ fun HistoryScreen(
                     text = if (totalAmount > 0) "+ ₹${String.format(Locale.getDefault(), "%,.1f", totalAmount)}" else "₹0.00",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.SuccessGreen
+                    color = LocalPeColors.SuccessGreen
                 )
                 Spacer(Modifier.width(4.dp))
                 Icon(
@@ -287,7 +287,7 @@ fun HistoryScreen(
                         Icon(
                             painter = painterResource(R.drawable.txn_outflow),
                             contentDescription = null,
-                            tint = PhonePeColors.Primary,
+                            tint = LocalPeColors.Primary,
                             modifier = Modifier.size(28.dp)
                         )
                     }
@@ -313,7 +313,7 @@ fun HistoryScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 items(filteredTxns, key = { it.id }) { txn ->
-                    PhonePeHistoryRow(
+                    LocalPeHistoryRow(
                         txn = txn,
                         onPayAgain = { onPayAgain(txn) }
                     )
@@ -325,7 +325,7 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun PhonePeHistoryRow(
+private fun LocalPeHistoryRow(
     txn: TransactionEntity,
     onPayAgain: () -> Unit
 ) {
@@ -456,7 +456,7 @@ private fun PhonePeHistoryRow(
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(PhonePeColors.PurpleTint)
+                            .background(LocalPeColors.PurpleTint)
                             .clickable { onPayAgain() }
                             .padding(horizontal = 14.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -464,7 +464,7 @@ private fun PhonePeHistoryRow(
                         Icon(
                             imageVector = Icons.Default.Replay,
                             contentDescription = null,
-                            tint = PhonePeColors.Primary,
+                            tint = LocalPeColors.Primary,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(Modifier.width(6.dp))
@@ -472,7 +472,7 @@ private fun PhonePeHistoryRow(
                             text = "Pay Again",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = PhonePeColors.Primary
+                            color = LocalPeColors.Primary
                         )
                     }
                 }

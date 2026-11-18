@@ -13,18 +13,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * PhonePe style card: rounded white card with subtle border and gentle shadow.
+ * LocalPe style card: rounded white card with subtle border and gentle shadow.
  */
 @Composable
 fun NeoPopCard(
     modifier: Modifier = Modifier,
-    surfaceColor: Color = PhonePeColors.Surface,
+    surfaceColor: Color = LocalPeColors.Surface,
     rightColor: Color = Color.Transparent,
     bottomColor: Color = Color.Transparent,
-    borderColor: Color = PhonePeColors.Border,
+    borderColor: Color = LocalPeColors.Border,
     depth: Dp = 0.dp,
     cornerRadius: Dp = 16.dp,
     contentPadding: PaddingValues = PaddingValues(16.dp),
@@ -44,7 +44,7 @@ fun NeoPopCard(
 }
 
 /**
- * PhonePe style accent card: white card with state-tinted border/surface.
+ * LocalPe style accent card: white card with state-tinted border/surface.
  */
 @Composable
 fun NeoPopAccentCard(
@@ -60,7 +60,7 @@ fun NeoPopAccentCard(
         modifier = modifier
             .shadow(elevation = 1.dp, shape = shape)
             .clip(shape)
-            .background(PhonePeColors.Surface)
+            .background(LocalPeColors.Surface)
             .border(width = 1.5.dp, color = accent, shape = shape)
             .padding(contentPadding)
     ) {

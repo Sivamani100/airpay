@@ -285,9 +285,9 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
         stepSubtitle: String
     ) {
         handler.post {
-            val green = PHONEPE_SUCCESS
-            val purple = PHONEPE_PURPLE
-            val gray = PHONEPE_TEXT_MUTED
+            val green = LOCALPE_SUCCESS
+            val purple = LOCALPE_PRIMARY
+            val gray = LOCALPE_TEXT_MUTED
 
             when (stepNumber) {
                 1 -> {
@@ -376,7 +376,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
     ): FrameLayout {
         // 100% OPAQUE background covering the entire display so call dialer is completely invisible!
         val root = FrameLayout(context).apply {
-            setBackgroundColor(PHONEPE_BG)
+            setBackgroundColor(LOCALPE_BG)
             isClickable = true
         }
 
@@ -394,7 +394,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         val badge = TextView(context).apply {
             text = if (isBalanceCheck) "JIO VoLTE BALANCE CHECK" else "JIO VoLTE OFFLINE GATEWAY"
-            setTextColor(PHONEPE_PURPLE)
+            setTextColor(LOCALPE_PRIMARY)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
             letterSpacing = 0.12f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
@@ -412,7 +412,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         val title = TextView(context).apply {
             text = if (isBalanceCheck) "Checking Bank Balance" else "Paying ₹$amount"
-            setTextColor(PHONEPE_TEXT_PRIMARY)
+            setTextColor(LOCALPE_TEXT_PRIMARY)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             val lp = LinearLayout.LayoutParams(
@@ -425,7 +425,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         val subtitle = TextView(context).apply {
             text = if (isBalanceCheck) "via Jio VoLTE Gateway (08045163666)" else "to +91 $recipient"
-            setTextColor(PHONEPE_TEXT_MUTED)
+            setTextColor(LOCALPE_TEXT_MUTED)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -437,7 +437,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         val progress = ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
             isIndeterminate = true
-            indeterminateTintList = android.content.res.ColorStateList.valueOf(PHONEPE_PURPLE)
+            indeterminateTintList = android.content.res.ColorStateList.valueOf(LOCALPE_PRIMARY)
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -469,7 +469,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
             }
             val label = TextView(context).apply {
                 text = name
-                setTextColor(PHONEPE_TEXT_PRIMARY)
+                setTextColor(LOCALPE_TEXT_PRIMARY)
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                 typeface = android.graphics.Typeface.DEFAULT_BOLD
                 val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -477,7 +477,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
             }
             val status = TextView(context).apply {
                 text = "WAITING"
-                setTextColor(PHONEPE_TEXT_MUTED)
+                setTextColor(LOCALPE_TEXT_MUTED)
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
                 typeface = android.graphics.Typeface.DEFAULT_BOLD
                 letterSpacing = 0.08f
@@ -519,7 +519,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         jioProgressText = TextView(context).apply {
             text = "$stepTitle\n$stepSubtitle"
-            setTextColor(PHONEPE_TEXT_MUTED)
+            setTextColor(LOCALPE_TEXT_MUTED)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -578,7 +578,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
     private fun buildFullView(title: String, subtitle: String, stepLabel: String): FrameLayout {
         // 100% OPAQUE background covering the entire display so carrier dialogs are 100% invisible!
         val dim = FrameLayout(context).apply {
-            setBackgroundColor(PHONEPE_BG)
+            setBackgroundColor(LOCALPE_BG)
             isClickable = false
             isFocusable = false
         }
@@ -596,7 +596,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         val brand = TextView(context).apply {
             text = "LOCALPE OFFLINE UPI"
-            setTextColor(PHONEPE_PURPLE)
+            setTextColor(LOCALPE_PRIMARY)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
             letterSpacing = 0.12f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
@@ -614,7 +614,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         titleView = TextView(context).apply {
             text = title
-            setTextColor(PHONEPE_TEXT_PRIMARY)
+            setTextColor(LOCALPE_TEXT_PRIMARY)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             val lp = LinearLayout.LayoutParams(
@@ -627,7 +627,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         subtitleView = TextView(context).apply {
             text = subtitle
-            setTextColor(PHONEPE_TEXT_MUTED)
+            setTextColor(LOCALPE_TEXT_MUTED)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -639,7 +639,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         spinnerView = ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
             isIndeterminate = true
-            indeterminateTintList = android.content.res.ColorStateList.valueOf(PHONEPE_PURPLE)
+            indeterminateTintList = android.content.res.ColorStateList.valueOf(LOCALPE_PRIMARY)
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -665,7 +665,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         stepLabelView = TextView(context).apply {
             text = stepLabel.uppercase()
-            setTextColor(PHONEPE_PURPLE)
+            setTextColor(LOCALPE_PRIMARY)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
             letterSpacing = 0.08f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
@@ -673,7 +673,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
         val helperText = TextView(context).apply {
             text = "Offline banking session is active. Background dialogs are hidden."
-            setTextColor(PHONEPE_TEXT_MUTED)
+            setTextColor(LOCALPE_TEXT_MUTED)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -851,12 +851,12 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
         (value * context.resources.displayMetrics.density).toInt()
 
     companion object {
-        // PhonePe palette
-        private const val PHONEPE_PURPLE = 0xFF5F259E.toInt()
-        private const val PHONEPE_BG = 0xFFF9F9FB.toInt()
-        private const val PHONEPE_TEXT_PRIMARY = 0xFF1C1C1E.toInt()
-        private const val PHONEPE_TEXT_MUTED = 0xFF757575.toInt()
-        private const val PHONEPE_SUCCESS = 0xFF00875A.toInt()
+        // LocalPe palette
+        private const val LOCALPE_PRIMARY = 0xFF5F259E.toInt()
+        private const val LOCALPE_BG = 0xFFF9F9FB.toInt()
+        private const val LOCALPE_TEXT_PRIMARY = 0xFF1C1C1E.toInt()
+        private const val LOCALPE_TEXT_MUTED = 0xFF757575.toInt()
+        private const val LOCALPE_SUCCESS = 0xFF00875A.toInt()
 
         // NeoPOP palette (mirrors presentation/ui/theme/Colors.kt)
         private const val NEOPOP_DIM = 0xFF000000.toInt() // 100% Opaque black so dialer is completely invisible

@@ -1,7 +1,7 @@
 package com.arkiolabs.localpe.presentation.navigation
 
 /**
- * Navigation routes for the PhonePe-styled architecture.
+ * Navigation routes for the LocalPe-styled architecture.
  *
  * Bottom navigation tabs:
  *  - Home: Dashboard with profile avatar, banner, "Money Transfers" 4-circle grid, and offline status.

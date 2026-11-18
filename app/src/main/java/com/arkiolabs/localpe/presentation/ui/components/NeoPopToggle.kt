@@ -25,10 +25,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * PhonePe style segmented toggle control: rounded pill with purple selection.
+ * LocalPe style segmented toggle control: rounded pill with purple selection.
  */
 @Composable
 fun <T> NeoPopToggle(
@@ -44,7 +44,7 @@ fun <T> NeoPopToggle(
         modifier = modifier
             .fillMaxWidth()
             .clip(containerShape)
-            .background(PhonePeColors.PurpleTint)
+            .background(LocalPeColors.PurpleTint)
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -52,11 +52,11 @@ fun <T> NeoPopToggle(
             val isActive = value == selected
             val pillShape = RoundedCornerShape(10.dp)
             val bg by animateColorAsState(
-                targetValue = if (isActive) PhonePeColors.Primary else Color.Transparent,
+                targetValue = if (isActive) LocalPeColors.Primary else Color.Transparent,
                 label = "toggle_bg_$index"
             )
             val fg by animateColorAsState(
-                targetValue = if (isActive) Color.White else PhonePeColors.TextSecondary,
+                targetValue = if (isActive) Color.White else LocalPeColors.TextSecondary,
                 label = "toggle_fg_$index"
             )
 

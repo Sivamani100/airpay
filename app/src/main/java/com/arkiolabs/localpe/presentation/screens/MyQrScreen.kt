@@ -68,16 +68,16 @@ import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.domain.ActionEvent
 import com.arkiolabs.localpe.domain.Actions
 import com.arkiolabs.localpe.localPeApp
-import com.arkiolabs.localpe.presentation.ui.components.PhonePeLottieAnimation
+import com.arkiolabs.localpe.presentation.ui.components.LocalPeLottieAnimation
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
 /**
- * Authentic PhonePe "MY QR" screen.
+ * Authentic LocalPe "MY QR" screen.
  * Displays user's 100% genuine scannable UPI QR code (generated via ZXing),
  * supports automated UPI ID fetching from SIM (*99# -> 4: Profile -> 4: UPI ID),
  * one-tap manual UPI ID customizer, copy, download, and share.
@@ -111,12 +111,12 @@ fun MyQrScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(PhonePeColors.Background)
+            .background(LocalPeColors.Background)
             .statusBarsPadding()
     ) {
         // ── Top App Bar ─────────────────────────────────────────────
         Surface(
-            color = PhonePeColors.Surface,
+            color = LocalPeColors.Surface,
             shadowElevation = 1.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -139,7 +139,7 @@ fun MyQrScreen(
                     Icon(
                         imageVector = Iconsax.ArrowLeft,
                         contentDescription = "Back",
-                        tint = PhonePeColors.TextPrimary,
+                        tint = LocalPeColors.TextPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -151,7 +151,7 @@ fun MyQrScreen(
                     fontSize = 18.sp,
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.TextPrimary,
+                    color = LocalPeColors.TextPrimary,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -168,7 +168,7 @@ fun MyQrScreen(
                     Icon(
                         imageVector = Iconsax.InfoCircle,
                         contentDescription = "Help",
-                        tint = PhonePeColors.TextPrimary,
+                        tint = LocalPeColors.TextPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -182,7 +182,7 @@ fun MyQrScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
-            // ── User Profile Header (Exact PhonePe Screenshot) ─────────
+            // ── User Profile Header (Exact LocalPe Screenshot) ─────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,11 +193,11 @@ fun MyQrScreen(
                     modifier = Modifier
                         .size(52.dp)
                         .clip(CircleShape)
-                        .border(1.5.dp, PhonePeColors.Primary, CircleShape),
+                        .border(1.5.dp, LocalPeColors.Primary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.phonepe_user_avatar),
+                        painter = painterResource(id = R.drawable.localpe_user_avatar),
                         contentDescription = "User Avatar",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -242,7 +242,7 @@ fun MyQrScreen(
                     text = "Manage",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.Primary,
+                    color = LocalPeColors.Primary,
                     modifier = Modifier.clickable {
                         editInput = effectiveUpiId
                         showEditDialog = true
@@ -250,7 +250,7 @@ fun MyQrScreen(
                 )
             }
 
-            // ── Main Elevated PhonePe QR Card (Exact PhonePe Style) ───
+            // ── Main Elevated LocalPe QR Card (Exact LocalPe Style) ───
             val cardShape = RoundedCornerShape(20.dp)
             Surface(
                 color = Color.White,
@@ -320,18 +320,18 @@ fun MyQrScreen(
                             )
                         }
 
-                        // Center PhonePe / UPI Logo Badge
+                        // Center LocalPe / UPI Logo Badge
                         Box(
                             modifier = Modifier
                                 .size(38.dp)
                                 .shadow(2.dp, CircleShape)
                                 .clip(CircleShape)
-                                .background(PhonePeColors.Primary),
+                                .background(LocalPeColors.Primary),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_phonepe_qr_icon_monochrome),
-                                contentDescription = "PhonePe",
+                                painter = painterResource(id = R.drawable.ic_localpe_qr_icon_monochrome),
+                                contentDescription = "LocalPe",
                                 tint = Color.White,
                                 modifier = Modifier.size(26.dp)
                             )
@@ -340,7 +340,7 @@ fun MyQrScreen(
 
                     Spacer(Modifier.height(14.dp))
 
-                    // UPI ID display with Copy action (PhonePe Style)
+                    // UPI ID display with Copy action (LocalPe Style)
                     Row(
                         modifier = Modifier
                             .clickable {
@@ -367,7 +367,7 @@ fun MyQrScreen(
 
                     Spacer(Modifier.height(18.dp))
 
-                    // Download & Share Actions Row (Exact PhonePe Outline Pills)
+                    // Download & Share Actions Row (Exact LocalPe Outline Pills)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -460,7 +460,7 @@ fun MyQrScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Payment Methods Section (Exact PhonePe List) ───────────
+            // ── Payment Methods Section (Exact LocalPe List) ───────────
             Text(
                 text = "Payment Methods",
                 fontFamily = ClashGrotesk,
@@ -513,7 +513,7 @@ fun MyQrScreen(
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
-                    color = PhonePeColors.TextPrimary
+                    color = LocalPeColors.TextPrimary
                 )
             },
             text = {
@@ -521,23 +521,23 @@ fun MyQrScreen(
                     Text(
                         text = "Enter your registered UPI ID to generate your genuine receiving QR code.",
                         fontSize = 13.sp,
-                        color = PhonePeColors.TextSecondary
+                        color = LocalPeColors.TextSecondary
                     )
                     Spacer(Modifier.height(12.dp))
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(PhonePeColors.Background)
-                            .border(1.dp, PhonePeColors.Border, RoundedCornerShape(10.dp))
+                            .background(LocalPeColors.Background)
+                            .border(1.dp, LocalPeColors.Border, RoundedCornerShape(10.dp))
                             .padding(12.dp)
                     ) {
                         BasicTextField(
                             value = editInput,
                             onValueChange = { editInput = it.trim().lowercase() },
                             singleLine = true,
-                            textStyle = TextStyle(fontSize = 14.sp, color = PhonePeColors.TextPrimary),
-                            cursorBrush = SolidColor(PhonePeColors.Primary),
+                            textStyle = TextStyle(fontSize = 14.sp, color = LocalPeColors.TextPrimary),
+                            cursorBrush = SolidColor(LocalPeColors.Primary),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -547,7 +547,7 @@ fun MyQrScreen(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(PhonePeColors.Primary)
+                        .background(LocalPeColors.Primary)
                         .clickable {
                             if (editInput.contains("@")) {
                                 scope.launch { prefsRepo.setUserUpiId(editInput) }
@@ -576,7 +576,7 @@ fun MyQrScreen(
                     Text(
                         text = "Cancel",
                         fontWeight = FontWeight.SemiBold,
-                        color = PhonePeColors.TextSecondary
+                        color = LocalPeColors.TextSecondary
                     )
                 }
             }
@@ -777,7 +777,7 @@ private fun PaymentMethodRow(
                     text = "Try Now",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
             }
             "activate" -> {
@@ -785,7 +785,7 @@ private fun PaymentMethodRow(
                     text = "Activate",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
             }
         }

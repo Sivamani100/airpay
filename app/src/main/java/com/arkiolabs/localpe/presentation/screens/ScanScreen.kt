@@ -79,21 +79,21 @@ import com.arkiolabs.localpe.platform.QrScannerManager
 import com.arkiolabs.localpe.presentation.permissions.openAppDetailsSettings
 import androidx.compose.ui.res.painterResource
 import com.arkiolabs.localpe.R
-import com.arkiolabs.localpe.presentation.ui.components.PhonePeLottieAnimation
+import com.arkiolabs.localpe.presentation.ui.components.LocalPeLottieAnimation
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * PhonePe Styled QR Scanner Screen.
+ * LocalPe Styled QR Scanner Screen.
  *
- * Implements the exact layout and placement from PhonePe screenshot:
+ * Implements the exact layout and placement from LocalPe screenshot:
  *  - Top bar: Back arrow, "Scan any QR" (bold white), Help (?) icon.
  *  - Viewfinder with signature vibrant purple corner brackets.
  *  - Scrim cutout over camera preview.
  *  - Two bottom circular translucent buttons: "Upload QR" (gallery) and "Torch" (flashlight).
- *  - Bottom "BHIM | UPI" / "Offline *99#" badge.
+ *  - Bottom "LocalPe | UPI" / "Offline *99#" badge.
  */
 @Composable
 fun ScanScreen(
@@ -129,7 +129,7 @@ fun ScanScreen(
             .background(Color.Black)
     ) {
         when {
-            hasCameraPermission -> PhonePeCameraContent(
+            hasCameraPermission -> LocalPeCameraContent(
                 qrManager = qrManager,
                 onResult = onResult,
                 onClose = onClose,
@@ -146,7 +146,7 @@ fun ScanScreen(
 }
 
 @Composable
-private fun PhonePeCameraContent(
+private fun LocalPeCameraContent(
     qrManager: QrScannerManager,
     onResult: (String) -> Unit,
     onClose: () -> Unit,
@@ -213,15 +213,15 @@ private fun PhonePeCameraContent(
                 }
         )
 
-        // Viewfinder with PhonePe Purple Corner Brackets
-        PhonePeViewfinderOverlay(detected = detected)
+        // Viewfinder with LocalPe Purple Corner Brackets
+        LocalPeViewfinderOverlay(detected = detected)
 
         // Focus animation ring
         focusTap?.let { tap ->
             FocusRing(at = tap, key = tap.toString(), onDone = { focusTap = null })
         }
 
-        // Top Bar Header (PhonePe Screenshot Style)
+        // Top Bar Header (LocalPe Screenshot Style)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -277,7 +277,7 @@ private fun PhonePeCameraContent(
             }
         }
 
-        // Bottom Controls: Upload QR & Torch (PhonePe Screenshot Style)
+        // Bottom Controls: Upload QR & Torch (LocalPe Screenshot Style)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -291,7 +291,7 @@ private fun PhonePeCameraContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Upload QR (Gallery)
-                PhonePeScannerCircleButton(
+                LocalPeScannerCircleButton(
                     label = "Upload QR",
                     iconResId = R.drawable.ic_photo_gallery,
                     onClick = {
@@ -302,7 +302,7 @@ private fun PhonePeCameraContent(
                 )
 
                 // Torch
-                PhonePeScannerCircleButton(
+                LocalPeScannerCircleButton(
                     label = "Torch",
                     iconResId = if (torchOn) R.drawable.ic_torch_on else R.drawable.ic_torch_off,
                     onClick = {
@@ -314,16 +314,16 @@ private fun PhonePeCameraContent(
 
             Spacer(Modifier.height(28.dp))
 
-            // Bottom Brand Row with authentic BHIM UPI badge
+            // Bottom Brand Row with authentic LocalPe UPI badge
             Row(verticalAlignment = Alignment.CenterVertically) {
                 androidx.compose.foundation.Image(
-                    painter = painterResource(id = R.drawable.bhim_upi_orange_border),
-                    contentDescription = "BHIM UPI",
+                    painter = painterResource(id = R.drawable.upi_orange_border),
+                    contentDescription = "LocalPe UPI",
                     modifier = Modifier.size(26.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "BHIM  |  UPI · Offline Secure",
+                    text = "LocalPe  |  UPI · Offline Secure",
                     fontFamily = ClashGrotesk,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
@@ -335,10 +335,10 @@ private fun PhonePeCameraContent(
 }
 
 /**
- * Circular translucent button below the viewfinder (PhonePe Style).
+ * Circular translucent button below the viewfinder (LocalPe Style).
  */
 @Composable
-private fun PhonePeScannerCircleButton(
+private fun LocalPeScannerCircleButton(
     label: String,
     iconResId: Int,
     onClick: () -> Unit
@@ -381,10 +381,10 @@ private fun PhonePeScannerCircleButton(
 }
 
 /**
- * Viewfinder with signature vibrant PhonePe purple corner brackets.
+ * Viewfinder with signature vibrant LocalPe purple corner brackets.
  */
 @Composable
-private fun PhonePeViewfinderOverlay(detected: Boolean) {
+private fun LocalPeViewfinderOverlay(detected: Boolean) {
     val infinite = rememberInfiniteTransition(label = "scan_pulse")
     val sweep by infinite.animateFloat(
         initialValue = 0f,
@@ -396,7 +396,7 @@ private fun PhonePeViewfinderOverlay(detected: Boolean) {
         label = "sweep"
     )
 
-    val purpleCorner = Color(0xFF8E24AA) // Vibrant PhonePe corner purple
+    val purpleCorner = Color(0xFF8E24AA) // Vibrant LocalPe corner purple
     val cornerColor by animateColorAsState(
         if (detected) Color.White else purpleCorner,
         label = "corner_color"
@@ -441,7 +441,7 @@ private fun PhonePeViewfinderOverlay(detected: Boolean) {
             style = Stroke(width = 1.dp.toPx())
         )
 
-        // 3. PhonePe Vibrant Purple Corner Brackets
+        // 3. LocalPe Vibrant Purple Corner Brackets
         // Top-Left Corner
         drawPath(
             path = Path().apply {
@@ -543,17 +543,17 @@ private fun ScannerPermissionDenied(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(PhonePeColors.Background)
+            .background(LocalPeColors.Background)
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Surface(
-            color = PhonePeColors.Surface,
+            color = LocalPeColors.Surface,
             shape = shape,
             shadowElevation = 2.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, PhonePeColors.Border, shape)
+                .border(1.dp, LocalPeColors.Border, shape)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -563,13 +563,13 @@ private fun ScannerPermissionDenied(
                     modifier = Modifier
                         .size(60.dp)
                         .clip(CircleShape)
-                        .background(PhonePeColors.PurpleTint),
+                        .background(LocalPeColors.PurpleTint),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.QrCodeScanner,
                         contentDescription = null,
-                        tint = PhonePeColors.Primary,
+                        tint = LocalPeColors.Primary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -580,7 +580,7 @@ private fun ScannerPermissionDenied(
                     text = "Camera Permission Required",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PhonePeColors.TextPrimary
+                    color = LocalPeColors.TextPrimary
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -588,7 +588,7 @@ private fun ScannerPermissionDenied(
                 Text(
                     text = "LocalPe needs camera access to scan QR codes for offline payments.",
                     fontSize = 13.sp,
-                    color = PhonePeColors.TextSecondary,
+                    color = LocalPeColors.TextSecondary,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
 
@@ -598,7 +598,7 @@ private fun ScannerPermissionDenied(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(PhonePeColors.Primary)
+                        .background(LocalPeColors.Primary)
                         .clickable { if (permanentlyDenied) onOpenSettings() else onGrant() }
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center
@@ -625,7 +625,7 @@ private fun ScannerPermissionDenied(
                         text = "Cancel",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = PhonePeColors.TextSecondary
+                        color = LocalPeColors.TextSecondary
                     )
                 }
             }

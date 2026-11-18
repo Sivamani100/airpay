@@ -36,17 +36,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.presentation.navigation.Screen
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * Authentic PhonePe Bottom Navigation Bar:
+ * Authentic LocalPe Bottom Navigation Bar:
  *  - 5 tabs: Home, Search, [Center QR Scanner], Alerts, History.
  *  - Center QR button is an authentic vibrant purple circle, vertically centered and NEVER cut off.
- *  - Clean white surface with subtle top hairline divider matching PhonePe screenshots.
- *  - Active tab is solid black (PhonePe style), inactive is crisp gray.
+ *  - Clean white surface with subtle top hairline divider matching LocalPe screenshots.
+ *  - Active tab is solid black (LocalPe style), inactive is crisp gray.
  */
 @Composable
-fun PhonePeBottomNav(
+fun LocalPeBottomNav(
     currentRoute: String,
     onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -100,7 +100,7 @@ fun PhonePeBottomNav(
                 modifier = Modifier.weight(1f)
             )
 
-            // Tab 3: Center QR Scanner Button (Authentic PhonePe Purple Circle - Perfectly Centered, Never Cut Off)
+            // Tab 3: Center QR Scanner Button (Authentic LocalPe Purple Circle - Perfectly Centered, Never Cut Off)
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -112,7 +112,7 @@ fun PhonePeBottomNav(
                         .size(50.dp)
                         .shadow(elevation = 4.dp, shape = CircleShape)
                         .clip(CircleShape)
-                        .background(PhonePeColors.PurpleGradient)
+                        .background(LocalPeColors.PurpleGradient)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null

@@ -9,7 +9,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
-fun PhonePeLottieAnimation(
+fun LocalPeLottieAnimation(
     assetName: String,
     modifier: Modifier = Modifier,
     iterations: Int = LottieConstants.IterateForever,

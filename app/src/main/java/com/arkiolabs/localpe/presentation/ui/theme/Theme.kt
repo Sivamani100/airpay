@@ -10,27 +10,27 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val PhonePeColorScheme = lightColorScheme(
-    primary = PhonePeColors.Primary,
+private val LocalPeColorScheme = lightColorScheme(
+    primary = LocalPeColors.Primary,
     onPrimary = Color.White,
-    primaryContainer = PhonePeColors.PurpleTint,
-    onPrimaryContainer = PhonePeColors.PrimaryDark,
-    secondary = PhonePeColors.PrimaryLight,
+    primaryContainer = LocalPeColors.PurpleTint,
+    onPrimaryContainer = LocalPeColors.PrimaryDark,
+    secondary = LocalPeColors.PrimaryLight,
     onSecondary = Color.White,
-    background = PhonePeColors.Background,
-    onBackground = PhonePeColors.TextPrimary,
-    surface = PhonePeColors.Surface,
-    onSurface = PhonePeColors.TextPrimary,
-    surfaceVariant = PhonePeColors.SurfaceVariant,
-    onSurfaceVariant = PhonePeColors.TextSecondary,
-    error = PhonePeColors.DangerRed,
+    background = LocalPeColors.Background,
+    onBackground = LocalPeColors.TextPrimary,
+    surface = LocalPeColors.Surface,
+    onSurface = LocalPeColors.TextPrimary,
+    surfaceVariant = LocalPeColors.SurfaceVariant,
+    onSurfaceVariant = LocalPeColors.TextSecondary,
+    error = LocalPeColors.DangerRed,
     onError = Color.White,
-    outline = PhonePeColors.Border,
-    outlineVariant = PhonePeColors.BorderStrong
+    outline = LocalPeColors.Border,
+    outlineVariant = LocalPeColors.BorderStrong
 )
 
 /**
- * Clean PhonePe light theme with signature purple accents and crisp typography.
+ * Clean LocalPe light theme with signature purple accents and crisp typography.
  */
 @Composable
 fun LocalPeTheme(content: @Composable () -> Unit) {
@@ -38,14 +38,14 @@ fun LocalPeTheme(content: @Composable () -> Unit) {
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = PhonePeColors.Background.toArgb()
-            window.navigationBarColor = PhonePeColors.Surface.toArgb()
+            window.statusBarColor = LocalPeColors.Background.toArgb()
+            window.navigationBarColor = LocalPeColors.Surface.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
             WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
         }
     }
     MaterialTheme(
-        colorScheme = PhonePeColorScheme,
+        colorScheme = LocalPeColorScheme,
         typography = NeoPopTypography,
         shapes = NeoPopShapes,
         content = content

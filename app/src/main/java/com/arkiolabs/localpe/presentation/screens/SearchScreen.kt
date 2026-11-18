@@ -55,12 +55,12 @@ import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.data.TransactionEntity
 import com.arkiolabs.localpe.presentation.HistoryViewModel
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * Authentic PhonePe Styled Search Screen.
+ * Authentic LocalPe Styled Search Screen.
  *
- * Implements the exact layout from PhonePe screenshot:
+ * Implements the exact layout from LocalPe screenshot:
  *  - Title: "Search" with Help (?) icon.
  *  - Search pill with search icon, placeholder "Search for 'bills'", and Mic icon.
  *  - "Popular" 4 squircle icons (Credit Score, Mobile Recharge, Loan Repayment, FASTag Recharge).
@@ -97,7 +97,7 @@ fun SearchScreen(
             .background(Color.White)
             .statusBarsPadding()
     ) {
-        // ── Top Bar Header (PhonePe Style) ──────────────────────────
+        // ── Top Bar Header (LocalPe Style) ──────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -132,7 +132,7 @@ fun SearchScreen(
             }
         }
 
-        // ── Search Pill Input Bar (Exact PhonePe Style) ──────────────
+        // ── Search Pill Input Bar (Exact LocalPe Style) ──────────────
         val pillShape = RoundedCornerShape(24.dp)
         Box(
             modifier = Modifier
@@ -169,7 +169,7 @@ fun SearchScreen(
                             fontSize = 14.sp,
                             color = Color(0xFF1C1C1E)
                         ),
-                        cursorBrush = SolidColor(PhonePeColors.Primary),
+                        cursorBrush = SolidColor(LocalPeColors.Primary),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -218,7 +218,7 @@ fun SearchScreen(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(20.dp))
-                                    .background(PhonePeColors.Primary)
+                                    .background(LocalPeColors.Primary)
                                     .clickable { onNavigatePay(query) }
                                     .padding(horizontal = 20.dp, vertical = 10.dp)
                             ) {
@@ -239,7 +239,7 @@ fun SearchScreen(
                 }
             }
         } else {
-            // Default Explore Content matching PhonePe Screenshot
+            // Default Explore Content matching LocalPe Screenshot
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -422,7 +422,7 @@ private fun NewForYouCard(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_phonepe_qr_icon_monochrome),
+                painter = painterResource(id = R.drawable.ic_localpe_qr_icon_monochrome),
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier.size(36.dp)

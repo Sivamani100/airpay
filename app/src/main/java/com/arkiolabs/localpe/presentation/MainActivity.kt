@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.fragment.app.FragmentActivity
 import com.arkiolabs.localpe.presentation.navigation.LocalPeApp
 import com.arkiolabs.localpe.presentation.ui.theme.LocalPeTheme
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +22,7 @@ class MainActivity : FragmentActivity() {
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(PhonePeColors.Background)
+                        .background(LocalPeColors.Background)
                 ) {
                     LocalPeApp()
                 }

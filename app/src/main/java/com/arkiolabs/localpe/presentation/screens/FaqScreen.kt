@@ -62,27 +62,18 @@ import androidx.compose.ui.unit.sp
 import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.presentation.permissions.openAccessibilitySettings
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
-private val step1ImageRes: Int? = R.drawable.bhim_step1
-private val step2ImageRes: Int? = R.drawable.bhim_step2
-private val step3ImageRes: Int? = R.drawable.bhim_step3
-
-private const val TUTORIAL_VIDEO_URL =
-    "https://youtube.com/playlist?list=PL6zhuU_l94t1y25MDt96Z-MltD3S6iPFj&si=GNlanTwR-IcfOBI"
-
-private const val RESTRICTED_SETTINGS_GUIDE_URL =
-    "https://cleanbrowsing.org/support/mobile/disable-restricted-settings-android"
+private val step1ImageRes: Int? = R.drawable.step1_guide
+private val step2ImageRes: Int? = R.drawable.step2_guide
+private val step3ImageRes: Int? = R.drawable.step3_guide
 
 /**
- * Authentic PhonePe Styled Help Center Screen.
+ * LocalPe Help Center Screen.
  *
- * Implements the exact layout from PhonePe screenshot (WhatsApp Image 2026-11-17 at 21.31.04 (1).jpeg):
  *  - Header: Back arrow, "Help Center", language selector dropdown pill ("English ▾").
- *  - "View all tickets" diagnostic card.
- *  - "Need help with a recent transaction?" card with recent transaction details.
- *  - "MyUPI" offline payments row.
- *  - "Help Topics" clean accordion list with real offline guides & setup steps.
+ *  - Diagnostic cards and recent transaction assistance.
+ *  - Offline UPI guides and carrier setup documentation.
  */
 @Composable
 fun FaqScreen(
@@ -100,7 +91,7 @@ fun FaqScreen(
             .background(Color.White)
             .statusBarsPadding()
     ) {
-        // ── Top Bar Header (PhonePe Style) ──────────────────────────
+        // ── Top Bar Header (LocalPe Style) ──────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -168,7 +159,7 @@ fun FaqScreen(
                 .verticalScroll(scroll)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            // ── Diagnostic / View All Tickets Card (PhonePe Style) ──────
+            // ── Diagnostic / View All Tickets Card (LocalPe Style) ──────
             val cardShape = RoundedCornerShape(12.dp)
             Row(
                 modifier = Modifier
@@ -192,7 +183,7 @@ fun FaqScreen(
                         Icon(
                             painter = painterResource(id = R.drawable.bottom_nav_history_selected),
                             contentDescription = null,
-                            tint = PhonePeColors.Primary,
+                            tint = LocalPeColors.Primary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -242,7 +233,7 @@ fun FaqScreen(
                     text = "View All",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = PhonePeColors.Primary,
+                    color = LocalPeColors.Primary,
                     modifier = Modifier.clickable { onClose() }
                 )
             }
@@ -325,7 +316,7 @@ fun FaqScreen(
 
             Spacer(Modifier.height(18.dp))
 
-            // ── MyUPI Row (PhonePe Style) ───────────────────────────────
+            // ── MyUPI Row (LocalPe Style) ───────────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -400,7 +391,7 @@ fun FaqScreen(
                     text = "View All",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
             }
 
@@ -435,15 +426,15 @@ fun FaqScreen(
                     color = Color(0xFF424242)
                 )
                 Spacer(Modifier.height(10.dp))
-                PhonePeNumberedStep(1, "Dial *99# from your SIM dialer")
-                PhonePeNumberedStep(2, "Enter your bank name (e.g. SBI, HDFC, ICICI)")
-                PhonePeNumberedStep(3, "Follow the on-screen prompts to link your account")
+                LocalPeNumberedStep(1, "Dial *99# from your SIM dialer")
+                LocalPeNumberedStep(2, "Enter your bank name (e.g. SBI, HDFC, ICICI)")
+                LocalPeNumberedStep(3, "Follow the on-screen prompts to link your account")
                 Spacer(Modifier.height(12.dp))
 
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(PhonePeColors.Primary)
+                        .background(LocalPeColors.Primary)
                         .clickable {
                             val i = Intent(
                                 Intent.ACTION_DIAL,
@@ -470,21 +461,21 @@ fun FaqScreen(
                 }
             }
 
-            ExpandableHelpTopic(question = "How do I enable *99# in the BHIM app?") {
+            ExpandableHelpTopic(question = "How do I enable *99# in the LocalPe app?") {
                 Text(
-                    text = "If you use BHIM, toggle on the *99# USSD service in BHIM settings. Once done, you're set.",
+                    text = "If you use LocalPe, toggle on the *99# USSD service in LocalPe settings. Once done, you're set.",
                     fontSize = 13.sp,
                     color = Color(0xFF424242)
                 )
                 Spacer(Modifier.height(10.dp))
-                PhonePeNumberedStep(1, "Open BHIM → tap your profile avatar (top-left)")
-                PhonePeImageSlot(res = step1ImageRes)
+                LocalPeNumberedStep(1, "Open LocalPe → tap your profile avatar (top-left)")
+                LocalPeImageSlot(res = step1ImageRes)
                 Spacer(Modifier.height(8.dp))
-                PhonePeNumberedStep(2, "Scroll down → tap Settings")
-                PhonePeImageSlot(res = step2ImageRes)
+                LocalPeNumberedStep(2, "Scroll down → tap Settings")
+                LocalPeImageSlot(res = step2ImageRes)
                 Spacer(Modifier.height(8.dp))
-                PhonePeNumberedStep(3, "Find \"USSD service (*99#)\" → toggle ON")
-                PhonePeImageSlot(res = step3ImageRes)
+                LocalPeNumberedStep(3, "Find \"USSD service (*99#)\" → toggle ON")
+                LocalPeImageSlot(res = step3ImageRes)
             }
 
             ExpandableHelpTopic(question = "Which SIM carriers are supported offline?") {
@@ -496,17 +487,17 @@ fun FaqScreen(
                 )
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PhonePeCarrierTag("Airtel ✓", true)
-                    PhonePeCarrierTag("Vi ✓", true)
-                    PhonePeCarrierTag("BSNL ✓", true)
-                    PhonePeCarrierTag("Jio ✓", true)
+                    LocalPeCarrierTag("Airtel ✓", true)
+                    LocalPeCarrierTag("Vi ✓", true)
+                    LocalPeCarrierTag("BSNL ✓", true)
+                    LocalPeCarrierTag("Jio ✓", true)
                 }
             }
 
             ExpandableHelpTopic(question = "How do I enable the Accessibility Service?") {
-                PhonePeNumberedStep(1, "Open phone Settings → Accessibility → Installed apps")
-                PhonePeNumberedStep(2, "Find LocalPe → toggle ON → confirm the dialog")
-                PhonePeNumberedStep(3, "Return to LocalPe. Automation is now active")
+                LocalPeNumberedStep(1, "Open phone Settings → Accessibility → Installed apps")
+                LocalPeNumberedStep(2, "Find LocalPe → toggle ON → confirm the dialog")
+                LocalPeNumberedStep(3, "Return to LocalPe. Automation is now active")
                 Spacer(Modifier.height(12.dp))
 
                 Row(
@@ -521,7 +512,7 @@ fun FaqScreen(
                         text = "Open Accessibility Settings →",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = PhonePeColors.Primary
+                        color = LocalPeColors.Primary
                     )
                 }
             }
@@ -547,55 +538,21 @@ fun FaqScreen(
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color(0xFFF4F4F6))
                         .clickable {
-                            val i = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse(RESTRICTED_SETTINGS_GUIDE_URL)
-                            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            runCatching { context.startActivity(i) }
+                            openAccessibilitySettings(context)
                         }
                         .padding(horizontal = 14.dp, vertical = 9.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "View Screenshot Walkthrough →",
+                        text = "Open Accessibility Settings →",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = PhonePeColors.Primary
+                        color = LocalPeColors.Primary
                     )
                 }
             }
 
             Spacer(Modifier.height(24.dp))
-
-            // ── Links & Helpful Actions ──────────────────────────────────
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFFF9F9FB))
-                    .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(10.dp))
-                    .clickable {
-                        val i = Intent(Intent.ACTION_VIEW, Uri.parse(TUTORIAL_VIDEO_URL))
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        runCatching { context.startActivity(i) }
-                    }
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    tint = PhonePeColors.Primary,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    text = "Watch Offline UPI Video Tutorial",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF1C1C1E)
-                )
-            }
 
 
 
@@ -617,7 +574,7 @@ fun FaqScreen(
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null,
-                    tint = PhonePeColors.Primary,
+                    tint = LocalPeColors.Primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(Modifier.width(10.dp))
@@ -685,7 +642,7 @@ private fun ExpandableHelpTopic(
                             text = badge,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = PhonePeColors.Primary
+                            color = LocalPeColors.Primary
                         )
                     }
                 }
@@ -719,7 +676,7 @@ private fun ExpandableHelpTopic(
 }
 
 @Composable
-private fun PhonePeNumberedStep(index: Int, text: String) {
+private fun LocalPeNumberedStep(index: Int, text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -730,7 +687,7 @@ private fun PhonePeNumberedStep(index: Int, text: String) {
             modifier = Modifier
                 .size(20.dp)
                 .clip(CircleShape)
-                .background(PhonePeColors.Primary),
+                .background(LocalPeColors.Primary),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -750,7 +707,7 @@ private fun PhonePeNumberedStep(index: Int, text: String) {
 }
 
 @Composable
-private fun PhonePeCarrierTag(name: String, supported: Boolean) {
+private fun LocalPeCarrierTag(name: String, supported: Boolean) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(6.dp))
@@ -767,7 +724,7 @@ private fun PhonePeCarrierTag(name: String, supported: Boolean) {
 }
 
 @Composable
-private fun PhonePeImageSlot(res: Int?) {
+private fun LocalPeImageSlot(res: Int?) {
     if (res != null) {
         Spacer(Modifier.height(8.dp))
         Image(

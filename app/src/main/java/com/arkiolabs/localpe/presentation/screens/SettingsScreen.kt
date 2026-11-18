@@ -72,13 +72,13 @@ import com.arkiolabs.localpe.presentation.permissions.openAccessibilitySettings
 import com.arkiolabs.localpe.presentation.permissions.openOverlaySettings
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import kotlinx.coroutines.launch
 
 /**
- * Authentic PhonePe Styled Settings Screen.
+ * Authentic LocalPe Styled Settings Screen.
  *
- * Implements the exact layout from PhonePe screenshots:
+ * Implements the exact layout from LocalPe screenshots:
  *  - Promo Banner: "Did you know? Passkeys enable OTP-free login ->"
  *  - Section "Payment Settings":
  *      - AutoPay >
@@ -183,14 +183,14 @@ fun SettingsScreen(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            // ── Passkey Promo Banner (PhonePe Style) ─────────────────
+            // ── Passkey Promo Banner (LocalPe Style) ─────────────────
             val bannerShape = RoundedCornerShape(14.dp)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .clip(bannerShape)
-                    .background(Color(0xFF1B0A33)) // Deep PhonePe Purple Banner
+                    .background(Color(0xFF1B0A33)) // Deep LocalPe Purple Banner
                     .clickable { onOpenFaq() }
                     .padding(16.dp)
             ) {
@@ -253,7 +253,7 @@ fun SettingsScreen(
             SettingsRow(
                 icon = Icons.Default.Fingerprint,
                 iconBg = Color(0xFFEDE7F6),
-                iconTint = PhonePeColors.Primary,
+                iconTint = LocalPeColors.Primary,
                 title = "Pay with Fingerprint",
                 subtitle = if (biometricEnabled) "Enabled · Verify fingerprint without UPI PIN" else "Disabled · Tap to set up biometric pay",
                 onClick = {
@@ -294,7 +294,7 @@ fun SettingsScreen(
             SettingsRow(
                 icon = Icons.Default.PhoneAndroid,
                 iconBg = Color(0xFFEDE7F6),
-                iconTint = PhonePeColors.Primary,
+                iconTint = LocalPeColors.Primary,
                 title = "Jio Offline UPI 123PAY",
                 subtitle = if (jioRegistered) "Linked · ${userBankName ?: "Primary Bank"} (080 4516 3666)" else "Not Linked · Tap to link your bank account",
                 onClick = { showJioRegistrationSheet = true }
@@ -359,7 +359,7 @@ fun SettingsScreen(
                     onCheckedChange = { shakeToScan = it },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
-                        checkedTrackColor = PhonePeColors.Primary
+                        checkedTrackColor = LocalPeColors.Primary
                     )
                 )
             }
@@ -370,9 +370,9 @@ fun SettingsScreen(
             SettingsRow(
                 icon = Icons.Default.MusicNote,
                 iconBg = Color(0xFFF5EDFD),
-                iconTint = PhonePeColors.Primary,
+                iconTint = LocalPeColors.Primary,
                 title = "Transaction Sounds",
-                subtitle = if (successSoundUri != null) "Custom sound active" else "Default PhonePe chime",
+                subtitle = if (successSoundUri != null) "Custom sound active" else "Default LocalPe chime",
                 onClick = { successAudioPicker.launch("audio/*") }
             )
 
@@ -423,7 +423,7 @@ fun SettingsScreen(
                     },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
-                        checkedTrackColor = PhonePeColors.Primary
+                        checkedTrackColor = LocalPeColors.Primary
                     )
                 )
             }
@@ -459,7 +459,7 @@ fun SettingsScreen(
 
             HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
 
-            // ── Log Out in Red (PhonePe Style) ──────────────────────
+            // ── Log Out in Red (LocalPe Style) ──────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

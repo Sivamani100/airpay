@@ -42,15 +42,15 @@ import com.arkiolabs.localpe.presentation.screens.SettingsScreen
 import com.arkiolabs.localpe.presentation.screens.ToMobileScreen
 import com.arkiolabs.localpe.presentation.screens.ToUpiScreen
 import com.arkiolabs.localpe.presentation.screens.onboarding.OnboardingFlow
-import com.arkiolabs.localpe.presentation.ui.components.PhonePeBottomNav
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.components.LocalPeBottomNav
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import kotlinx.coroutines.launch
 
 /**
- * Top-level scaffold for the PhonePe-styled Offline UPI architecture.
+ * Top-level scaffold for the LocalPe-styled Offline UPI architecture.
  *
  *  - First-launch onboarding flow gates the app until complete.
- *  - Persistent PhonePe Bottom Navigation Bar with 5 destinations:
+ *  - Persistent LocalPe Bottom Navigation Bar with 5 destinations:
  *      Home, Search, Center Floating QR, Alerts, History.
  *  - Sub-destinations: Pay (Send Money), Balance, MyQr, Settings, Faq, Legal.
  */
@@ -104,7 +104,7 @@ private fun MainScaffold(app: LocalPeApplication, onReplayOnboarding: () -> Unit
     Column(
         Modifier
             .fillMaxSize()
-            .background(PhonePeColors.Background)
+            .background(LocalPeColors.Background)
     ) {
         Box(Modifier.weight(1f)) {
             NavHost(
@@ -112,7 +112,7 @@ private fun MainScaffold(app: LocalPeApplication, onReplayOnboarding: () -> Unit
                 startDestination = Screen.Home.route,
                 modifier = Modifier.fillMaxSize()
             ) {
-                // ── Tab 1: Home Dashboard (PhonePe Style) ──────────────
+                // ── Tab 1: Home Dashboard (LocalPe Style) ──────────────
                 composable(Screen.Home.route) {
                     HomeScreen(
                         payViewModel = payViewModel,
@@ -374,9 +374,9 @@ private fun MainScaffold(app: LocalPeApplication, onReplayOnboarding: () -> Unit
             }
         }
 
-        // PhonePe Bottom Navigation Bar
+        // LocalPe Bottom Navigation Bar
         if (!hideBottomNav) {
-            PhonePeBottomNav(
+            LocalPeBottomNav(
                 currentRoute = currentRoute,
                 onNavigate = { route ->
                     if (route != currentRoute) {

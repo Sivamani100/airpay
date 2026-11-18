@@ -6,7 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.ui.res.painterResource
 import com.arkiolabs.localpe.R
-import com.arkiolabs.localpe.presentation.ui.components.PhonePeLottieAnimation
+import com.arkiolabs.localpe.presentation.ui.components.LocalPeLottieAnimation
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -161,7 +161,7 @@ internal fun SessionSuccessCard(state: SessionState.Success, onDone: () -> Unit)
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            PhonePeLottieAnimation(
+                            LocalPeLottieAnimation(
                                 assetName = "tick_success.json",
                                 modifier = Modifier.size(88.dp),
                                 iterations = 1

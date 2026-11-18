@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.localpe.R
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.localpe.presentation.ui.theme.PhonePeColors
+import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 data class AlertNotificationItem(
     val id: String,
@@ -59,9 +59,9 @@ data class AlertNotificationItem(
 )
 
 /**
- * Authentic PhonePe Styled Alerts & Notifications Screen.
+ * Authentic LocalPe Styled Alerts & Notifications Screen.
  *
- * Implements the exact layout from PhonePe screenshot:
+ * Implements the exact layout from LocalPe screenshot:
  *  - Header: "Alerts" on left, Help (?) icon on right.
  *  - Flat notification rows with thin dividers (NO heavy boxed cards).
  *  - Clean close (X) and relative time indicators ("1d", "2d").
@@ -80,8 +80,8 @@ fun AlertsScreen(
             AlertNotificationItem(
                 id = "1",
                 iconRes = R.drawable.bill_notifications,
-                iconBg = PhonePeColors.PurpleTint,
-                iconTint = PhonePeColors.Primary,
+                iconBg = LocalPeColors.PurpleTint,
+                iconTint = LocalPeColors.Primary,
                 title = "SIM Voice Channel Ready",
                 message = "Offline UPI is active over secure cellular SIM. Payments and balance queries work without internet.",
                 actionText = "Test connection",
@@ -90,7 +90,7 @@ fun AlertsScreen(
             AlertNotificationItem(
                 id = "2",
                 iconRes = R.drawable.ic_tick_ok,
-                iconBg = PhonePeColors.SuccessTint,
+                iconBg = LocalPeColors.SuccessTint,
                 iconTint = null,
                 title = "Auto Mode Active",
                 message = "Carrier USSD sessions will be handled smoothly in the background by the secure overlay.",
@@ -100,8 +100,8 @@ fun AlertsScreen(
             AlertNotificationItem(
                 id = "3",
                 iconRes = R.drawable.outline_lock,
-                iconBg = PhonePeColors.PurpleTint,
-                iconTint = PhonePeColors.Primary,
+                iconBg = LocalPeColors.PurpleTint,
+                iconTint = LocalPeColors.Primary,
                 title = "Zero-Persistence Security Guarantee",
                 message = "Your UPI PIN is held strictly in volatile RAM and securely wiped within 500ms after every payment.",
                 actionText = "Learn more",
@@ -110,9 +110,9 @@ fun AlertsScreen(
             AlertNotificationItem(
                 id = "4",
                 iconRes = R.drawable.ic_to_bank_account,
-                iconBg = PhonePeColors.SkyBlueTint,
-                iconTint = PhonePeColors.SkyBlueDark,
-                title = "One-Time Setup on BHIM",
+                iconBg = LocalPeColors.SkyBlueTint,
+                iconTint = LocalPeColors.SkyBlueDark,
+                title = "One-Time Setup on LocalPe",
                 message = "Ensure your bank account is linked to your SIM card in your phone's UPI settings.",
                 actionText = "View guide",
                 time = "3d"
@@ -126,7 +126,7 @@ fun AlertsScreen(
             .background(Color.White)
             .statusBarsPadding()
     ) {
-        // ── Top Bar Header (PhonePe Style) ──────────────────────────
+        // ── Top Bar Header (LocalPe Style) ──────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -291,7 +291,7 @@ private fun AlertNotificationRow(
                     text = item.actionText,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = PhonePeColors.Primary
+                    color = LocalPeColors.Primary
                 )
             }
         }
@@ -392,13 +392,13 @@ private fun OfferZoneActionCard(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(PhonePeColors.PurpleTint),
+                .background(LocalPeColors.PurpleTint),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
-                tint = PhonePeColors.Primary,
+                tint = LocalPeColors.Primary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -409,7 +409,7 @@ private fun OfferZoneActionCard(
             text = title,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
-            color = PhonePeColors.Primary
+            color = LocalPeColors.Primary
         )
 
         Text(
