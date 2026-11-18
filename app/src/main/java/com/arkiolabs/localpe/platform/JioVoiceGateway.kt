@@ -21,9 +21,8 @@ sealed class JioGatewayState {
 }
 
 /**
- * Manages offline UPI 123PAY voice gateway calls for Reliance Jio SIM holders.
- * Because Jio lacks 2G USSD, this utilizes the official NPCI UPI 123PAY national
- * IVR gateway over VoLTE voice calling (zero internet data required).
+ * Manages offline voice gateway calls for Reliance Jio SIM holders.
+ * Because Jio lacks 2G USSD, this utilizes the voice cellular gateway over VoLTE voice calling (zero internet data required).
  */
 class JioVoiceGateway(private val context: Context) {
 
@@ -31,7 +30,7 @@ class JioVoiceGateway(private val context: Context) {
     val gatewayState: StateFlow<JioGatewayState> = _gatewayState.asStateFlow()
 
     companion object {
-        // NPCI UPI 123PAY Primary Single-Call National Gateways
+        // Jio Voice Primary Single-Call National Gateways
         const val PRIMARY_GATEWAY_NUMBER = "08045163666"
         const val BACKUP_GATEWAY_NUMBER = "08045163581"
         const val GUPSHUP_GATEWAY_NUMBER = "6366200200"

@@ -51,7 +51,7 @@ data class BalanceUiState(
  *     so the last result survives app kill.
  *
  * @param clipboardWriter only used by MANUAL mode where the screen falls
- *   back to the dialer with *99*3# prefilled. Unused in ADVANCED/AUTO.
+ *   back to the dialer with offline code prefilled. Unused in ADVANCED/AUTO.
  */
 class BalanceViewModel(
     private val actionRunner: ActionRunner,
@@ -102,7 +102,7 @@ class BalanceViewModel(
     /**
      * Validates the entered PIN and starts a balance-check session.
      *
-     *  - Manual mode: opens the dialer with *99*3# prefilled. PIN entry is
+     *  - Manual mode: opens the dialer with offline balance code prefilled. PIN entry is
      *    deferred to the carrier dialog itself.
      *  - Advanced/Auto: requires a valid 4-6 digit PIN, then runs the
      *    CheckBalance action via [runCheck].
@@ -111,12 +111,12 @@ class BalanceViewModel(
         val mode = operationMode.value
 
         if (mode == OperationMode.MANUAL) {
-            _snackbar.value = "Opening dialer for *99*3#"
+            _snackbar.value = "Opening dialer for balance check"
             onDialerFallback("*99*3#")
             // System Toast — visible on top of the dialer so the user
             // remembers what's queued. The in-app snackbar above only
             // renders inside our activity which is about to lose focus.
-            systemToast("Opening dialer for *99*3#")
+            systemToast("Opening dialer for balance check")
             _sessionState.value = SessionState.Idle
             return
         }
@@ -139,8 +139,8 @@ class BalanceViewModel(
     /**
      * Runs the CheckBalance action with the captured PIN.
      * Routes dynamically by carrier:
-     *  - Airtel / Vi / BSNL: Native USSD Engine (*99*3#) automated in the background.
-     *  - Reliance Jio: Dedicated NPCI UPI 123PAY Phone Voice Gateway (08045163581) over VoLTE.
+     *  - Airtel / Vi / BSNL: Native USSD Engine automated in the background.
+     *  - Reliance Jio: Dedicated Phone Voice Gateway (08045163581) over VoLTE.
      */
     private fun runCheck(pin: String) {
         viewModelScope.launch {
@@ -175,7 +175,7 @@ class BalanceViewModel(
             amount = "",
             stepNumber = 1,
             stepTitle = "Jio VoLTE Balance Check",
-            stepSubtitle = "Dialing NPCI UPI 123PAY (08045163666)"
+            stepSubtitle = "Connecting to Jio Voice Gateway (08045163666)"
         )
         overlayController?.onCancel = { cancelSession() }
 

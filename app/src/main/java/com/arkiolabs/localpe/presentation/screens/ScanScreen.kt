@@ -93,7 +93,7 @@ import kotlinx.coroutines.launch
  *  - Viewfinder with signature vibrant purple corner brackets.
  *  - Scrim cutout over camera preview.
  *  - Two bottom circular translucent buttons: "Upload QR" (gallery) and "Torch" (flashlight).
- *  - Bottom "LocalPe | UPI" / "Offline *99#" badge.
+ *  - Bottom "LocalPe | UPI" / "Offline Cellular" badge.
  */
 @Composable
 fun ScanScreen(

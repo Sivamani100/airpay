@@ -73,10 +73,10 @@ import java.util.Locale
  * Implements:
  *  - Fresh check flow (does not display stale cached balances).
  *  - One-tap Biometric Fingerprint authorization.
- *  - NPCI UPI PIN Screen matching user screenshot.
+ *  - LocalPe UPI PIN Screen matching user screenshot.
  *  - Live animated USSD verification with LocalPe worm loader.
  *  - Dedicated full-screen Available Balance display with celebratory tick.
- *  - Zero visible *99# or carrier internal codes.
+ *  - Zero visible carrier internal codes.
  */
 @Composable
 fun BalanceScreen(
@@ -477,14 +477,14 @@ private fun BalanceInitialScreen(
                         .background(Color(0xFF0288D1)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("RuPay", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("CARD", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
 
                 Spacer(Modifier.width(14.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "RuPay Credit Card",
+                        text = "Linked Credit Card",
                         fontSize = 15.sp,
                         fontFamily = ClashGrotesk,
                         fontWeight = FontWeight.Bold,

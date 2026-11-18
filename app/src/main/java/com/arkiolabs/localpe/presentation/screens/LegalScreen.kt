@@ -215,7 +215,7 @@ private fun PrivacyContent() {
     )
     LegalSection(
         heading = "What LocalPe handles",
-        body = "LocalPe needs a few pieces of information to dial *99# on your behalf and answer the carrier's prompts. Your UPI ID, payment amount and optional note live in app memory during a session, and on success are saved to an encrypted on-device history. The carrier's reply text is shown to you and recorded for successful payments. Your active SIM's carrier name is read once on launch to detect Jio (which uses 123PAY voice gateway). Your operation-mode preference and last balance are saved in a private on-device key-value store. Scanned or imported QR codes are decoded in memory only — they are never stored."
+        body = "LocalPe needs a few pieces of information to interact with the carrier gateway on your behalf and answer the carrier's prompts. Your UPI ID, payment amount and optional note live in app memory during a session, and on success are saved to an encrypted on-device history. The carrier's reply text is shown to you and recorded for successful payments. Your active SIM's carrier name is read once on launch to detect Jio (which uses cellular voice gateway). Your operation-mode preference and last balance are saved in a private on-device key-value store. Scanned or imported QR codes are decoded in memory only — they are never stored."
     )
     LegalSection(
         heading = "What LocalPe does NOT collect",
@@ -239,7 +239,7 @@ private fun PrivacyContent() {
     )
     LegalSection(
         heading = "Permissions",
-        body = "Phone (CALL_PHONE): only ever used to dial *99# codes, never regular numbers. Camera: live QR scanning, processed on-device by ML Kit, frames are not stored or uploaded. Phone state (READ_PHONE_STATE): reads the carrier name to detect network support. Accessibility service: reads the carrier USSD dialog and types replies for you, restricted to known carrier dialog packages. Display over other apps (SYSTEM_ALERT_WINDOW): paints the LocalPe UI over the carrier dialog in Auto mode. Denying any optional permission still leaves Manual mode fully usable."
+        body = "Phone (CALL_PHONE): only ever used to dial carrier payment codes, never regular numbers. Camera: live QR scanning, processed on-device by ML Kit, frames are not stored or uploaded. Phone state (READ_PHONE_STATE): reads the carrier name to detect network support. Accessibility service: reads the carrier USSD dialog and types replies for you, restricted to known carrier dialog packages. Display over other apps (SYSTEM_ALERT_WINDOW): paints the LocalPe UI over the carrier dialog in Auto mode. Denying any optional permission still leaves Manual mode fully usable."
     )
     LegalSection(
         heading = "Children",
@@ -259,7 +259,7 @@ private fun PrivacyContent() {
 private fun TermsContent() {
     LegalSection(
         heading = "About LocalPe",
-        body = "LocalPe is published by Arkio Labs. It is an Android client that automates India's *99# USSD and offline payments service so you can use UPI without an internet connection. LocalPe is NOT affiliated with NPCI, your bank, your telecom carrier, or any payment service provider. Every transaction is processed by your bank and your carrier through the same infrastructure that powers standard offline UPI services — LocalPe only automates the on-screen interaction."
+        body = "LocalPe is published by Arkio Labs. It is an Android client that automates carrier USSD and offline cellular payments so you can use UPI without an internet connection. LocalPe is NOT affiliated with any banking corporation, telecom carrier, or external payment provider. Every transaction is processed by your bank and your carrier through the same infrastructure that powers standard offline UPI services — LocalPe only automates the on-screen interaction."
     )
     LegalSection(
         heading = "Eligibility",
@@ -275,7 +275,7 @@ private fun TermsContent() {
     )
     LegalSection(
         heading = "Network Security and Carrier Risks",
-        body = "LocalPe relies entirely on the cellular network's USSD (*99#) signaling channel to execute transactions. You acknowledge and agree that USSD communications are handled over cellular networks. You use the service at your own risk. LocalPe is not liable for financial loss, identity theft, or unauthorized transactions resulting from carrier network security failures or device-level compromises."
+        body = "LocalPe relies entirely on the cellular network's USSD signaling channel to execute transactions. You acknowledge and agree that USSD communications are handled over cellular networks. You use the service at your own risk. LocalPe is not liable for financial loss, identity theft, or unauthorized transactions resulting from carrier network security failures or device-level compromises."
     )
     LegalSection(
         heading = "Clipboard Integrity",
@@ -291,7 +291,7 @@ private fun TermsContent() {
     )
     LegalSection(
         heading = "Carrier and bank charges",
-        body = "Your telecom carrier may charge a small per-session fee for *99# usage as defined by TRAI tariffs. LocalPe does not see, control or share in any such fee. Your bank's UPI transaction limits and rules apply unchanged."
+        body = "Your telecom carrier may charge a small per-session fee for carrier USSD usage as defined by TRAI tariffs. LocalPe does not see, control or share in any such fee. Your bank's UPI transaction limits and rules apply unchanged."
     )
     LegalSection(
         heading = "Things you must not do",

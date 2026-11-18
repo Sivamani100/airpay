@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.SharedFlow
  * a pure domain class with no Android framework dependencies.
  */
 interface UssdEnginePort {
-    /** Dial a USSD code (e.g. "*99*1*3#") via ACTION_CALL intent. */
+    /** Dial a USSD code via ACTION_CALL intent. */
     suspend fun dial(code: String)
 
     /** Send a reply string to the active carrier dialog. Returns true if successful. */

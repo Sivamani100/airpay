@@ -86,7 +86,7 @@ import kotlinx.coroutines.launch
  *  - Recipient Identity Card with verified Payee Name & avatar initials.
  *  - Prominent Amount Card with ClashGrotesk ₹ symbol and quick-amount chips (+100, +500, +1000).
  *  - One-tap Biometric Authentication (Fingerprint/Face) to bypass PIN.
- *  - Fullscreen authentic NPCI UPI PIN Screen matching user screenshot.
+ *  - Fullscreen authentic LocalPe UPI PIN Screen.
  *  - Custom transaction success and failure sound playback.
  */
 @Composable

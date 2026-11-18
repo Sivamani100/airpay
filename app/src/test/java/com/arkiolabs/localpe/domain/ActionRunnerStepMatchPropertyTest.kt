@@ -60,7 +60,7 @@ class ActionRunnerStepMatchPropertyTest : FunSpec({
             "Enter note for transaction",
             "Remark (optional)"
         ),
-        // Step 3: Confirm prompt (NPCI asks confirmation before PIN)
+        // Step 3: Confirm prompt (Carrier asks confirmation before PIN)
         Arb.element(
             "Press 1 to confirm",
             "Are you sure you want to pay?",
@@ -79,7 +79,7 @@ class ActionRunnerStepMatchPropertyTest : FunSpec({
             "Payment successful",
             "Payment sent to user@bank",
             "Payment completed. Reference no: 123456789",
-            "Thank you for using *99#"
+            "Thank you for using LocalPe"
         )
     )
 

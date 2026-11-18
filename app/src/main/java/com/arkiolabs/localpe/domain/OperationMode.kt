@@ -9,7 +9,7 @@ package com.arkiolabs.localpe.domain
  *   with a small floating progress chip pinned under the status bar.
  *   The user watches the carrier dialog work in real time.
  * - [MANUAL]: PWA-style fallback — copies the UPI ID to clipboard and
- *   opens the system dialer with *99# prefilled. The user fills in
+ *   opens the system dialer with carrier code prefilled. The user fills in
  *   everything else themselves. No accessibility needed.
  *
  * Order matters here: the UI shows them top-down, and AUTO must be first

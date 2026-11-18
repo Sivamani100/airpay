@@ -92,7 +92,7 @@ class ActionRunnerSuccessPropertyTest : FunSpec({
             "ref 12345",
             "abcdef ghijkl mnopqr",
             "carrier response text here",
-            "dial *99# for more"
+            "dial offline service for more"
         )
 
         checkAll(100, safeStringsArb) { text ->

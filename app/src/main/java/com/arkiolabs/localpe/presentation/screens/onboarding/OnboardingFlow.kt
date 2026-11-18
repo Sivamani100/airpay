@@ -84,9 +84,9 @@ import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 import kotlinx.coroutines.launch
 
-private val setupStep1ImageRes: Int? = R.drawable.step1_guide
-private val setupStep2ImageRes: Int? = R.drawable.step2_guide
-private val setupStep3ImageRes: Int? = R.drawable.step3_guide
+private val setupStep1ImageRes: Int? = null
+private val setupStep2ImageRes: Int? = null
+private val setupStep3ImageRes: Int? = null
 
 /**
  * Authentic LocalPe Styled Onboarding Flow.
@@ -117,8 +117,8 @@ fun OnboardingFlow(onComplete: () -> Unit) {
         ) { page ->
             when (page) {
                 0 -> WelcomePage()
-                1 -> Star99ExplainerPage()
-                2 -> Star99BankingSetupPage()
+                1 -> OfflineExplainerPage()
+                2 -> OfflineBankingSetupPage()
                 3 -> OfflineSetupPage(onSkip = {
                     scope.launch { pagerState.animateScrollToPage(4) }
                 })
@@ -248,7 +248,7 @@ private fun WelcomePage() {
         Spacer(Modifier.height(10.dp))
 
         Text(
-            text = "LocalPe enables seamless UPI payments without requiring internet or active mobile data. Directly communicates with carrier cellular networks using *99# and offline banking channels.",
+            text = "LocalPe enables seamless UPI payments without requiring internet or active mobile data. Directly communicates with carrier cellular networks and offline banking channels.",
             fontSize = 15.sp,
             color = Color(0xFF555555),
             lineHeight = 22.sp
@@ -256,10 +256,10 @@ private fun WelcomePage() {
     }
 }
 
-// ── Page 2: What is *99# ──
+// ── Page 2: What is Offline Cellular UPI ──
 
 @Composable
-private fun Star99ExplainerPage() {
+private fun OfflineExplainerPage() {
     val cardShape = RoundedCornerShape(12.dp)
     Column(
         Modifier
@@ -269,7 +269,7 @@ private fun Star99ExplainerPage() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "WHY *99#",
+            text = "WHY OFFLINE UPI",
             fontSize = 12.sp,
             fontFamily = ClashGrotesk,
             fontWeight = FontWeight.Bold,
@@ -297,7 +297,7 @@ private fun Star99ExplainerPage() {
                 .padding(16.dp)
         ) {
             Text(
-                text = "*99# is NPCI's official USSD service for offline UPI. It rides directly on your phone's cellular voice signaling channel — so it works in rural areas, underground spots, and crowded places where 4G/5G data fails.",
+                text = "Offline cellular banking lets UPI work reliably without internet. It rides directly on your phone's cellular voice signaling channel — so it works in rural areas, underground spots, and crowded places where 4G/5G data fails.",
                 fontSize = 14.sp,
                 color = Color(0xFF444444),
                 lineHeight = 20.sp
@@ -349,10 +349,10 @@ private fun OnboardingCarrierPill(name: String, supported: Boolean, modifier: Mo
     }
 }
 
-// ── Page 3: *99# Banking Setup ──
+// ── Page 3: Offline Banking Setup ──
 
 @Composable
-private fun Star99BankingSetupPage() {
+private fun OfflineBankingSetupPage() {
     val context = LocalContext.current
     val cardShape = RoundedCornerShape(12.dp)
 
@@ -380,7 +380,7 @@ private fun Star99BankingSetupPage() {
         Spacer(Modifier.height(10.dp))
 
         Text(
-            text = "Enable Banking via *99#",
+            text = "Enable Offline Banking",
             fontSize = 22.sp,
             fontFamily = ClashGrotesk,
             fontWeight = FontWeight.Bold,
@@ -390,7 +390,7 @@ private fun Star99BankingSetupPage() {
         Spacer(Modifier.height(6.dp))
 
         Text(
-            text = "Link your bank account to the *99# USSD channel once from your dialer.",
+            text = "Link your bank account to the offline cellular banking channel once from your dialer.",
             fontSize = 13.sp,
             color = Color(0xFF555555)
         )
@@ -406,8 +406,8 @@ private fun Star99BankingSetupPage() {
                 .padding(16.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OnboardingStep(1, "Open phone dialer and dial *99#")
-                OnboardingStep(2, "Enter your bank name (e.g. SBI, HDFC, ICICI)")
+                OnboardingStep(1, "Open phone dialer to set up cellular banking")
+                OnboardingStep(2, "Select your primary bank name")
                 OnboardingStep(3, "Follow on-screen prompts to link your account")
             }
         }
@@ -436,7 +436,7 @@ private fun Star99BankingSetupPage() {
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Dial *99# Now",
+                    text = "Set Up Cellular Banking",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -549,8 +549,8 @@ private fun PermissionsPage(permissions: PermissionStatus) {
             key = "phone",
             icon = Icons.Default.Phone,
             title = "Phone & SIM",
-            short = "Dial *99# and detect carrier.",
-            why = "LocalPe dials *99# through Android's telephony API and detects your carrier (Airtel, Vi, BSNL, Jio) to select the right channel.",
+            short = "Connect to carrier gateway and detect SIM.",
+            why = "LocalPe connects through Android's telephony API and detects your carrier (Airtel, Vi, BSNL, Jio) to select the right channel.",
             granted = permissions.phoneBundle,
             onGrant = { launchers.requestPhoneBundle() }
         ),

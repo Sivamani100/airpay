@@ -21,7 +21,7 @@ object RecipientResolver {
         "ybl", "ibl", "axl", "bankupi", "upi", "apl",
         "idfcbank", "postbank", "barodampay", "federal",
         "rbl", "kotak", "indus", "pnb", "cnrb", "aubank",
-        "jupiteraxis", "slice", "freecharge", "airtel", "yesbank"
+        "jupiteraxis", "slice", "offlineupi", "airtel", "yesbank"
     )
 
     fun resolve(

@@ -79,7 +79,7 @@ import java.io.FileOutputStream
 /**
  * Authentic LocalPe "MY QR" screen.
  * Displays user's 100% genuine scannable UPI QR code (generated via ZXing),
- * supports automated UPI ID fetching from SIM (*99# -> 4: Profile -> 4: UPI ID),
+ * supports automated UPI ID fetching from SIM,
  * one-tap manual UPI ID customizer, copy, download, and share.
  */
 @Composable
@@ -452,9 +452,9 @@ fun MyQrScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                SuggestedCardItem(title = "LocalPe HDFC Card", badge = "🔥 FREE", modifier = Modifier.weight(1f))
-                SuggestedCardItem(title = "LocalPe SBI Card", badge = null, modifier = Modifier.weight(1f))
-                SuggestedCardItem(title = "Wish Credit Card", badge = null, modifier = Modifier.weight(1f))
+                SuggestedCardItem(title = "LocalPe Titanium Card", badge = "🔥 FREE", modifier = Modifier.weight(1f))
+                SuggestedCardItem(title = "LocalPe Platinum Card", badge = null, modifier = Modifier.weight(1f))
+                SuggestedCardItem(title = "Rewards Credit Card", badge = null, modifier = Modifier.weight(1f))
                 SuggestedCardItem(title = "Save your card", badge = null, modifier = Modifier.weight(1f))
             }
 
@@ -480,8 +480,8 @@ fun MyQrScreen(
 
             PaymentMethodRow(
                 icon = R.drawable.ic_to_contact,
-                title = "RuPay Credit Card",
-                subtitle = "Pay with your credit card via UPI",
+                title = "Linked Credit Card",
+                subtitle = "Pay with your credit card via offline UPI",
                 trailing = "chevron"
             )
 

@@ -46,9 +46,8 @@ import com.arkiolabs.localpe.presentation.ui.theme.Iconsax
 import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
 /**
- * Authentic NPCI / LocalPe Fullscreen UPI PIN Entry Interface.
- * Faithfully matches the exact layout, colors, amber summary banner, and custom numeric keypad
- * from the official NPCI UPI PIN screen screenshot.
+ * Authentic LocalPe Fullscreen UPI PIN Entry Interface.
+ * Matches layout, colors, amber summary banner, and custom numeric keypad.
  */
 @Composable
 fun UpiPinScreen(

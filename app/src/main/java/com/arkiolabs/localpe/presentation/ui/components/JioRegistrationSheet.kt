@@ -70,7 +70,7 @@ private val POPULAR_LANGUAGES = listOf(
 
 /**
  * BottomSheet prompting Jio SIM users to link/register their bank account
- * with the official NPCI UPI 123PAY voice gateway (08045163666).
+ * with the official voice gateway (08045163666).
  *
  * This prevents automated payment failures caused by unlinked accounts
  * and guides the user through the 1-time setup.
@@ -110,7 +110,7 @@ fun JioRegistrationSheet(
                     .padding(horizontal = 10.dp, vertical = 4.dp)
             ) {
                 Text(
-                    text = "JIO OFFLINE UPI 123PAY SETUP",
+                    text = "JIO OFFLINE SETUP",
                     fontSize = 11.sp,
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Bold,
@@ -132,7 +132,7 @@ fun JioRegistrationSheet(
             Spacer(Modifier.height(6.dp))
 
             Text(
-                text = "Before making offline payments on Jio, NPCI requires your bank account to be linked once with UPI 123PAY (080 4516 3666).",
+                text = "Before making offline payments on Jio, your carrier requires your bank account to be linked once with the voice payment line (080 4516 3666).",
                 fontSize = 13.sp,
                 color = Color(0xFF64748B),
                 lineHeight = 18.sp

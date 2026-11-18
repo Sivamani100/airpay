@@ -83,7 +83,7 @@ class CarrierDetector(private val context: Context) {
 
     /**
      * Identifies if the given carrier is Reliance Jio, which routes through
-     * the Jio VoLTE Voice Gateway (UPI 123PAY) instead of legacy USSD (*99#).
+     * the Jio VoLTE Voice Gateway instead of legacy USSD.
      */
     fun isJioCarrier(carrierName: String?): Boolean {
         if (carrierName.isNullOrBlank()) return false
@@ -132,7 +132,7 @@ class CarrierDetector(private val context: Context) {
     }
 
     /**
-     * Returns true if the given text matches any of the "not registered for *99#"
+     * Returns true if the given text matches any of the "not registered"
      * error patterns from the carrier, indicating the user needs to link their
      * bank account.
      *

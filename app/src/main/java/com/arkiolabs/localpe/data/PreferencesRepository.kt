@@ -25,7 +25,7 @@ object PreferencesKeys {
     val SUCCESS_SOUND_URI = stringPreferencesKey("success_sound_uri")
     val FAILED_SOUND_URI = stringPreferencesKey("failed_sound_uri")
 
-    // Dynamic QR Profile UPI ID (fetched via SIM profile lookup *99# -> 4 -> 4)
+    // Dynamic QR Profile UPI ID (fetched via SIM profile lookup)
     val USER_UPI_ID = stringPreferencesKey("user_upi_id")
 
     // Jio 123PAY 1-time Bank Registration Status

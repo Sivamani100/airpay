@@ -73,7 +73,7 @@ import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
  *  - Quick explore pills row side-by-side.
  *  - "Recharge & Bills" squircle grid with SIM delivery/status pill and "More ->" button.
  *  - "Recent Transfers" recipient bubbles without card borders.
- *  - 100% Offline & Private cellular voice guarantees with official NPCI & Bharat Connect badges.
+ *  - 100% Offline & Private cellular voice guarantees with LocalPe security badges.
  */
 @Composable
 fun HomeScreen(
@@ -618,7 +618,7 @@ private fun OfflineUtilitiesSection(
             )
 
             HomeSquircleItem(
-                label = "Offline\nGuide (*99#)",
+                label = "Offline\nGuide",
                 badge = "Help",
                 iconResId = R.drawable.home_referandearn,
                 onClick = onHelpClick,
@@ -914,7 +914,7 @@ private fun RecipientBubbleItem(
 }
 
 /**
- * 100% Offline & Private Security Guarantees + Official NPCI Trust Badges.
+ * 100% Offline & Private Security Guarantees + LocalPe Trust Badges.
  */
 @Composable
 private fun SecurityAndCarrierSection(
@@ -984,35 +984,28 @@ private fun SecurityAndCarrierSection(
 
         Spacer(Modifier.height(14.dp))
 
-        // Official Trust Badges Row (LocalPe UPI + Bharat Connect + NPCI)
+        // LocalPe Offline Security Badge
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color(0xFFF6F7F9))
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.upi_orange_border),
-                contentDescription = "LocalPe UPI",
-                modifier = Modifier.size(26.dp),
-                contentScale = ContentScale.Fit
+            Icon(
+                imageVector = Iconsax.ShieldSecurity,
+                contentDescription = null,
+                tint = LocalPeColors.Primary,
+                modifier = Modifier.size(16.dp)
             )
-
-            Image(
-                painter = painterResource(id = R.drawable.bharat_connect),
-                contentDescription = "Bharat Connect",
-                modifier = Modifier.height(18.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_upi_npci_logo),
-                contentDescription = "NPCI",
-                modifier = Modifier.height(18.dp),
-                contentScale = ContentScale.Fit
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = "LocalPe Secure • 100% Offline Cellular Protection",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF424242)
             )
         }
     }

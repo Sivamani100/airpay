@@ -64,9 +64,9 @@ import com.arkiolabs.localpe.presentation.permissions.openAccessibilitySettings
 import com.arkiolabs.localpe.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.localpe.presentation.ui.theme.LocalPeColors
 
-private val step1ImageRes: Int? = R.drawable.step1_guide
-private val step2ImageRes: Int? = R.drawable.step2_guide
-private val step3ImageRes: Int? = R.drawable.step3_guide
+private val step1ImageRes: Int? = null
+private val step2ImageRes: Int? = null
+private val step3ImageRes: Int? = null
 
 /**
  * LocalPe Help Center Screen.
@@ -417,17 +417,17 @@ fun FaqScreen(
             }
 
             ExpandableHelpTopic(
-                question = "How do I enable banking via *99#?",
+                question = "How do I enable offline cellular banking?",
                 badge = "ONE-TIME"
             ) {
                 Text(
-                    text = "Before using LocalPe, link your bank to India's official *99# USSD channel once from your phone dialer.",
+                    text = "Before using LocalPe, link your bank to the offline cellular channel once from your phone dialer.",
                     fontSize = 13.sp,
                     color = Color(0xFF424242)
                 )
                 Spacer(Modifier.height(10.dp))
-                LocalPeNumberedStep(1, "Dial *99# from your SIM dialer")
-                LocalPeNumberedStep(2, "Enter your bank name (e.g. SBI, HDFC, ICICI)")
+                LocalPeNumberedStep(1, "Open dialer to activate cellular banking")
+                LocalPeNumberedStep(2, "Enter your primary bank name")
                 LocalPeNumberedStep(3, "Follow the on-screen prompts to link your account")
                 Spacer(Modifier.height(12.dp))
 
@@ -453,7 +453,7 @@ fun FaqScreen(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "Dial *99# Now",
+                        text = "Activate Cellular Channel",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -461,9 +461,9 @@ fun FaqScreen(
                 }
             }
 
-            ExpandableHelpTopic(question = "How do I enable *99# in the LocalPe app?") {
+            ExpandableHelpTopic(question = "How do I enable offline USSD in LocalPe?") {
                 Text(
-                    text = "If you use LocalPe, toggle on the *99# USSD service in LocalPe settings. Once done, you're set.",
+                    text = "In LocalPe, enable the offline USSD service under Settings. Once done, you're all set.",
                     fontSize = 13.sp,
                     color = Color(0xFF424242)
                 )
@@ -474,13 +474,13 @@ fun FaqScreen(
                 LocalPeNumberedStep(2, "Scroll down → tap Settings")
                 LocalPeImageSlot(res = step2ImageRes)
                 Spacer(Modifier.height(8.dp))
-                LocalPeNumberedStep(3, "Find \"USSD service (*99#)\" → toggle ON")
+                LocalPeNumberedStep(3, "Find \"USSD service\" → toggle ON")
                 LocalPeImageSlot(res = step3ImageRes)
             }
 
             ExpandableHelpTopic(question = "Which SIM carriers are supported offline?") {
                 Text(
-                    text = "Airtel, Vodafone (Vi), BSNL, and Reliance Jio — all four major Indian carriers are fully supported! LocalPe uses direct, high-speed offline SIM USSD (*99#) across all networks, processing payments directly without requiring internet data.",
+                    text = "Airtel, Vodafone (Vi), BSNL, and Reliance Jio — all four major Indian carriers are fully supported! LocalPe uses direct, high-speed offline cellular channels across all networks, processing payments directly without requiring internet data.",
                     fontSize = 13.sp,
                     color = Color(0xFF424242),
                     lineHeight = 18.sp

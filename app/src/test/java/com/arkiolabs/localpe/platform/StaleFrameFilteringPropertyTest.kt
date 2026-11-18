@@ -58,7 +58,7 @@ class StaleFrameFilteringPropertyTest : FunSpec({
     // A simple action with one step that matches any text containing "enter amount"
     // and expects a reply, followed by a done step.
     val testAction = Action(
-        code = "*99#",
+        code = "*123#",
         steps = listOf(
             ActionStep(
                 match = Regex("enter amount", RegexOption.IGNORE_CASE),

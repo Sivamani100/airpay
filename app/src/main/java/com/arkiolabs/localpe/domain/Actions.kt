@@ -73,8 +73,8 @@ object Actions {
         Regex("technical\\s+(error|issue|problem)", RegexOption.IGNORE_CASE),
         Regex("session\\s+(timed\\s+out|expired|terminated)", RegexOption.IGNORE_CASE),
 
-        // *99# user-not-onboarded phrases — the carrier returns these when
-        // the user's mobile number isn't linked to a bank account for *99#.
+        // User-not-onboarded phrases — the carrier returns these when
+        // the user's mobile number isn't linked to a bank account.
         // The UI routes these specifically to a "you're not registered" flow.
         Regex("could\\s+not\\s+find\\s+(your|ur)\\s+bank", RegexOption.IGNORE_CASE),
         Regex("is\\s+not\\s+a\\s+valid\\s+selection", RegexOption.IGNORE_CASE),
@@ -83,8 +83,8 @@ object Actions {
     )
 
     /**
-     * Send money via UPI using *99*1*3#.
-     * NPCI Flow: VPA → Amount → Remark (optional) → Beneficiary Confirm (press 1) → UPI PIN → Success.
+     * Send money via UPI using carrier gateway code.
+     * Flow: VPA → Amount → Remark (optional) → Beneficiary Confirm (press 1) → UPI PIN → Success.
      * 35-second hard timeout.
      */
     val SendUpi = Action(
@@ -106,7 +106,7 @@ object Actions {
                 label = "Adding note"
             ),
             ActionStep(
-                // NPCI displays beneficiary name & amount and prompts "1 to confirm" or "Press 1 to proceed" BEFORE the UPI PIN
+                // Displays beneficiary name & amount and prompts "1 to confirm" or "Press 1 to proceed" BEFORE the UPI PIN
                 match = Regex("\\b(confirm|press\\s*1|1\\s*to\\s*confirm|1\\s*to\\s*proceed|are\\s*you\\s*sure|1\\s*[:.]\\s*confirm)\\b", RegexOption.IGNORE_CASE),
                 reply = "1",
                 label = "Confirming"
@@ -127,8 +127,8 @@ object Actions {
     )
 
     /**
-     * Send money directly to a Mobile Number using *99*1*1#.
-     * NPCI Flow: Mobile No → Amount → Remark (optional) → Beneficiary Confirm (press 1) → UPI PIN → Success.
+     * Send money directly to a Mobile Number using carrier gateway code.
+     * Flow: Mobile No → Amount → Remark (optional) → Beneficiary Confirm (press 1) → UPI PIN → Success.
      * 35-second hard timeout.
      */
     val SendToMobile = Action(
@@ -151,7 +151,7 @@ object Actions {
                 label = "Adding note"
             ),
             ActionStep(
-                // NPCI displays beneficiary name & amount and prompts "1 to confirm" BEFORE the UPI PIN
+                // Displays beneficiary name & amount and prompts "1 to confirm" BEFORE the UPI PIN
                 match = Regex("\\b(confirm|press\\s*1|1\\s*to\\s*confirm|1\\s*to\\s*proceed|are\\s*you\\s*sure|1\\s*[:.]\\s*confirm)\\b", RegexOption.IGNORE_CASE),
                 reply = "1",
                 label = "Confirming"
@@ -172,7 +172,7 @@ object Actions {
     )
 
     /**
-     * Check balance via *99*3#.
+     * Check balance via carrier gateway code.
      * 2-step flow: PIN → Balance display.
      * 18-second hard timeout.
      */
@@ -201,8 +201,7 @@ object Actions {
     )
 
     /**
-     * Fetch user's registered UPI ID from SIM profile via *99*4*4#
-     * (*99# -> 4: My Profile -> 4: UPI ID).
+     * Fetch user's registered UPI ID from SIM profile via carrier gateway code.
      */
     val FetchUpiId = Action(
         code = "*99*4*4#",

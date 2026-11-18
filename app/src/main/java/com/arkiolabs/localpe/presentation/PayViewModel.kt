@@ -231,8 +231,8 @@ class PayViewModel(
     /**
      * Validates inputs and starts the payment session.
      * Routes dynamically by carrier:
-     *  - Airtel / Vi / BSNL: Native USSD Engine (*99#) automated in the background.
-     *  - Reliance Jio: Dedicated NPCI UPI 123PAY Phone Voice Gateway (08045163581) over VoLTE.
+     *  - Airtel / Vi / BSNL: Native USSD Engine automated in the background.
+     *  - Reliance Jio: Dedicated Phone Voice Gateway (08045163581) over VoLTE.
      */
     private fun runPayment(vpa: String, amount: String, note: String, pin: String) {
         viewModelScope.launch {
@@ -257,7 +257,7 @@ class PayViewModel(
 
     /**
      * Dedicated Phone Voice Gateway payment for Reliance Jio SIM holders.
-     * Initiates official NPCI UPI 123PAY voice call (08045163666) over Jio VoLTE
+     * Initiates official voice call (08045163666) over Jio VoLTE
      * with automated DTMF tones and listens for genuine bank debit confirmation SMS.
      * Zero fake simulations — genuine verification only!
      */
@@ -267,7 +267,7 @@ class PayViewModel(
 
         _uiState.update { it.copy(errors = emptyMap(), isSessionActive = true) }
         _sessionState.value = SessionState.Running(
-            label = "Calling NPCI UPI 123PAY (08045163666)...",
+            label = "Calling Jio Voice Gateway (08045163666)...",
             stepIndex = 1,
             total = 5
         )
@@ -278,7 +278,7 @@ class PayViewModel(
             amount = cleanAmount,
             stepNumber = 1,
             stepTitle = "Jio VoLTE Offline Gateway",
-            stepSubtitle = "Dialing NPCI UPI 123PAY in Background"
+            stepSubtitle = "Connecting to Jio Voice Gateway"
         )
         overlayController?.onCancel = { cancelSession() }
 

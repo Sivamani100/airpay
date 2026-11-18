@@ -90,7 +90,7 @@ class ActionRunnerFailurePropertyTest : FunSpec({
             "Confirm payment of Rs 500?",
             "Press 1 to confirm",
             "Your request has been processed",
-            "Welcome to NPCI UPI service",
+            "Welcome to LocalPe UPI service",
             "Enter remark for transaction",
             "Transaction ID: 987654321"
         )
