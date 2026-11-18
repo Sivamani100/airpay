@@ -7,5 +7,10 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.Airpay.Splash" parent="Theme.Airpay" />
+    <style name="Theme.Airpay.Splash" parent="Theme.Airpay">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>

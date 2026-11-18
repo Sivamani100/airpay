@@ -14,8 +14,8 @@ import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         setTheme(com.arkiolabs.airpay.R.style.Theme_Airpay)
+        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AirpayTheme {
