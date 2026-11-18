@@ -969,7 +969,7 @@ private fun SecurityAndCarrierSection(
         Spacer(Modifier.height(12.dp))
 
         GuaranteeItem(
-            iconResId = R.drawable.ic_lock,
+            iconResId = R.drawable.outline_lock,
             title = "UPI PIN never persists",
             desc = "Held only in volatile memory during session, wiped within 500ms."
         )
