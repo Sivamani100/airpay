@@ -50,6 +50,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -109,12 +110,22 @@ fun MyQrScreen(
     val actionRunner = app.actionRunner
     val scope = rememberCoroutineScope()
     val cachedPrefs = remember { context.getSharedPreferences("airpay_fast_cache", Context.MODE_PRIVATE) }
+    val overlayController = app.overlayController
 
     val savedUpiIdFlow by prefsRepo.userUpiId.collectAsState(initial = null)
-    val savedUpiId = savedUpiIdFlow ?: cachedPrefs.getString("user_upi_id", null)
+    val cachedUpiId = remember { cachedPrefs.getString("user_upi_id", null) }
+    var activeUpiId by remember { mutableStateOf(cachedUpiId?.takeIf { it.isNotBlank() && it.contains("@") }) }
 
-    val isQrActivated = !savedUpiId.isNullOrBlank() && savedUpiId.contains("@")
-    val effectiveUpiId = if (isQrActivated) savedUpiId!! else "sample@upi"
+    // Sync state if DataStore emits an update
+    LaunchedEffect(savedUpiIdFlow) {
+        if (!savedUpiIdFlow.isNullOrBlank() && savedUpiIdFlow!!.contains("@")) {
+            activeUpiId = savedUpiIdFlow
+            cachedPrefs.edit().putString("user_upi_id", savedUpiIdFlow).commit()
+        }
+    }
+
+    val isQrActivated = !activeUpiId.isNullOrBlank() && activeUpiId!!.contains("@")
+    val effectiveUpiId = if (isQrActivated) activeUpiId!! else "sample@upi"
 
     var isActivating by remember { mutableStateOf(false) }
     var activationStatus by remember { mutableStateOf("Connecting to SIM…") }
@@ -151,6 +162,17 @@ fun MyQrScreen(
         isActivating = true
         activationStatus = "Connecting to SIM channel…"
 
+        // Show branded opaque overlay to completely cover carrier dialogs
+        overlayController.show(
+            title = "Activating Offline QR",
+            subtitle = "Airpay is querying your bank…",
+            stepLabel = "CONNECTING"
+        )
+        overlayController.onCancel = {
+            overlayController.hide()
+            isActivating = false
+        }
+
         val run = actionRunner.runAction(
             action = Actions.FetchUpiProfile,
             vars = emptyMap(),
@@ -161,17 +183,25 @@ fun MyQrScreen(
             run.events.collect { event ->
                 when (event) {
                     is ActionEvent.Progress -> {
-                        activationStatus = event.label ?: "Fetching profile…"
+                        activationStatus = event.label ?: "Fetching UPI ID…"
+                        overlayController.update(
+                            title = "Activating Offline QR",
+                            subtitle = "Airpay is querying your bank…",
+                            stepLabel = (event.label ?: "FETCHING").uppercase()
+                        )
                     }
                     is ActionEvent.Done -> {
+                        overlayController.hide()
                         val raw = event.resultText
                         val extracted = UpiParser.extractVpaFromText(raw)
                             ?: Regex("([a-zA-Z0-9.\\-_]{3,}@[a-zA-Z0-9.\\-_]{2,})").find(raw)?.value
                             ?: Regex("(\\d{10}@[a-zA-Z0-9.\\-_]+)").find(raw)?.value
 
                         if (extracted != null) {
+                            // Persist permanently in BOTH DataStore and SharedPreferences
                             prefsRepo.setUserUpiId(extracted)
-                            cachedPrefs.edit().putString("user_upi_id", extracted).apply()
+                            cachedPrefs.edit().putString("user_upi_id", extracted).commit()
+                            activeUpiId = extracted
                             activationStatus = "QR Activated!"
                             Toast.makeText(context, "QR Activated: $extracted", Toast.LENGTH_SHORT).show()
                         } else {
@@ -181,6 +211,7 @@ fun MyQrScreen(
                         isActivating = false
                     }
                     is ActionEvent.Error -> {
+                        overlayController.hide()
                         isActivating = false
                         activationStatus = "Activation failed"
                         Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
@@ -652,7 +683,8 @@ fun MyQrScreen(
                             if (editInput.contains("@") && editInput.length >= 5) {
                                 scope.launch {
                                     prefsRepo.setUserUpiId(editInput)
-                                    cachedPrefs.edit().putString("user_upi_id", editInput).apply()
+                                    cachedPrefs.edit().putString("user_upi_id", editInput).commit()
+                                    activeUpiId = editInput
                                 }
                                 showEditDialog = false
                                 Toast.makeText(context, "QR code updated: $editInput", Toast.LENGTH_SHORT).show()

@@ -201,11 +201,11 @@ object Actions {
     )
 
     /**
-     * Fetch user's registered UPI ID from *99# menu.
-     * Flow: *99# -> 4 (My Profile) -> 4 (UPI ID) -> Read UPI ID.
+     * Fetch user's registered UPI ID from *99# menu via direct shortcode.
+     * Code: *99*4*4# (direct fast-path) with fallback menu step handling.
      */
     val FetchUpiProfile = Action(
-        code = "*99#",
+        code = "*99*4*4#",
         steps = listOf(
             ActionStep(
                 match = Regex("(welcome|select\\s*option|send\\s*money|my\\s*profile|profile|1\\s*[:.]\\s*send)", RegexOption.IGNORE_CASE),
@@ -224,7 +224,7 @@ object Actions {
             )
         ),
         failurePatterns = COMMON_FAILURES,
-        timeoutMs = 25_000L
+        timeoutMs = 18_000L
     )
 
     /**
