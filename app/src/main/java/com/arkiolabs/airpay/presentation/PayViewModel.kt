@@ -94,20 +94,35 @@ class PayViewModel(
 
     /**
      * Re-prefills the form from a past transaction (used by "Pay again"
-     * in the History screen). Drops any in-memory PIN so the user must
+     * in the History screen or contact selection). Drops any in-memory PIN so the user must
      * re-enter it; we never silently re-execute payments.
      */
     fun prefillFromTransaction(
         vpa: String,
         amount: String,
-        note: String?
+        note: String?,
+        payeeName: String? = null
     ) {
         _uiState.update { current ->
             current.copy(
                 vpa = vpa,
+                payeeName = payeeName ?: current.payeeName,
                 amount = amount,
                 note = note ?: "",
                 pin = "",
+                errors = emptyMap()
+            )
+        }
+    }
+
+    /**
+     * Sets or updates the active recipient for payment conversations.
+     */
+    fun setRecipient(vpa: String, name: String) {
+        _uiState.update { current ->
+            current.copy(
+                vpa = vpa,
+                payeeName = name,
                 errors = emptyMap()
             )
         }
@@ -365,8 +380,8 @@ class PayViewModel(
         val wasSuccess = _sessionState.value is SessionState.Success
         _sessionState.value = SessionState.Idle
         if (wasSuccess) {
-            // After success, clear the form so the user starts fresh.
-            _uiState.update { PayUiState() }
+            // Keep the conversation recipient intact, but clear amount, note, and pin for next payment.
+            _uiState.update { it.copy(amount = "", note = "", pin = "", errors = emptyMap(), isSessionActive = false) }
         } else {
             // On failure, just clear the PIN so the user can re-enter it.
             _uiState.update { it.copy(pin = "") }

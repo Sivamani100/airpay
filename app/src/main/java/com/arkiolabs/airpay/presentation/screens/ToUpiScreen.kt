@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import com.arkiolabs.airpay.R
 import com.arkiolabs.airpay.domain.RecipientResolver
 import com.arkiolabs.airpay.domain.UpiParser
+import com.arkiolabs.airpay.platform.ContactsHelper
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
@@ -78,12 +80,16 @@ fun ToUpiScreen(
     var nickname by remember { mutableStateOf("") }
     val transactions by historyViewModel.transactions.collectAsState()
     val view = LocalView.current
+    val context = LocalContext.current
 
     val resolution = remember(upiInput) {
         if (upiInput.isNotBlank()) RecipientResolver.resolve(upiInput) else null
     }
 
-    val verifiedPayeeName = resolution?.displayName ?: "Verified Recipient"
+    val contactName = remember(upiInput) {
+        if (upiInput.isNotBlank()) ContactsHelper.getContactName(context, upiInput) else null
+    }
+    val verifiedPayeeName = contactName ?: resolution?.displayName ?: "Verified Recipient"
 
     // Filter recent transactions that contain a valid UPI VPA
     val recentUpiList = remember(transactions) {
@@ -376,8 +382,9 @@ fun ToUpiScreen(
                         Spacer(Modifier.width(14.dp))
 
                         Column(modifier = Modifier.weight(1f)) {
+                            val resolvedRecentName = ContactsHelper.resolveDisplayName(context, tx.vpa, tx.payeeName)
                             Text(
-                                text = tx.payeeName ?: tx.vpa,
+                                text = resolvedRecentName,
                                 fontSize = 14.sp,
                                 fontFamily = ClashGrotesk,
                                 fontWeight = FontWeight.Bold,

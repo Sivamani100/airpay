@@ -80,6 +80,29 @@ object ApkShareUtil {
     }
 
     /**
+     * Shares a clean offline transaction receipt with counterparty and amount.
+     */
+    fun shareTransactionReceipt(
+        context: Context,
+        amount: String,
+        payeeName: String,
+        vpa: String,
+        timestamp: Long
+    ) {
+        val date = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault()).format(java.util.Date(timestamp))
+        val body = "✓ Paid ₹$amount to $payeeName ($vpa) on $date via LocalPe Offline SIM Network. No internet needed!"
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, body)
+            putExtra(Intent.EXTRA_SUBJECT, "LocalPe Payment Receipt")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        runCatching {
+            context.startActivity(Intent.createChooser(send, "Share Receipt"))
+        }
+    }
+
+    /**
      * Tries to find the installed APK file on disk. Returns null when the
      * package was installed as a split-APK bundle (Play Store) — those
      * can't be re-shared as a single .apk.

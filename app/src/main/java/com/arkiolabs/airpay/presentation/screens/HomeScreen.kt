@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.arkiolabs.airpay.R
 import com.arkiolabs.airpay.airpayApp
 import com.arkiolabs.airpay.data.TransactionEntity
+import com.arkiolabs.airpay.platform.ContactsHelper
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.PayViewModel
 import com.arkiolabs.airpay.presentation.bottomsheets.SetupBottomSheetCoordinator
@@ -319,8 +320,8 @@ fun HomeScreen(
             ) {
                 RecentTransfersSection(
                     transactions = transactions,
-                    onSelectRecipient = { vpa, amount ->
-                        payViewModel.prefillFromTransaction(vpa = vpa, amount = amount, note = "")
+                    onSelectRecipient = { vpa, amount, name ->
+                        payViewModel.prefillFromTransaction(vpa = vpa, amount = amount, note = "", payeeName = name)
                         onNavigatePay()
                     },
                     onViewAll = onNavigateHistory
@@ -506,9 +507,10 @@ private fun AirpayActionTile(
 @Composable
 private fun RecentTransfersSection(
     transactions: List<TransactionEntity>,
-    onSelectRecipient: (String, String) -> Unit,
+    onSelectRecipient: (String, String, String) -> Unit,
     onViewAll: () -> Unit
 ) {
+    val context = LocalContext.current
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -574,12 +576,12 @@ private fun RecentTransfersSection(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(transactions.take(8)) { txn ->
-                    val displayName = txn.payeeName?.takeIf { it.isNotBlank() } ?: txn.vpa.substringBefore("@")
+                    val displayName = ContactsHelper.resolveDisplayName(context, txn.vpa, txn.payeeName)
                     RecipientBubbleItem(
                         recipientName = displayName,
                         vpa = txn.vpa,
                         amount = txn.amount,
-                        onClick = { onSelectRecipient(txn.vpa, txn.amount) }
+                        onClick = { onSelectRecipient(txn.vpa, txn.amount, displayName) }
                     )
                 }
             }

@@ -266,12 +266,17 @@ fun ToMobileScreen(
             // ── Direct Mobile Number Pay Tile (if 10 digits entered) ─
             if (isDirectPhone) {
                 val normalizedPhone = if (cleanDigits.length == 10) cleanDigits else cleanDigits.takeLast(10)
+                val savedName = ContactsHelper.getContactName(context, normalizedPhone)
+                val title = savedName ?: "Pay to +91 $normalizedPhone"
+                val subtitle = if (savedName != null) "+91 $normalizedPhone · Saved Contact" else "Direct offline SIM payment"
+                val displayNameToPass = savedName ?: "+91 $normalizedPhone"
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
                             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                            onContactSelected(normalizedPhone, "Mobile: +91 $normalizedPhone")
+                            onContactSelected(normalizedPhone, displayNameToPass)
                         }
                         .background(AirpayColors.SaffronTint)
                         .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -284,24 +289,35 @@ fun ToMobileScreen(
                             .background(AirpayColors.Primary),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Call,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
+                        if (savedName != null) {
+                            Text(
+                                text = savedName.take(1).uppercase(),
+                                color = Color.White,
+                                fontFamily = ClashGrotesk,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Call,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
-                            text = "Pay to +91 $normalizedPhone",
-                            fontSize = 14.sp,
+                            text = title,
+                            fontSize = 14.5.sp,
+                            fontFamily = ClashGrotesk,
                             fontWeight = FontWeight.Bold,
                             color = AirpayColors.Primary
                         )
                         Text(
-                            text = "Direct offline SIM payment",
-                            fontSize = 11.sp,
+                            text = subtitle,
+                            fontSize = 11.5.sp,
                             color = Color(0xFF757575)
                         )
                     }

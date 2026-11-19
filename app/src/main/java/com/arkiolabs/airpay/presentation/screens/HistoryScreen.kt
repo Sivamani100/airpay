@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.airpay.R
 import com.arkiolabs.airpay.data.TransactionEntity
+import com.arkiolabs.airpay.platform.ContactsHelper
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
@@ -70,11 +72,14 @@ fun HistoryScreen(
     val txns by viewModel.transactions.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     val view = LocalView.current
+    val context = LocalContext.current
 
     val filteredTxns = remember(searchQuery, txns) {
         if (searchQuery.isBlank()) txns else {
             txns.filter {
-                it.vpa.contains(searchQuery, ignoreCase = true) ||
+                val resolvedName = ContactsHelper.resolveDisplayName(context, it.vpa, it.payeeName)
+                resolvedName.contains(searchQuery, ignoreCase = true) ||
+                    it.vpa.contains(searchQuery, ignoreCase = true) ||
                     it.amount.contains(searchQuery) ||
                     (it.payeeName?.contains(searchQuery, ignoreCase = true) == true) ||
                     (it.note?.contains(searchQuery, ignoreCase = true) == true)
@@ -246,11 +251,14 @@ private fun CleanHistoryItem(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
     val formattedDate = remember(txn.timestamp) {
         SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(txn.timestamp))
     }
 
-    val displayName = txn.payeeName?.takeIf { it.isNotBlank() } ?: txn.vpa
+    val displayName = remember(txn.vpa, txn.payeeName) {
+        ContactsHelper.resolveDisplayName(context, txn.vpa, txn.payeeName)
+    }
 
     Column(
         modifier = Modifier

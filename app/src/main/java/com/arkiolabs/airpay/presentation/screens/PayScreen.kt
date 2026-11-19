@@ -1,10 +1,11 @@
 package com.arkiolabs.airpay.presentation.screens
 
+import android.content.Context
+import android.text.format.DateUtils
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,12 +23,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
@@ -52,49 +61,62 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import com.arkiolabs.airpay.R
-import com.arkiolabs.airpay.domain.FormField
-import com.arkiolabs.airpay.domain.OperationMode
-import com.arkiolabs.airpay.domain.RecipientResolver
-import com.arkiolabs.airpay.domain.SessionState
 import com.arkiolabs.airpay.airpayApp
+import com.arkiolabs.airpay.data.TransactionEntity
+import com.arkiolabs.airpay.domain.OperationMode
+import com.arkiolabs.airpay.domain.SessionState
+import com.arkiolabs.airpay.platform.ApkShareUtil
 import com.arkiolabs.airpay.platform.BiometricHelper
+import com.arkiolabs.airpay.platform.ContactsHelper
 import com.arkiolabs.airpay.platform.SoundManager
+import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.PayUiState
 import com.arkiolabs.airpay.presentation.PayViewModel
+import com.arkiolabs.airpay.presentation.bottomsheets.BiometricSuggestionSheet
 import com.arkiolabs.airpay.presentation.permissions.PermissionStatus
 import com.arkiolabs.airpay.presentation.permissions.openAccessibilitySettings
 import com.arkiolabs.airpay.presentation.permissions.openOverlaySettings
 import com.arkiolabs.airpay.presentation.permissions.rememberPermissionLaunchers
-import com.arkiolabs.airpay.presentation.ui.components.AirpayLottieAnimation
 import com.arkiolabs.airpay.presentation.ui.components.StatusBanner
 import com.arkiolabs.airpay.presentation.ui.components.UpiPinScreen
-import com.arkiolabs.airpay.presentation.bottomsheets.BiometricSuggestionSheet
+import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.airpay.presentation.ui.theme.Iconsax
-import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 /**
- * Authentic Airpay Styled Send Money (Pay) Screen.
+ * PhonePe-Styled Contact Payment Conversation Interface.
  *
  * Implements:
- *  - Header with Back arrow, "Send Money", "to any UPI app", Help (?) icon.
- *  - Recipient Identity Card with verified Payee Name & avatar initials.
- *  - Prominent Amount Card with ClashGrotesk ₹ symbol and quick-amount chips (+100, +500, +1000).
- *  - One-tap Biometric Authentication (Fingerprint/Face) to bypass PIN.
- *  - Fullscreen authentic Airpay UPI PIN Screen.
- *  - Custom transaction success and failure sound playback.
+ *  - Header: Contact avatar with initials, resolved contact name, phone/VPA, help icon.
+ *  - Main Conversation Thread:
+ *      * Shows payment history bubbles exchanged with this specific contact.
+ *      * NO text messaging box — purely money sending & payment bubbles, exactly like PhonePe.
+ *      * Friendly starter card if no prior payments exist with this contact.
+ *      * Each bubble displays big bold amount, "✓ Paid Offline via SIM", timestamp, and "Pay Again"/"Share".
+ *  - Bottom Money Sending Bar:
+ *      * Quick amount chips (+₹100, +₹200, +₹500, +₹1,000, +₹2,000).
+ *      * Clean currency amount field & optional note.
+ *      * Prominent solid purple "PAY" button.
+ *  - PIN / Biometric authentication & 100% offline USSD execution underneath.
  */
 @Composable
 fun PayScreen(
     viewModel: PayViewModel,
-    onNavigateScan: () -> Unit,
-    onNavigateHistory: () -> Unit,
-    onNavigateFaq: () -> Unit,
+    historyViewModel: HistoryViewModel,
+    onBack: () -> Unit = {},
+    onNavigateScan: () -> Unit = {},
+    onNavigateHistory: () -> Unit = {},
+    onNavigateFaq: () -> Unit = {},
     permissions: PermissionStatus,
     modifier: Modifier = Modifier
 ) {
@@ -102,21 +124,38 @@ fun PayScreen(
     val session by viewModel.sessionState.collectAsState()
     val mode by viewModel.operationMode.collectAsState()
     val snackbar by viewModel.snackbar.collectAsState()
+    val allTransactions by historyViewModel.transactions.collectAsState()
 
     val context = LocalContext.current
     val app = context.airpayApp
     val prefsRepo = app.prefsRepo
     val scope = rememberCoroutineScope()
+    val keyboard = LocalSoftwareKeyboardController.current
 
     val biometricEnabled by prefsRepo.biometricEnabled.collectAsState(initial = false)
     val biometricSuggestionDismissed by prefsRepo.biometricSuggestionDismissed.collectAsState(initial = false)
     val savedPin by prefsRepo.savedBiometricPin.collectAsState(initial = null)
     val successSoundUri by prefsRepo.successSoundUri.collectAsState(initial = null)
     val failedSoundUri by prefsRepo.failedSoundUri.collectAsState(initial = null)
+
     var showPinScreen by remember { mutableStateOf(false) }
     var showBiometricSuggestion by remember { mutableStateOf(false) }
 
-    // Play custom sounds upon success or failure, and trigger biometric suggestion after 1st successful payment
+    // Resolve contact name from user's address book if saved
+    val resolvedRecipientName = remember(ui.vpa, ui.payeeName) {
+        ContactsHelper.resolveDisplayName(context, ui.vpa, ui.payeeName)
+    }
+
+    val formattedSubtitle = remember(ui.vpa) {
+        val norm = ContactsHelper.normalizePhone(ui.vpa)
+        if (norm != null && norm.length == 10) {
+            "+91 ${norm.take(5)} ${norm.takeLast(5)}"
+        } else {
+            ui.vpa.ifBlank { "Offline Payee" }
+        }
+    }
+
+    // Play sound upon success/failure and suggest biometric after first successful payment
     LaunchedEffect(session) {
         when (session) {
             is SessionState.Success -> {
@@ -135,23 +174,21 @@ fun PayScreen(
     }
 
     Box(
-        modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(AirpayColors.Background)
+            .background(Color(0xFFF7F8FA))
             .statusBarsPadding()
     ) {
         when (val s = session) {
             is SessionState.Idle -> {
                 if (showPinScreen) {
-                    val resolved = RecipientResolver.resolve(ui.vpa)
                     UpiPinScreen(
                         amount = ui.amount,
-                        recipientName = ui.payeeName.ifBlank { resolved.displayName },
+                        recipientName = resolvedRecipientName,
                         bankName = "OFFLINE SIM BANK",
                         submitLabel = "PAY",
                         onPinSubmitted = { enteredPin ->
                             showPinScreen = false
-                            // Always store entered PIN for biometric reuse
                             scope.launch { prefsRepo.setSavedBiometricPin(enteredPin) }
                             viewModel.attemptPaymentWithPin(enteredPin)
                         },
@@ -175,24 +212,40 @@ fun PayScreen(
                         } else null
                     )
                 } else {
-                    AirpayPayForm(
+                    PhonePeContactPaymentChat(
                         ui = ui,
-                        mode = mode,
+                        recipientName = resolvedRecipientName,
+                        recipientSubtitle = formattedSubtitle,
+                        transactions = allTransactions,
                         permissions = permissions,
+                        onBack = onBack,
+                        onFaq = onNavigateFaq,
+                        onHistory = onNavigateHistory,
+                        onAmountChanged = { newAmount ->
+                            viewModel.onFormFieldChanged(amount = newAmount)
+                        },
+                        onNoteChanged = { newNote ->
+                            viewModel.onFormFieldChanged(note = newNote)
+                        },
                         onProceed = {
+                            keyboard?.hide()
+                            if (!permissions.readyForDialerPay) {
+                                // Request phone permissions
+                                return@PhonePeContactPaymentChat
+                            }
                             if (!permissions.accessibility) {
                                 openAccessibilitySettings(context)
-                                return@AirpayPayForm
+                                return@PhonePeContactPaymentChat
                             }
                             if (!permissions.overlay) {
                                 openOverlaySettings(context)
-                                return@AirpayPayForm
+                                return@PhonePeContactPaymentChat
                             }
                             if (mode == OperationMode.MANUAL) {
                                 viewModel.attemptPayment()
-                                return@AirpayPayForm
+                                return@PhonePeContactPaymentChat
                             }
-                            // If biometric is enabled and saved PIN exists, prompt fingerprint directly!
+                            // Direct Biometric Prompt if enabled and PIN is saved
                             if (biometricEnabled && !savedPin.isNullOrBlank()) {
                                 (context as? FragmentActivity)?.let { act ->
                                     BiometricHelper.prompt(
@@ -201,7 +254,6 @@ fun PayScreen(
                                             viewModel.attemptPaymentWithPin(savedPin!!)
                                         },
                                         onError = {
-                                            // Fallback to on-screen UPI PIN
                                             showPinScreen = true
                                         },
                                         onCancel = {
@@ -214,13 +266,7 @@ fun PayScreen(
                             } else {
                                 showPinScreen = true
                             }
-                        },
-                        onScan = onNavigateScan,
-                        onHistory = onNavigateHistory,
-                        onFaq = onNavigateFaq,
-                        onVpa = { v -> viewModel.onFormFieldChanged(vpa = v) },
-                        onAmount = { v -> viewModel.onFormFieldChanged(amount = v) },
-                        onNote = { v -> viewModel.onFormFieldChanged(note = v) }
+                        }
                     )
                 }
             }
@@ -262,44 +308,146 @@ fun PayScreen(
     }
 }
 
+/**
+ * Authentic PhonePe-Style Payment Conversation Screen.
+ * Contains:
+ *  - Recipient Top Bar
+ *  - Payment Bubble Timeline (filtered for this contact)
+ *  - Bottom Money Sending Bar (quick amount chips + amount box + PAY button)
+ *  - NO text messaging bar! Purely money sending just like PhonePe.
+ */
 @Composable
-private fun AirpayPayForm(
+private fun PhonePeContactPaymentChat(
     ui: PayUiState,
-    mode: OperationMode,
+    recipientName: String,
+    recipientSubtitle: String,
+    transactions: List<TransactionEntity>,
     permissions: PermissionStatus,
-    onProceed: () -> Unit,
-    onScan: () -> Unit,
-    onHistory: () -> Unit,
+    onBack: () -> Unit,
     onFaq: () -> Unit,
-    onVpa: (String) -> Unit,
-    onAmount: (String) -> Unit,
-    onNote: (String) -> Unit
+    onHistory: () -> Unit,
+    onAmountChanged: (String) -> Unit,
+    onNoteChanged: (String) -> Unit,
+    onProceed: () -> Unit
 ) {
     val context = LocalContext.current
     val view = LocalView.current
     val launchers = rememberPermissionLaunchers()
-    val keyboard = LocalSoftwareKeyboardController.current
 
-    val resolved = remember(ui.vpa) { RecipientResolver.resolve(ui.vpa) }
-    val amountLooksValid = ui.amount.toDoubleOrNull()?.let { it > 0.0 } == true
+    // Filter transactions between current user and this specific contact
+    val targetPhone = remember(ui.vpa) { ContactsHelper.normalizePhone(ui.vpa) }
+    val targetClean = remember(ui.vpa) { ui.vpa.trim().lowercase() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding()
-    ) {
-        // ── Top Navigation Bar (Airpay Style) ───────────────────
+    val conversationTxns = remember(transactions, targetPhone, targetClean, recipientName) {
+        transactions.filter { tx ->
+            val txPhone = ContactsHelper.normalizePhone(tx.vpa)
+            (targetPhone != null && txPhone == targetPhone) ||
+                tx.vpa.trim().equals(targetClean, ignoreCase = true) ||
+                (tx.payeeName != null && tx.payeeName.equals(recipientName, ignoreCase = true))
+        }.sortedBy { it.timestamp } // oldest at top, newest at bottom
+    }
+
+    val listState = rememberLazyListState()
+
+    // Auto-scroll to latest payment card at bottom
+    LaunchedEffect(conversationTxns.size) {
+        if (conversationTxns.isNotEmpty()) {
+            listState.animateScrollToItem(conversationTxns.size - 1)
+        }
+    }
+
+    val amountDouble = ui.amount.toDoubleOrNull() ?: 0.0
+    val isValidAmount = amountDouble > 0.0
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // ── Top Bar: Recipient Profile & Back Arrow ─────────────────
         Surface(
-            color = AirpayColors.Surface,
-            shadowElevation = 1.dp,
+            color = Color.White,
+            shadowElevation = 2.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .clickable {
+                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                            onBack()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Iconsax.ArrowLeft,
+                        contentDescription = "Back",
+                        tint = Color(0xFF1C1C1E),
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+                Spacer(Modifier.width(8.dp))
+
+                // Avatar Initial Circle
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(AirpayColors.PurpleTint)
+                        .border(1.5.dp, AirpayColors.Primary, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = recipientName.take(1).uppercase().ifBlank { "U" },
+                        fontFamily = ClashGrotesk,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AirpayColors.Primary
+                    )
+                }
+
+                Spacer(Modifier.width(12.dp))
+
+                // Name & Subtitle
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = recipientName,
+                        fontSize = 15.5.sp,
+                        fontFamily = ClashGrotesk,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1C1C1E),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(1.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = recipientSubtitle,
+                            fontSize = 11.5.sp,
+                            color = Color(0xFF757575)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color(0xFFE8F5E9))
+                                .padding(horizontal = 4.dp, vertical = 1.dp)
+                        ) {
+                            Text(
+                                text = "OFFLINE",
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2E7D32)
+                            )
+                        }
+                    }
+                }
+
+                // History shortcut
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -308,49 +456,14 @@ private fun AirpayPayForm(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.bottom_nav_history_selected),
+                        imageVector = Icons.Default.History,
                         contentDescription = "History",
-                        tint = AirpayColors.TextPrimary,
+                        tint = Color(0xFF1C1C1E),
                         modifier = Modifier.size(22.dp)
                     )
                 }
 
-                Spacer(Modifier.width(8.dp))
-
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        text = "Send Money",
-                        fontFamily = ClashGrotesk,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = AirpayColors.TextPrimary
-                    )
-                    Text(
-                        text = "Direct Offline SIM Network",
-                        fontSize = 11.sp,
-                        color = AirpayColors.TextSecondary
-                    )
-                }
-
-                // QR Scanner button
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .clickable { onScan() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_qr_scan),
-                        contentDescription = "Scan QR",
-                        tint = AirpayColors.Primary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                Spacer(Modifier.width(4.dp))
-
-                // Help icon (?)
+                // Help shortcut
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -359,306 +472,486 @@ private fun AirpayPayForm(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Iconsax.InfoCircle,
+                        painter = painterResource(id = R.drawable.outline_help_white),
                         contentDescription = "Help",
-                        tint = AirpayColors.TextPrimary,
-                        modifier = Modifier.size(20.dp)
+                        tint = Color(0xFF1C1C1E),
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
         }
 
-        // ── Scrollable Form Area ─────────────────────────────────
-        Column(
+        // ── Main Conversation Area (Payment Bubbles / Empty State) ──
+        Box(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth()
         ) {
-            // Permission Warnings
-            if (!permissions.readyForDialerPay) {
+            if (conversationTxns.isEmpty()) {
+                // Starter Hero Card (PhonePe style empty conversation state)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(CircleShape)
+                            .background(AirpayColors.PurpleTint)
+                            .border(2.dp, AirpayColors.Primary, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = recipientName.take(1).uppercase().ifBlank { "U" },
+                            fontSize = 28.sp,
+                            fontFamily = ClashGrotesk,
+                            fontWeight = FontWeight.Bold,
+                            color = AirpayColors.Primary
+                        )
+                    }
+
+                    Spacer(Modifier.height(14.dp))
+
+                    Text(
+                        text = "Send money to $recipientName",
+                        fontSize = 17.sp,
+                        fontFamily = ClashGrotesk,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1C1C1E),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(Modifier.height(4.dp))
+
+                    Text(
+                        text = recipientSubtitle,
+                        fontSize = 12.5.sp,
+                        color = Color(0xFF757575)
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFFE8F5E9))
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "⚡ 100% Offline UPI · Zero Internet Needed",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2E7D32)
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Text(
+                        text = "No prior payments with this contact. Enter amount below and tap PAY to send money offline.",
+                        fontSize = 12.sp,
+                        color = Color(0xFF8E8E93),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(Modifier.height(20.dp))
+
+                    // Starter quick amount chips
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        listOf("1", "100", "500").forEach { chipAmount ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color.White)
+                                    .border(1.dp, AirpayColors.PurpleBorder, RoundedCornerShape(16.dp))
+                                    .clickable {
+                                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                        onAmountChanged(chipAmount)
+                                    }
+                                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = "Send ₹$chipAmount",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = AirpayColors.Primary
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 14.dp),
+                    state = listState
+                ) {
+                    item { Spacer(Modifier.height(14.dp)) }
+
+                    items(conversationTxns, key = { it.id }) { txn ->
+                        PhonePePaymentBubble(
+                            txn = txn,
+                            recipientName = recipientName,
+                            onPayAgain = {
+                                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                onAmountChanged(txn.amount)
+                            },
+                            onShareReceipt = {
+                                ApkShareUtil.shareTransactionReceipt(
+                                    context = context,
+                                    amount = txn.amount,
+                                    payeeName = recipientName,
+                                    vpa = txn.vpa,
+                                    timestamp = txn.timestamp
+                                )
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+                    }
+
+                    item { Spacer(Modifier.height(16.dp)) }
+                }
+            }
+        }
+
+        // ── Warnings if Phone permission is missing ─────────────────
+        if (!permissions.readyForDialerPay) {
+            Box(Modifier.padding(horizontal = 14.dp, vertical = 6.dp)) {
                 StatusBanner(
                     title = "Phone Permission Required",
                     message = "Airpay needs phone permission to run offline payments.",
                     actionLabel = "Grant",
                     onAction = { launchers.requestPhoneBundle() }
                 )
-                Spacer(Modifier.height(10.dp))
             }
+        }
 
-            if (mode == OperationMode.AUTO && !permissions.readyForOverlayPay) {
-                if (!permissions.accessibility) {
-                    StatusBanner(
-                        title = "Accessibility Permission",
-                        message = "Enable Accessibility for seamless auto payments.",
-                        actionLabel = "Settings",
-                        onAction = { openAccessibilitySettings(context) }
-                    )
-                    Spacer(Modifier.height(10.dp))
-                }
-                if (!permissions.overlay) {
-                    StatusBanner(
-                        title = "Overlay Permission",
-                        message = "Enable Overlay to hide system popups.",
-                        actionLabel = "Settings",
-                        onAction = { openOverlaySettings(context) }
-                    )
-                    Spacer(Modifier.height(10.dp))
-                }
-            }
-
-            // ── Recipient Card ───────────────────────────────────────
-            val cardShape = RoundedCornerShape(16.dp)
-            Surface(
-                color = AirpayColors.Surface,
-                shape = cardShape,
-                shadowElevation = 1.dp,
+        // ── Bottom Money Sending Bar (PhonePe Style) ────────────────
+        // Notice: NO text messaging box — purely money sending & chips!
+        Surface(
+            color = Color.White,
+            shadowElevation = 8.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .imePadding()
+        ) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, AirpayColors.Border, cardShape)
+                    .padding(horizontal = 14.dp, vertical = 12.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Transfer to",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = AirpayColors.TextSecondary
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                // Quick Amount Chips Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("100", "200", "500", "1000", "2000").forEach { chipAmount ->
                         Box(
                             modifier = Modifier
-                                .size(46.dp)
-                                .clip(CircleShape)
-                                .background(AirpayColors.PurpleTint)
-                                .border(1.5.dp, AirpayColors.Primary, CircleShape),
+                                .weight(1f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFFF5F3FB))
+                                .border(1.dp, Color(0xFFE8E5F3), RoundedCornerShape(8.dp))
+                                .clickable {
+                                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                    val current = ui.amount.toDoubleOrNull() ?: 0.0
+                                    val addition = chipAmount.toDouble()
+                                    onAmountChanged((current + addition).toInt().toString())
+                                }
+                                .padding(vertical = 7.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = (ui.payeeName.ifBlank { resolved.displayName }).take(1).uppercase().ifBlank { "?" },
-                                fontSize = 18.sp,
+                                text = "+₹$chipAmount",
+                                fontSize = 11.5.sp,
                                 fontFamily = ClashGrotesk,
+                                fontWeight = FontWeight.SemiBold,
+                                color = AirpayColors.Primary
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(10.dp))
+
+                // Money Sending Row: Amount Box + PAY Button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Amount Input Container
+                    val boxShape = RoundedCornerShape(12.dp)
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(boxShape)
+                            .background(Color(0xFFF7F8FA))
+                            .border(1.dp, Color(0xFFE2E4E8), boxShape)
+                            .padding(horizontal = 14.dp, vertical = 8.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "₹",
+                                fontSize = 24.sp,
+                                fontFamily = ClashGrotesk,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1C1C1E)
+                            )
+
+                            Spacer(Modifier.width(6.dp))
+
+                            Box(Modifier.weight(1f)) {
+                                if (ui.amount.isEmpty()) {
+                                    Text(
+                                        text = "Enter amount",
+                                        fontSize = 18.sp,
+                                        fontFamily = ClashGrotesk,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFFBDBDBD)
+                                    )
+                                }
+                                BasicTextField(
+                                    value = ui.amount,
+                                    onValueChange = { input ->
+                                        onAmountChanged(input.filter { it.isDigit() })
+                                    },
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    textStyle = TextStyle(
+                                        fontSize = 20.sp,
+                                        fontFamily = ClashGrotesk,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF1C1C1E)
+                                    ),
+                                    cursorBrush = SolidColor(AirpayColors.Primary),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+
+                        // Optional Note row
+                        BasicTextField(
+                            value = ui.note,
+                            onValueChange = onNoteChanged,
+                            singleLine = true,
+                            textStyle = TextStyle(
+                                fontSize = 11.5.sp,
+                                color = Color(0xFF616161)
+                            ),
+                            cursorBrush = SolidColor(AirpayColors.Primary),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 2.dp),
+                            decorationBox = { innerTextField ->
+                                if (ui.note.isEmpty()) {
+                                    Text(
+                                        text = "Add note (optional)",
+                                        fontSize = 11.5.sp,
+                                        color = Color(0xFF9E9E9E)
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        )
+                    }
+
+                    Spacer(Modifier.width(10.dp))
+
+                    // Solid Purple PAY Button
+                    val btnShape = RoundedCornerShape(12.dp)
+                    Box(
+                        modifier = Modifier
+                            .clip(btnShape)
+                            .background(if (isValidAmount) AirpayColors.Primary else AirpayColors.Primary.copy(alpha = 0.5f))
+                            .clickable(enabled = isValidAmount) {
+                                view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                                onProceed()
+                            }
+                            .padding(horizontal = 22.dp, vertical = 18.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (isValidAmount) "PAY ₹${ui.amount}" else "PAY",
+                            fontSize = 14.5.sp,
+                            fontFamily = ClashGrotesk,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * PhonePe Payment Bubble Card rendered in the chat timeline.
+ */
+@Composable
+private fun PhonePePaymentBubble(
+    txn: TransactionEntity,
+    recipientName: String,
+    onPayAgain: () -> Unit,
+    onShareReceipt: () -> Unit
+) {
+    val timeFormatted = remember(txn.timestamp) {
+        SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(txn.timestamp))
+    }
+
+    val dateFormatted = remember(txn.timestamp) {
+        SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(txn.timestamp))
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        val bubbleShape = RoundedCornerShape(
+            topStart = 16.dp,
+            topEnd = 16.dp,
+            bottomStart = 16.dp,
+            bottomEnd = 4.dp
+        )
+
+        Surface(
+            color = Color.White,
+            shape = bubbleShape,
+            shadowElevation = 1.dp,
+            modifier = Modifier
+                .fillMaxWidth(0.85f)
+                .border(1.dp, Color(0xFFE5E0F2), bubbleShape)
+        ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                // Top: Status & Recipient
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Success",
+                        tint = Color(0xFF00875A),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "Paid to $recipientName",
+                        fontSize = 13.sp,
+                        fontFamily = ClashGrotesk,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1C1C1E),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = timeFormatted,
+                        fontSize = 11.sp,
+                        color = Color(0xFF8E8E93)
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                // Bold Amount
+                Text(
+                    text = "₹${txn.amount}",
+                    fontSize = 24.sp,
+                    fontFamily = ClashGrotesk,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1C1C1E)
+                )
+
+                Spacer(Modifier.height(2.dp))
+
+                Text(
+                    text = "✓ Debited via SIM • Offline USSD",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF00875A)
+                )
+
+                if (!txn.note.isNullOrBlank()) {
+                    Spacer(Modifier.height(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFF5F6F8))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "Note: ${txn.note}",
+                            fontSize = 11.5.sp,
+                            color = Color(0xFF616161)
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
+                Spacer(Modifier.height(8.dp))
+
+                // Actions row: Pay Again & Share
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = dateFormatted,
+                        fontSize = 11.sp,
+                        color = Color(0xFF8E8E93)
+                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Pay Again Pill
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(AirpayColors.PurpleTint)
+                                .clickable { onPayAgain() }
+                                .padding(horizontal = 10.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Replay,
+                                contentDescription = null,
+                                tint = AirpayColors.Primary,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = "Pay Again",
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = AirpayColors.Primary
                             )
                         }
 
-                        Spacer(Modifier.width(12.dp))
-
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                text = ui.payeeName.ifBlank { resolved.displayName },
-                                fontSize = 15.sp,
-                                fontFamily = ClashGrotesk,
-                                fontWeight = FontWeight.Bold,
-                                color = AirpayColors.TextPrimary
-                            )
-                            Spacer(Modifier.height(2.dp))
-                            BasicTextField(
-                                value = ui.vpa,
-                                onValueChange = onVpa,
-                                singleLine = true,
-                                textStyle = TextStyle(
-                                    fontSize = 13.sp,
-                                    color = AirpayColors.TextSecondary,
-                                    fontWeight = FontWeight.Medium
-                                ),
-                                cursorBrush = SolidColor(AirpayColors.Primary),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-
-                        if (resolved.isValid) {
-                            Icon(
-                                imageVector = Iconsax.TickCircle,
-                                contentDescription = "Verified",
-                                tint = AirpayColors.SuccessGreen,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-
-                    if (ui.errors[FormField.VPA] != null) {
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = ui.errors[FormField.VPA] ?: "",
-                            fontSize = 12.sp,
-                            color = AirpayColors.DangerRed
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // ── Amount Card ──────────────────────────────────────────
-            Surface(
-                color = AirpayColors.Surface,
-                shape = cardShape,
-                shadowElevation = 1.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, AirpayColors.Border, cardShape)
-            ) {
-                Column(modifier = Modifier.padding(18.dp)) {
-                    Text(
-                        text = "Enter Amount",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = AirpayColors.TextSecondary
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "₹",
-                            fontSize = 34.sp,
-                            fontFamily = ClashGrotesk,
-                            fontWeight = FontWeight.Bold,
-                            color = AirpayColors.TextPrimary
-                        )
-
                         Spacer(Modifier.width(8.dp))
 
-                        Box(Modifier.weight(1f)) {
-                            if (ui.amount.isEmpty()) {
-                                Text(
-                                    text = "0",
-                                    fontSize = 34.sp,
-                                    fontFamily = ClashGrotesk,
-                                    fontWeight = FontWeight.Bold,
-                                    color = AirpayColors.TextMuted
-                                )
-                            }
-                            BasicTextField(
-                                value = ui.amount,
-                                onValueChange = onAmount,
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                textStyle = TextStyle(
-                                    fontSize = 34.sp,
-                                    fontFamily = ClashGrotesk,
-                                    color = AirpayColors.TextPrimary,
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                cursorBrush = SolidColor(AirpayColors.Primary),
-                                modifier = Modifier.fillMaxWidth()
+                        // Share receipt icon
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFF4F5F7))
+                                .clickable { onShareReceipt() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Share Receipt",
+                                tint = Color(0xFF616161),
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                     }
-
-                    if (ui.errors[FormField.AMOUNT] != null) {
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = ui.errors[FormField.AMOUNT] ?: "",
-                            fontSize = 12.sp,
-                            color = AirpayColors.DangerRed
-                        )
-                    }
-
-                    Spacer(Modifier.height(14.dp))
-
-                    // Quick Amount Chips
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf("100", "500", "1000", "2000").forEach { chipAmount ->
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(AirpayColors.PurpleTint)
-                                    .border(1.dp, AirpayColors.PurpleBorder, RoundedCornerShape(8.dp))
-                                    .clickable {
-                                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                                        val current = ui.amount.toDoubleOrNull() ?: 0.0
-                                        val addition = chipAmount.toDouble()
-                                        onAmount((current + addition).toInt().toString())
-                                    }
-                                    .padding(horizontal = 12.dp, vertical = 7.dp)
-                            ) {
-                                Text(
-                                    text = "+₹$chipAmount",
-                                    fontSize = 12.sp,
-                                    fontFamily = ClashGrotesk,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = AirpayColors.Primary
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(14.dp))
-
-                    // Note input
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(AirpayColors.Background)
-                            .padding(horizontal = 12.dp, vertical = 10.dp)
-                    ) {
-                        if (ui.note.isEmpty()) {
-                            Text(
-                                text = "Add a note (e.g. Dinner, Groceries)",
-                                fontSize = 13.sp,
-                                color = AirpayColors.TextSecondary
-                            )
-                        }
-                        BasicTextField(
-                            value = ui.note,
-                            onValueChange = onNote,
-                            singleLine = true,
-                            textStyle = TextStyle(
-                                fontSize = 13.sp,
-                                color = AirpayColors.TextPrimary
-                            ),
-                            cursorBrush = SolidColor(AirpayColors.Primary),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(24.dp))
-        }
-
-        // ── Fixed Bottom Button: PROCEED TO PAY ───────────────────
-        Surface(
-            color = AirpayColors.Surface,
-            shadowElevation = 4.dp,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Box(modifier = Modifier.padding(16.dp)) {
-                val btnShape = RoundedCornerShape(12.dp)
-                val isEnabled = permissions.readyForDialerPay && ui.vpa.isNotBlank() && amountLooksValid
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(btnShape)
-                        .background(if (isEnabled) AirpayColors.Primary else AirpayColors.Primary.copy(alpha = 0.5f))
-                        .clickable(enabled = isEnabled) {
-                            view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
-                            keyboard?.hide()
-                            onProceed()
-                        }
-                        .padding(vertical = 15.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (amountLooksValid) "PAY ₹${ui.amount}" else "PROCEED TO PAY",
-                        fontSize = 15.sp,
-                        fontFamily = ClashGrotesk,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
                 }
             }
         }
@@ -676,7 +969,7 @@ private fun AirpaySessionRunningCard(state: SessionState.Running, onCancel: () -
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = AirpayColors.Surface,
+            color = Color.White,
             shadowElevation = 2.dp,
             modifier = Modifier.fillMaxWidth()
         ) {

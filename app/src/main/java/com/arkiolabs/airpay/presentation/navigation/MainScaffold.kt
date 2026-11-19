@@ -216,7 +216,8 @@ private fun MainScaffold(app: AirpayApplication) {
                             payViewModel.prefillFromTransaction(
                                 vpa = txn.vpa,
                                 amount = txn.amount,
-                                note = txn.note
+                                note = txn.note,
+                                payeeName = txn.payeeName
                             )
                             navController.navigate(Screen.Pay.route) {
                                 launchSingleTop = true
@@ -230,6 +231,8 @@ private fun MainScaffold(app: AirpayApplication) {
                 composable(Screen.Pay.route) {
                     PayScreen(
                         viewModel = payViewModel,
+                        historyViewModel = historyViewModel,
+                        onBack = { navController.popBackStack() },
                         onNavigateScan = {
                             navController.navigate(Screen.Scan.route) {
                                 launchSingleTop = true
@@ -253,7 +256,7 @@ private fun MainScaffold(app: AirpayApplication) {
                 composable(Screen.ToMobile.route) {
                     ToMobileScreen(
                         onContactSelected = { phone, name ->
-                            payViewModel.prefillFromTransaction(vpa = phone, amount = "", note = "")
+                            payViewModel.prefillFromTransaction(vpa = phone, amount = "", note = "", payeeName = name)
                             navController.navigate(Screen.Pay.route) { launchSingleTop = true }
                         },
                         onBack = { navController.popBackStack() },
@@ -268,7 +271,7 @@ private fun MainScaffold(app: AirpayApplication) {
                     ToUpiScreen(
                         historyViewModel = historyViewModel,
                         onUpiValidated = { vpa, payeeName ->
-                            payViewModel.prefillFromTransaction(vpa = vpa, amount = "", note = "")
+                            payViewModel.prefillFromTransaction(vpa = vpa, amount = "", note = "", payeeName = payeeName)
                             navController.navigate(Screen.Pay.route) { launchSingleTop = true }
                         },
                         onBack = { navController.popBackStack() },
