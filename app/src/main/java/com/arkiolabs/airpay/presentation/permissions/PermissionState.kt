@@ -33,7 +33,8 @@ data class PermissionStatus(
     val camera: Boolean,
     val accessibility: Boolean,
     val overlay: Boolean,
-    val smsGranted: Boolean = true
+    val smsGranted: Boolean = true,
+    val contactsGranted: Boolean = true
 ) {
     /** True when CALL_PHONE + READ_PHONE_STATE are both granted. */
     val phoneBundle: Boolean get() = callPhone && readPhoneState
@@ -76,7 +77,8 @@ private fun currentStatus(context: Context): PermissionStatus {
         camera = isGranted(context, Manifest.permission.CAMERA),
         accessibility = isAccessibilityServiceEnabled(context),
         overlay = Settings.canDrawOverlays(context),
-        smsGranted = isGranted(context, Manifest.permission.RECEIVE_SMS)
+        smsGranted = isGranted(context, Manifest.permission.RECEIVE_SMS),
+        contactsGranted = isGranted(context, Manifest.permission.READ_CONTACTS)
     )
 }
 

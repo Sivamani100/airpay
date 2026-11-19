@@ -1,7 +1,6 @@
 package com.arkiolabs.airpay.presentation.bottomsheets
 
 import android.content.Context
-import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.background
@@ -14,17 +13,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -42,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
@@ -56,13 +49,13 @@ data class SimOption(
 
 /**
  * Dedicated Bottom Sheet screen for SIM Card Preference.
- * Lets the user pick which SIM card is linked to their bank account for offline UPI.
+ * - Non-dismissible until confirmed.
+ * - Shows ONLY the SIMs to choose from without extra text clutter.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimPreferenceSheet(
     onSimSelected: (slot: Int, carrier: String?, subId: Int?) -> Unit,
-    onDismiss: () -> Unit,
     currentSlot: Int? = null,
     modifier: Modifier = Modifier
 ) {
@@ -95,8 +88,8 @@ fun SimPreferenceSheet(
         }
 
         if (list.isEmpty()) {
-            list.add(SimOption(0, -1, "SIM 1 (Slot 0)", "Default Carrier"))
-            list.add(SimOption(1, -1, "SIM 2 (Slot 1)", "Secondary Carrier"))
+            list.add(SimOption(0, -1, "SIM 1", "Default SIM"))
+            list.add(SimOption(1, -1, "SIM 2", "Secondary SIM"))
         }
 
         detectedSims = list
@@ -109,8 +102,7 @@ fun SimPreferenceSheet(
 
     BaseBottomSheetContainer(
         title = "Select Primary SIM",
-        onDismissRequest = onDismiss,
-        primaryButtonText = "Confirm SIM Preference",
+        primaryButtonText = "Confirm SIM",
         onPrimaryClick = {
             onSimSelected(
                 selectedOption?.slotIndex ?: 0,
@@ -118,71 +110,12 @@ fun SimPreferenceSheet(
                 selectedOption?.subscriptionId?.takeIf { it >= 0 }
             )
         },
-        secondaryButtonText = "Decide Later",
-        onSecondaryClick = onDismiss,
         modifier = modifier
     ) {
-        // Hero Icon Badge (Saffron Orange from official logo)
-        Box(
-            modifier = Modifier
-                .size(76.dp)
-                .clip(CircleShape)
-                .background(AirpayColors.Saffron)
-                .border(3.dp, AirpayColors.SaffronLight.copy(alpha = 0.5f), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.PhoneAndroid,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(36.dp)
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(AirpayColors.SaffronTint)
-                .padding(horizontal = 14.dp, vertical = 6.dp)
-        ) {
-            Text(
-                text = "BANK LINKED NUMBER",
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = AirpayColors.SaffronDark,
-                letterSpacing = 0.5.sp
-            )
-        }
-
-        Spacer(Modifier.height(14.dp))
-
-        Text(
-            text = "Which SIM is Linked to Your Bank?",
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Bold,
-            color = AirpayColors.TextPrimary,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            text = "Select the mobile number registered with your bank account. Airpay will use this SIM for all offline *99# USSD dials and balance inquiries.",
-            fontSize = 13.sp,
-            color = Color(0xFF6B7280),
-            textAlign = TextAlign.Center,
-            lineHeight = 19.sp,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-
-        Spacer(Modifier.height(20.dp))
-
-        // SIM Options List
+        // SIM Options List Only (Clean Multiple Choice)
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             detectedSims.forEach { sim ->
                 val isSelected = (sim.slotIndex == selectedSlot)
@@ -191,7 +124,7 @@ fun SimPreferenceSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(if (isSelected) AirpayColors.SaffronTint.copy(alpha = 0.35f) else Color(0xFFF9FAFB))
+                        .background(if (isSelected) AirpayColors.SaffronTint.copy(alpha = 0.45f) else Color(0xFFF9FAFB))
                         .border(
                             width = if (isSelected) 2.dp else 1.dp,
                             color = if (isSelected) AirpayColors.Primary else Color(0xFFEEEEEE),
@@ -204,7 +137,7 @@ fun SimPreferenceSheet(
                             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                             selectedSlot = sim.slotIndex
                         }
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -214,14 +147,14 @@ fun SimPreferenceSheet(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(38.dp)
                                 .clip(CircleShape)
                                 .background(if (isSelected) AirpayColors.Primary else Color(0xFFE5E7EB)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "${sim.slotIndex + 1}",
-                                fontSize = 16.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (isSelected) Color.White else Color(0xFF4B5563)
                             )
@@ -229,20 +162,12 @@ fun SimPreferenceSheet(
 
                         Spacer(Modifier.width(14.dp))
 
-                        Column {
-                            Text(
-                                text = sim.title,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = AirpayColors.TextPrimary
-                            )
-                            Spacer(Modifier.height(2.dp))
-                            Text(
-                                text = if (isSelected) "Active for offline payments" else "Slot ${sim.slotIndex}",
-                                fontSize = 12.sp,
-                                color = if (isSelected) AirpayColors.SaffronDark else Color(0xFF6B7280)
-                            )
-                        }
+                        Text(
+                            text = sim.title,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AirpayColors.TextPrimary
+                        )
                     }
 
                     RadioButton(

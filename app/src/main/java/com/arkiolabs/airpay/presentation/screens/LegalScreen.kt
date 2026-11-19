@@ -217,7 +217,7 @@ private fun PrivacyContent() {
     )
     LegalSection(
         heading = "What Airpay does NOT collect",
-        body = "We do not read your name, email, phone number, contacts, location, IMEI, IMSI, advertising ID, or device ID. We do not have access to your bank account. The accessibility service is restricted by configuration to the system USSD dialog packages and ignores every other app and screen on your device."
+        body = "We do not read your name, email, phone number, contacts, location, IMEI, IMSI, advertising ID, or device ID. We do not have access to your bank account. The accessibility service is restricted by configuration to cellular payment dialog packages and ignores every other app and screen on your device."
     )
     LegalSection(
         heading = "Your UPI PIN",
@@ -237,7 +237,7 @@ private fun PrivacyContent() {
     )
     LegalSection(
         heading = "Permissions",
-        body = "Phone (CALL_PHONE): only ever used to dial carrier payment codes, never regular numbers. Camera: live QR scanning, processed on-device by ML Kit, frames are not stored or uploaded. Phone state (READ_PHONE_STATE): reads the carrier name to detect network support. Accessibility service: reads the carrier USSD dialog and types replies for you, restricted to known carrier dialog packages. Display over other apps (SYSTEM_ALERT_WINDOW): paints the Airpay UI over the carrier dialog in Auto mode. Denying any optional permission still leaves Manual mode fully usable."
+        body = "Phone (CALL_PHONE): only ever used to dial carrier payment codes, never regular numbers. Camera: live QR scanning, processed on-device by ML Kit, frames are not stored or uploaded. Phone state (READ_PHONE_STATE): reads the carrier name to detect network support. Accessibility service: interacts with the carrier payment dialog and types replies for you, restricted to known carrier dialog packages. Display over other apps (SYSTEM_ALERT_WINDOW): paints the Airpay UI over carrier dialogs in Auto mode. Denying any optional permission still leaves Manual mode fully usable."
     )
     LegalSection(
         heading = "Children",
@@ -257,7 +257,7 @@ private fun PrivacyContent() {
 private fun TermsContent() {
     LegalSection(
         heading = "About Airpay",
-        body = "Airpay is published by Arkio Labs. It is an Android client that automates carrier USSD and offline cellular payments so you can use UPI without an internet connection. Airpay is NOT affiliated with any banking corporation, telecom carrier, or external payment provider. Every transaction is processed by your bank and your carrier through the same infrastructure that powers standard offline UPI services — Airpay only automates the on-screen interaction."
+        body = "Airpay is published by Arkio Labs. It is an Android client that automates offline cellular payments so you can use UPI without an internet connection. Airpay is NOT affiliated with any banking corporation, telecom carrier, or external payment provider. Every transaction is processed by your bank and your carrier through the same infrastructure that powers standard offline UPI services — Airpay only automates the on-screen interaction."
     )
     LegalSection(
         heading = "Eligibility",
@@ -273,7 +273,7 @@ private fun TermsContent() {
     )
     LegalSection(
         heading = "Network Security and Carrier Risks",
-        body = "Airpay relies entirely on the cellular network's USSD signaling channel to execute transactions. You acknowledge and agree that USSD communications are handled over cellular networks. You use the service at your own risk. Airpay is not liable for financial loss, identity theft, or unauthorized transactions resulting from carrier network security failures or device-level compromises."
+        body = "Airpay relies entirely on the cellular network signaling channel to execute transactions. You acknowledge and agree that offline communications are handled over cellular networks. You use the service at your own risk. Airpay is not liable for financial loss, identity theft, or unauthorized transactions resulting from carrier network security failures or device-level compromises."
     )
     LegalSection(
         heading = "Clipboard Integrity",
@@ -285,15 +285,15 @@ private fun TermsContent() {
     )
     LegalSection(
         heading = "Android OS Customizations and Accessibility Limitations",
-        body = "Airpay's automated mode uses Android's Accessibility Service to read and respond to standard system USSD dialogs. However, custom Android distributions and vendor-specific skins frequently alter the rendering, layout, and structure of these dialogs. These customizations may cause the automation logic to fail, time out, or input data incorrectly. Users are advised to double-check all inputs before final authorization or switch to Manual Mode if dialog behavior is inconsistent."
+        body = "Airpay's automated mode uses Android's Accessibility Service to read and respond to standard system carrier dialogs. However, custom Android distributions and vendor-specific skins frequently alter the rendering, layout, and structure of these dialogs. These customizations may cause the automation logic to fail, time out, or input data incorrectly. Users are advised to double-check all inputs before final authorization or switch to Manual Mode if dialog behavior is inconsistent."
     )
     LegalSection(
         heading = "Carrier and bank charges",
-        body = "Your telecom carrier may charge a small per-session fee for carrier USSD usage as defined by TRAI tariffs. Airpay does not see, control or share in any such fee. Your bank's UPI transaction limits and rules apply unchanged."
+        body = "Your telecom carrier may charge a small per-session fee for offline cellular usage as defined by TRAI tariffs. Airpay does not see, control or share in any such fee. Your bank's UPI transaction limits and rules apply unchanged."
     )
     LegalSection(
         heading = "Things you must not do",
-        body = "You must not use Airpay to send payments to anyone other than the intended recipient, to attempt fraud, money laundering, or any activity that violates Indian law or your bank's terms. You must not use the accessibility service for anything other than the intended USSD automation flow within the app itself."
+        body = "You must not use Airpay to send payments to anyone other than the intended recipient, to attempt fraud, money laundering, or any activity that violates Indian law or your bank's terms. You must not use the accessibility service for anything other than the intended payment automation flow within the app itself."
     )
     LegalSection(
         heading = "Limitation of liability",

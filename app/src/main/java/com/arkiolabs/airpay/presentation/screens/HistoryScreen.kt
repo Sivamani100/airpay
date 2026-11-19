@@ -421,7 +421,7 @@ private fun AirpayHistoryRow(
             }
         }
 
-        // Expandable details (Pay Again shortcut + USSD raw reply)
+        // Expandable details (Pay Again shortcut + Bank raw reply)
         AnimatedVisibility(
             visible = expanded,
             enter = expandVertically() + fadeIn(),
@@ -441,7 +441,7 @@ private fun AirpayHistoryRow(
                             .padding(10.dp)
                     ) {
                         Text(
-                            text = "USSD Response: ${txn.carrierReply}",
+                            text = "Bank Response: ${txn.carrierReply}",
                             fontSize = 11.sp,
                             color = Color(0xFF555555)
                         )

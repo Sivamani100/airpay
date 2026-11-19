@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,25 +36,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.airpay.presentation.permissions.openAppDetailsSettings
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 
 /**
- * Dedicated Bottom Sheet screen for SMS permissions (RECEIVE_SMS, READ_SMS).
- * Used to automatically parse bank transaction confirmation SMS and update the passbook.
+ * Dedicated Bottom Sheet screen for SMS permissions.
+ * - Non-dismissible until granted.
+ * - EXACTLY 3 points explaining why permission is required.
+ * - Tapping action button ALWAYS triggers the Android permission dialog.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmsPermissionSheet(
     onGranted: () -> Unit,
-    onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var hasDeniedOnce by remember { mutableStateOf(false) }
+    var hasDenied by remember { mutableStateOf(false) }
+    var denialCount by remember { mutableIntStateOf(0) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -61,126 +65,77 @@ fun SmsPermissionSheet(
         if (allGranted) {
             onGranted()
         } else {
-            hasDeniedOnce = true
+            hasDenied = true
+            denialCount++
         }
     }
 
     BaseBottomSheetContainer(
-        title = "SMS Transaction Alerts",
-        onDismissRequest = onDismiss,
-        primaryButtonText = if (hasDeniedOnce) "Open App Settings" else "Allow SMS Permission",
+        title = "SMS Permission",
+        primaryButtonText = "Allow SMS Permission",
         onPrimaryClick = {
-            if (hasDeniedOnce) {
-                openAppDetailsSettings(context)
-            } else {
-                permissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.RECEIVE_SMS,
-                        Manifest.permission.READ_SMS
-                    )
+            // ALWAYS re-launch the Android permission dialog
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.RECEIVE_SMS,
+                    Manifest.permission.READ_SMS
                 )
-            }
-        },
-        secondaryButtonText = if (hasDeniedOnce) "Try Again" else "Skip for Now",
-        onSecondaryClick = {
-            if (hasDeniedOnce) {
-                permissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.RECEIVE_SMS,
-                        Manifest.permission.READ_SMS
-                    )
-                )
-            } else {
-                onDismiss()
-            }
+            )
         },
         modifier = modifier
     ) {
         // Hero Icon Badge (Saffron Orange from official logo)
         Box(
             modifier = Modifier
-                .size(76.dp)
+                .size(72.dp)
                 .clip(CircleShape)
                 .background(AirpayColors.Saffron)
-                .border(3.dp, AirpayColors.SaffronLight.copy(alpha = 0.5f), CircleShape),
+                .border(2.5.dp, AirpayColors.SaffronLight.copy(alpha = 0.5f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Email,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(34.dp)
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(20.dp))
 
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(AirpayColors.SaffronTint)
-                .padding(horizontal = 14.dp, vertical = 6.dp)
-        ) {
-            Text(
-                text = "AUTOMATIC TRANSACTION CONFIRMATION",
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = AirpayColors.SaffronDark,
-                letterSpacing = 0.5.sp
-            )
-        }
-
-        Spacer(Modifier.height(14.dp))
-
-        Text(
-            text = "Auto-Detect Bank Confirmation SMS",
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Bold,
-            color = AirpayColors.TextPrimary,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            text = "When you transfer money offline via *99#, your bank sends an official SMS receipt. Airpay automatically reads this SMS to verify payment completion and update your offline passbook in real time.",
-            fontSize = 13.sp,
-            color = Color(0xFF6B7280),
-            textAlign = TextAlign.Center,
-            lineHeight = 19.sp,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-
-        Spacer(Modifier.height(18.dp))
-
+        // EXACTLY 3 points
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(Color(0xFFF9FAFB))
-                .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(14.dp))
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(16.dp))
+                .padding(horizontal = 16.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            PermissionBenefitRow(
-                text = "Instant transaction status confirmation"
+            ThreePointBenefitRow(
+                pointNumber = "1",
+                text = "Auto-verify bank transaction confirmation alerts"
             )
-            PermissionBenefitRow(
-                text = "Automatic real-time offline passbook updates"
+            ThreePointBenefitRow(
+                pointNumber = "2",
+                text = "Instant real-time offline passbook and balance updates"
             )
-            PermissionBenefitRow(
-                text = "Privacy first: reads only official bank sender IDs"
+            ThreePointBenefitRow(
+                pointNumber = "3",
+                text = "Strict privacy: only reads official banking SMS senders"
             )
         }
 
-        if (hasDeniedOnce) {
+        // Red denial notice
+        if (hasDenied) {
             Spacer(Modifier.height(14.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFFFFEBEE))
-                    .padding(10.dp),
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -191,10 +146,25 @@ fun SmsPermissionSheet(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "SMS permission was not granted. Tap 'Open App Settings' to grant SMS permission manually.",
+                    text = "SMS permission is required to verify transactions. Please tap Allow in the system dialog.",
                     fontSize = 12.sp,
                     color = AirpayColors.DangerRed,
+                    fontWeight = FontWeight.Medium,
                     lineHeight = 16.sp
+                )
+            }
+
+            if (denialCount >= 2) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "If dialog doesn't appear, tap to open Settings",
+                    fontSize = 12.sp,
+                    color = AirpayColors.Primary,
+                    fontWeight = FontWeight.SemiBold,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .clickable { openAppDetailsSettings(context) }
+                        .padding(4.dp)
                 )
             }
         }

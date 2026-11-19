@@ -110,6 +110,7 @@ fun HomeScreen(
 
     val isPhoneReady = permissions.callPhone && permissions.readPhoneState
     val isSmsReady = permissions.smsGranted
+    val isContactsReady = permissions.contactsGranted
     val isCameraReady = permissions.camera
     val isAccessibilityReady = permissions.accessibility
     val isOverlayReady = permissions.overlay
@@ -119,13 +120,14 @@ fun HomeScreen(
     val completedCount = listOf(
         isPhoneReady,
         isSmsReady,
+        isContactsReady,
         isCameraReady,
         isAccessibilityReady,
         isOverlayReady,
         isSimReady,
         isBankReady
     ).count { it }
-    val totalCount = 7
+    val totalCount = 8
 
     Column(
         modifier = modifier
@@ -156,6 +158,7 @@ fun HomeScreen(
                         activeSheetOverride = when {
                             !isPhoneReady -> SetupSheetType.PHONE
                             !isSmsReady -> SetupSheetType.SMS
+                            !isContactsReady -> SetupSheetType.CONTACTS
                             !isCameraReady -> SetupSheetType.CAMERA
                             !isAccessibilityReady -> SetupSheetType.ACCESSIBILITY
                             !isOverlayReady -> SetupSheetType.OVERLAY
@@ -173,6 +176,9 @@ fun HomeScreen(
                     onToMobileClick = {
                         when {
                             !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                            !isContactsReady -> activeSheetOverride = SetupSheetType.CONTACTS
+                            !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                            !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
                             !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
                             else -> onNavigateToMobile()
                         }
@@ -180,6 +186,8 @@ fun HomeScreen(
                     onToBankClick = {
                         when {
                             !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                            !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                            !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
                             !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
                             else -> onNavigateToUpi()
                         }
@@ -187,6 +195,8 @@ fun HomeScreen(
                     onToSelfClick = {
                         when {
                             !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                            !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                            !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
                             !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
                             else -> onNavigateToUpi()
                         }
@@ -194,6 +204,8 @@ fun HomeScreen(
                     onCheckBalanceClick = {
                         when {
                             !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                            !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                            !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
                             !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
                             !isBankReady -> activeSheetOverride = SetupSheetType.BANK_SELECTION
                             else -> onNavigateBalance()

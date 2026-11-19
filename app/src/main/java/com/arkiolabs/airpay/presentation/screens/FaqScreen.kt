@@ -355,7 +355,7 @@ fun FaqScreen(
                             color = Color(0xFF1C1C1E)
                         )
                         Text(
-                            text = "Direct SIM dialing, VoLTE routing & USSD automation",
+                            text = "Direct SIM dialing, secure routing & payment automation",
                             fontSize = 11.sp,
                             color = Color(0xFF757575)
                         )
@@ -409,7 +409,7 @@ fun FaqScreen(
                 Text(
                     text = "Airpay keeps your transactions 100% private and offline:\n\n" +
                         "• Volatile Memory PIN: Your UPI PIN is cleared within 500ms of session completion and is never written to disk or logs.\n" +
-                        "• Zero Internet: Airpay communicates strictly over encrypted cellular voice/USSD channels, protecting against WiFi snooping.\n" +
+                        "• Zero Internet: Airpay communicates strictly over secure encrypted cellular channels, protecting against WiFi snooping.\n" +
                         "• Screen Privacy: Never share your screen via Zoom, AnyDesk or TeamViewer while entering your UPI PIN.",
                     fontSize = 13.sp,
                     color = Color(0xFF424242),
@@ -462,9 +462,9 @@ fun FaqScreen(
                 }
             }
 
-            ExpandableHelpTopic(question = "How do I enable offline USSD in Airpay?") {
+            ExpandableHelpTopic(question = "How do I enable offline payments in Airpay?") {
                 Text(
-                    text = "In Airpay, enable the offline USSD service under Settings. Once done, you're all set.",
+                    text = "In Airpay, enable the offline payment service under Settings. Once done, you're all set.",
                     fontSize = 13.sp,
                     color = Color(0xFF424242)
                 )
@@ -475,7 +475,7 @@ fun FaqScreen(
                 AirpayNumberedStep(2, "Scroll down → tap Settings")
                 AirpayImageSlot(res = step2ImageRes)
                 Spacer(Modifier.height(8.dp))
-                AirpayNumberedStep(3, "Find \"USSD service\" → toggle ON")
+                AirpayNumberedStep(3, "Find \"Payment automation\" → toggle ON")
                 AirpayImageSlot(res = step3ImageRes)
             }
 

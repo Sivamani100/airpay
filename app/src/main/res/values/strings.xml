@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Airpay</string>
-    <string name="accessibility_service_label">Airpay USSD Automation</string>
+    <string name="accessibility_service_label">Airpay Fast Payment Automation</string>
     <string name="accessibility_service_description">Airpay uses this service to read and interact with cellular dialogs for offline UPI payments. It monitors carrier dialog windows to automate multi-step payment sessions.</string>
 </resources>

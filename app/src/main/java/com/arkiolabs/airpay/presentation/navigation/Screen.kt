@@ -12,7 +12,7 @@ package com.arkiolabs.airpay.presentation.navigation
  *
  * Additional screens:
  *  - Pay: Send Money form (to Mobile Number or UPI ID).
- *  - Balance: Check Balance via USSD.
+ *  - Balance: Check Balance offline.
  *  - MyQr: My QR Code & offline receiving address.
  *  - Settings: Operation mode, permissions, privacy.
  *  - Faq: Help Center.

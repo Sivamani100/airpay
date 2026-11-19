@@ -74,7 +74,7 @@ import java.util.Locale
  *  - Fresh check flow (does not display stale cached balances).
  *  - One-tap Biometric Fingerprint authorization.
  *  - Airpay UPI PIN Screen matching user screenshot.
- *  - Live animated USSD verification with Airpay worm loader.
+ *  - Live animated offline verification with Airpay worm loader.
  *  - Dedicated full-screen Available Balance display with celebratory tick.
  *  - Zero visible carrier internal codes.
  */

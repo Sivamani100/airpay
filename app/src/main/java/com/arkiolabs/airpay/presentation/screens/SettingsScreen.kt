@@ -408,7 +408,7 @@ fun SettingsScreen(
                         color = Color(0xFF1C1C1E)
                     )
                     Text(
-                        text = if (mode == OperationMode.AUTO) "Auto USSD dialog handling active" else "Manual dialer fallback mode",
+                        text = if (mode == OperationMode.AUTO) "Automatic dialog handling active" else "Manual dialer fallback mode",
                         fontSize = 12.sp,
                         color = Color(0xFF757575)
                     )

@@ -323,7 +323,7 @@ fun SearchScreen(
 
                         NewForYouCard(
                             title = "Track transactions",
-                            desc = "View real-time USSD balance and receipts",
+                            desc = "View real-time balance and receipts",
                             bannerBg = Color(0xFF1A237E),
                             onClick = onNavigateBalance,
                             modifier = Modifier.weight(1f)

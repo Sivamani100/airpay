@@ -93,7 +93,7 @@ fun AlertsScreen(
                 iconBg = AirpayColors.SuccessTint,
                 iconTint = null,
                 title = "Auto Mode Active",
-                message = "Carrier USSD sessions will be handled smoothly in the background by the secure overlay.",
+                message = "Offline payment sessions will be handled smoothly in the background by the secure overlay.",
                 actionText = "Manage settings",
                 time = "1d"
             ),
