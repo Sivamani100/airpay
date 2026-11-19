@@ -37,4 +37,8 @@ keystore.properties
 *.jks
 *.keystore
 
+# Local design mockups in root
+/*.png
+
+
 

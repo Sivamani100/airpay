@@ -316,9 +316,9 @@ private fun HomeHeaderWithHeroBanner(
                         painter = painterResource(id = R.drawable.ic_airpay_logo),
                         contentDescription = "Airpay Logo",
                         modifier = Modifier
-                            .size(28.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.9f))
+                            .size(30.dp)
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(Color.Black)
                             .padding(2.dp)
                     )
 
@@ -400,7 +400,7 @@ private fun HomeHeaderWithHeroBanner(
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(Color.White)
+                        .background(Color.Black)
                         .padding(5.dp),
                     contentAlignment = Alignment.Center
                 ) {

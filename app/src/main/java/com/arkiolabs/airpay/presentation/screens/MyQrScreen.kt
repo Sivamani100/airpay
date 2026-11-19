@@ -329,7 +329,7 @@ fun MyQrScreen(
                                 .size(42.dp)
                                 .shadow(3.dp, CircleShape)
                                 .clip(CircleShape)
-                                .background(Color.White),
+                                .background(Color.Black),
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
