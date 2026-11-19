@@ -320,20 +320,28 @@ class UssdAccessibilityService : AccessibilityService() {
         labels: Set<String>
     ): AccessibilityNodeInfo? {
         var found: AccessibilityNodeInfo? = null
+        val wantsSend = labels.contains("send") || labels.contains("submit")
+        val wantsCancel = labels.contains("cancel") || labels.contains("close")
+
         walk(node) { n ->
             if (found != null) return@walk
-            val text = n.text?.toString()?.lowercase().orEmpty()
-            val desc = n.contentDescription?.toString()?.lowercase().orEmpty()
             val cls = n.className?.toString().orEmpty()
-            val isButtonLike = n.isClickable ||
-                cls.contains("Button", true) ||
-                cls.contains("TextView", true) ||
-                (n.parent?.isClickable == true)
-            if (isButtonLike && (text.isNotBlank() || desc.isNotBlank())) {
-                val matchesLabel = labels.any { label ->
-                    text == label || text.contains(label) || desc == label || desc.contains(label)
-                }
-                if (matchesLabel) {
+            if (cls.contains("EditText", true)) return@walk
+
+            val id = n.viewIdResourceName.orEmpty().lowercase()
+            val text = n.text?.toString()?.trim()?.lowercase().orEmpty()
+            val desc = n.contentDescription?.toString()?.trim()?.lowercase().orEmpty()
+
+            val isStandardSend = wantsSend && (id.endsWith(":id/button1") || id.endsWith("/button1"))
+            val isStandardCancel = wantsCancel && (id.endsWith(":id/button2") || id.endsWith("/button2"))
+
+            val matchesLabel = labels.any { label ->
+                text == label || desc == label ||
+                    (text.startsWith(label) && text.length <= label.length + 2)
+            }
+
+            if (isStandardSend || isStandardCancel || matchesLabel) {
+                if (cls.contains("Button", true) || n.isClickable || n.parent?.isClickable == true || isStandardSend || isStandardCancel) {
                     found = n
                 }
             }

@@ -18,11 +18,7 @@ class FrameFilter {
             "connecting",
             "ussd code running",
             "running ussd code",
-            "running ussd",
-            "running code",
-            "running...",
-            "running",
-            "ussd running"
+            "running ussd"
         )
     }
 
@@ -39,8 +35,7 @@ class FrameFilter {
                 normalized.startsWith("$pattern…") ||
                 normalized.startsWith("$pattern...") ||
                 normalized.contains("running ussd") ||
-                normalized.contains("ussd code running") ||
-                normalized.contains("running code")
+                normalized.contains("ussd code running")
         }
     }
 
