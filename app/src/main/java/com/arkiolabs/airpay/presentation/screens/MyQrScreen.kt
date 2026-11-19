@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -80,6 +81,7 @@ import com.arkiolabs.airpay.airpayApp
 import com.arkiolabs.airpay.domain.ActionEvent
 import com.arkiolabs.airpay.domain.Actions
 import com.arkiolabs.airpay.domain.UpiParser
+import com.arkiolabs.airpay.presentation.ui.components.AirpayLottieAnimation
 import com.arkiolabs.airpay.presentation.permissions.openAccessibilitySettingsWithGuide
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
@@ -204,14 +206,14 @@ fun MyQrScreen(
 
                         // Ensure carrier dialog is dismissed completely while overlay is still covering it
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
-                        kotlinx.coroutines.delay(400)
+                        kotlinx.coroutines.delay(700)
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
                         overlayController.hide()
                         isActivating = false
                     }
                     is ActionEvent.Error -> {
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
-                        kotlinx.coroutines.delay(400)
+                        kotlinx.coroutines.delay(700)
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
                         overlayController.hide()
                         isActivating = false
@@ -224,12 +226,16 @@ fun MyQrScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(AirpayColors.Background)
-            .statusBarsPadding()
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+        ) {
         // ── Top App Bar ─────────────────────────────────────────────
         Surface(
             color = Color.White,
@@ -591,6 +597,79 @@ fun MyQrScreen(
             }
         }
     }
+
+    // Full-screen opaque in-app cover while USSD code is activating
+    if (isActivating) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(AirpayColors.Background)
+                .clickable(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication = null,
+                    onClick = {} // swallow touches
+                )
+                .statusBarsPadding(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                AirpayLottieAnimation(
+                    assetName = "worm_loader_light.json",
+                    modifier = Modifier.size(110.dp)
+                )
+                Spacer(Modifier.height(18.dp))
+                Text(
+                    text = "Activating Offline QR",
+                    fontSize = 18.sp,
+                    fontFamily = ClashGrotesk,
+                    fontWeight = FontWeight.Bold,
+                    color = AirpayColors.TextPrimary
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = activationStatus,
+                    fontSize = 13.sp,
+                    color = AirpayColors.TextSecondary,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(Modifier.height(20.dp))
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp)),
+                    color = AirpayColors.Primary,
+                    trackColor = Color(0xFFE0E0E0)
+                )
+                Spacer(Modifier.height(24.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable {
+                            isActivating = false
+                            overlayController.hide()
+                        }
+                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Cancel",
+                        fontSize = 13.sp,
+                        fontFamily = ClashGrotesk,
+                        fontWeight = FontWeight.Medium,
+                        color = AirpayColors.DangerRed
+                    )
+                }
+            }
+        }
+    }
+}
 }
 
 /**

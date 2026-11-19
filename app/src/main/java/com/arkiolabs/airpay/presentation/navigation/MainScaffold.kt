@@ -381,7 +381,6 @@ private fun rememberPayViewModel(app: AirpayApplication): PayViewModel {
             historyRepo = app.historyRepo,
             prefsRepo = app.prefsRepo,
             carrierDetector = app.carrierDetector,
-            jioVoiceGateway = app.jioVoiceGateway,
             overlayController = app.overlayController,
             onDialerFallback = { code ->
                 val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$code"))
@@ -401,7 +400,6 @@ private fun rememberBalanceViewModel(app: AirpayApplication): BalanceViewModel {
             actionRunner = app.actionRunner,
             prefsRepo = app.prefsRepo,
             carrierDetector = app.carrierDetector,
-            jioVoiceGateway = app.jioVoiceGateway,
             overlayController = app.overlayController
         )
     }

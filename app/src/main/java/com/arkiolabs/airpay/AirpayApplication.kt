@@ -51,9 +51,6 @@ class AirpayApplication : Application() {
     lateinit var qrScannerManager: QrScannerManager
         private set
 
-    lateinit var jioVoiceGateway: com.arkiolabs.airpay.platform.JioVoiceGateway
-        private set
-
     // ─── Domain Layer ──────────────────────────────────────────────────────────
 
     lateinit var actionRunner: ActionRunner
@@ -73,8 +70,6 @@ class AirpayApplication : Application() {
         ussdEngine = UssdEngine(this, overlayController)
         carrierDetector = CarrierDetector(this)
         qrScannerManager = QrScannerManager()
-        jioVoiceGateway = com.arkiolabs.airpay.platform.JioVoiceGateway(this)
-        com.arkiolabs.airpay.platform.BankSmsReceiver.init(this)
 
         // Domain layer
         actionRunner = ActionRunner(ussdEngine)

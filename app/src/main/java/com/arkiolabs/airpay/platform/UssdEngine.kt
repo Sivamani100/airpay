@@ -133,6 +133,8 @@ class UssdEngine(
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(callIntent)
+        bringAppToFront()
+        com.arkiolabs.airpay.presentation.MainActivity.currentInstance?.setImmersiveMode(true)
     }
 
     /**
@@ -270,6 +272,7 @@ class UssdEngine(
         UssdAccessibilityService.instance?.dismissDialog()
         overlayController?.hide()
 
+        com.arkiolabs.airpay.presentation.MainActivity.currentInstance?.setImmersiveMode(false)
         // Bring MainActivity back to foreground so the app stays open!
         bringAppToFront()
 

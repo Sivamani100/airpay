@@ -28,9 +28,6 @@ data class BalanceResult(val text: String, val timestamp: Long)
 
 /**
  * UI state for the Balance check screen.
- *
- * PIN is captured inline on the form (a 6-box section is the screen's
- * hero) and lives here so it survives recompositions.
  */
 data class BalanceUiState(
     val pin: String = "",
@@ -40,31 +37,14 @@ data class BalanceUiState(
 
 /**
  * ViewModel for the Balance check screen.
- *
- * Flow:
- *  1. User enters their PIN inline → screen calls [attemptCheckBalance]
- *     either on the 6th digit (auto-fire) or via the explicit "Check Now"
- *     CTA at 4-5 digits.
- *  2. [attemptCheckBalance] validates the PIN and starts the CheckBalance
- *     action via [runCheck].
- *  3. On success the carrier reply is persisted to PreferencesRepository
- *     so the last result survives app kill.
- *
- * @param clipboardWriter only used by MANUAL mode where the screen falls
- *   back to the dialer with offline code prefilled. Unused in ADVANCED/AUTO.
  */
 class BalanceViewModel(
     private val actionRunner: ActionRunner,
     private val prefsRepo: PreferencesRepository,
     private val carrierDetector: com.arkiolabs.airpay.platform.CarrierDetector? = null,
-    private val jioVoiceGateway: com.arkiolabs.airpay.platform.JioVoiceGateway? = null,
     private val overlayController: OverlayController? = null,
     private val onDialerFallback: (String) -> Unit = {},
     private val clipboardWriter: (String) -> Unit = {},
-    /**
-     * System-level Toast hook — shows over other apps including the
-     * dialer once we hand off in MANUAL mode. Wired in MainScaffold.
-     */
     private val systemToast: (String) -> Unit = {}
 ) : ViewModel() {
 
@@ -77,10 +57,6 @@ class BalanceViewModel(
     private val _snackbar = MutableStateFlow<String?>(null)
     val snackbar: StateFlow<String?> = _snackbar.asStateFlow()
 
-    /**
-     * Last persisted balance result. Hydrated from DataStore so the screen
-     * renders the prior balance immediately on launch.
-     */
     val lastResult: StateFlow<BalanceResult?> = combine(
         prefsRepo.lastBalanceText,
         prefsRepo.lastBalanceTimestamp
@@ -101,11 +77,6 @@ class BalanceViewModel(
 
     /**
      * Validates the entered PIN and starts a balance-check session.
-     *
-     *  - Manual mode: opens the dialer with offline balance code prefilled. PIN entry is
-     *    deferred to the carrier dialog itself.
-     *  - Advanced/Auto: requires a valid 4-6 digit PIN, then runs the
-     *    CheckBalance action via [runCheck].
      */
     fun attemptCheckBalance() {
         val mode = operationMode.value
@@ -113,9 +84,6 @@ class BalanceViewModel(
         if (mode == OperationMode.MANUAL) {
             _snackbar.value = "Opening dialer for balance check"
             onDialerFallback("*99*3#")
-            // System Toast — visible on top of the dialer so the user
-            // remembers what's queued. The in-app snackbar above only
-            // renders inside our activity which is about to lose focus.
             systemToast("Opening dialer for balance check")
             _sessionState.value = SessionState.Idle
             return
@@ -137,150 +105,18 @@ class BalanceViewModel(
     }
 
     /**
-     * Runs the CheckBalance action with the captured PIN.
-     * Routes dynamically by carrier:
-     *  - Airtel / Vi / BSNL: Native USSD Engine automated in the background.
-     *  - Reliance Jio: Dedicated Phone Voice Gateway (08045163581) over VoLTE.
+     * Runs the pure USSD CheckBalance action with the captured PIN in the background.
      */
     private fun runCheck(pin: String) {
         viewModelScope.launch {
-            val isJio = carrierDetector?.isCurrentSimJio() ?: false
-            if (!isJio && !actionRunner.isServiceEnabled()) {
+            if (!actionRunner.isServiceEnabled()) {
                 _sessionState.value = SessionState.Failed(
                     message = "Accessibility service is disabled. Please enable it in Settings.",
                     resultText = ""
                 )
                 return@launch
             }
-
-            if (isJio) {
-                runJioPhoneBalanceCheck(pin)
-            } else {
-                runUssdBalanceCheck(pin)
-            }
-        }
-    }
-
-    private fun runJioPhoneBalanceCheck(pin: String) {
-        _uiState.update { it.copy(pinError = null, isSessionActive = true) }
-        _sessionState.value = SessionState.Running(
-            label = "Connecting to Jio Voice Gateway (08045163666)...",
-            stepIndex = 1,
-            total = 3
-        )
-
-        // Show the 100% OPAQUE Jio VoLTE Balance Check overlay
-        overlayController?.showJioAutoInject(
-            recipient = "",
-            amount = "",
-            stepNumber = 1,
-            stepTitle = "Jio VoLTE Balance Check",
-            stepSubtitle = "Connecting to Jio Voice Gateway (08045163666)"
-        )
-        overlayController?.onCancel = { cancelSession() }
-
-        val gateway = jioVoiceGateway
-        overlayController?.onSpeakerToggle = {
-            val isNowOn = !(gateway?.isSpeakerphoneOn() ?: false)
-            gateway?.setSpeakerphone(isNowOn)
-            isNowOn
-        }
-
-        val sessionStartTime = System.currentTimeMillis() - 5000L
-        val initiated = gateway?.initiateBalanceCall(pin) ?: false
-        if (!initiated) {
-            _sessionState.value = SessionState.Failed(
-                message = "Could not place Jio balance call",
-                resultText = "Please verify voice signal is active."
-            )
-            overlayController?.hide()
-            onSessionEnd()
-            return
-        }
-
-        sessionJob = viewModelScope.launch {
-            fun handleBalanceSms(sms: com.arkiolabs.airpay.domain.ParsedBankSms): Boolean {
-                if (sms.balance != null) {
-                    val balText = "₹${sms.balance}"
-                    _sessionState.value = SessionState.Success(resultText = "Your bank balance is $balText")
-                    launch {
-                        prefsRepo.setLastBalance(
-                            text = "Your bank balance is $balText",
-                            timestamp = System.currentTimeMillis()
-                        )
-                    }
-                    gateway.endActiveCall()
-                    overlayController?.hide()
-                    onSessionEnd()
-                    return true
-                } else if (!sms.isSuccess) {
-                    _sessionState.value = SessionState.Failed(
-                        message = "Could not fetch balance from bank",
-                        resultText = "Bank declined balance request"
-                    )
-                    gateway.endActiveCall()
-                    overlayController?.hide()
-                    onSessionEnd()
-                    return true
-                }
-                return false
-            }
-
-            val smsJob = launch {
-                com.arkiolabs.airpay.platform.BankSmsReceiver.bankSmsEvents.collect { sms ->
-                    val current = _sessionState.value
-                    if (current is SessionState.Success || current is SessionState.Failed) {
-                        return@collect
-                    }
-                    handleBalanceSms(sms)
-                }
-            }
-
-            delay(4_000L) // After call setup -> Option 2 (Balance Check)
-            if (_sessionState.value is SessionState.Running) {
-                _sessionState.value = SessionState.Running(
-                    label = "Option 2 (Balance Check) injected",
-                    stepIndex = 1,
-                    total = 3
-                )
-                overlayController?.updateJioAutoInject(1, "Authorizing PIN...", "Entering Bank UPI PIN securely")
-            }
-
-            delay(2_500L) // After PIN prompt -> PIN#
-            if (_sessionState.value is SessionState.Running) {
-                _sessionState.value = SessionState.Running(
-                    label = "UPI PIN authorized",
-                    stepIndex = 2,
-                    total = 3
-                )
-                overlayController?.updateJioAutoInject(2, "Verifying Balance...", "Querying bank for account balance")
-            }
-
-            // Poll SMS inbox periodically for bank balance SMS
-            var elapsed = 0L
-            val pollInterval = 1_500L
-            val maxWait = 15_000L
-            while (elapsed < maxWait && _sessionState.value is SessionState.Running) {
-                delay(pollInterval)
-                elapsed += pollInterval
-                val recentSms = com.arkiolabs.airpay.platform.BankSmsReceiver.pollRecentBankSms(sessionStartTime)
-                if (recentSms != null) {
-                    if (handleBalanceSms(recentSms)) break
-                }
-            }
-
-            smsJob.cancel()
-            gateway.endActiveCall()
-            overlayController?.hide()
-
-            val current = _sessionState.value
-            if (current is SessionState.Running) {
-                _sessionState.value = SessionState.Failed(
-                    message = "Could not verify balance",
-                    resultText = "No balance confirmation SMS received from your bank. Please check your SMS inbox or try again."
-                )
-                onSessionEnd()
-            }
+            runUssdBalanceCheck(pin)
         }
     }
 
@@ -354,7 +190,7 @@ class BalanceViewModel(
                             }
                             onSessionEnd()
                         }
-                        else -> { /* Frame and Reply events — no UI state change */ }
+                        else -> {}
                     }
                 }
             }
@@ -362,9 +198,10 @@ class BalanceViewModel(
             val result = actionRun.result.await()
             if (!result.success && _sessionState.value is SessionState.Running) {
                 _sessionState.value = SessionState.Failed(
-                    message = "Balance check failed",
+                    message = result.resultText,
                     resultText = result.resultText
                 )
+                overlayController?.showError(title = "Check failed", message = result.resultText)
                 if (result.resultText.contains("pin", ignoreCase = true) ||
                     result.resultText.contains("incorrect", ignoreCase = true) ||
                     result.resultText.contains("wrong", ignoreCase = true)) {
@@ -381,8 +218,6 @@ class BalanceViewModel(
     fun cancelSession() {
         sessionJob?.cancel()
         sessionJob = null
-        jioVoiceGateway?.endActiveCall()
-        overlayController?.onSpeakerToggle = null
         overlayController?.hide()
         _sessionState.value = SessionState.Idle
         onSessionEnd()
@@ -390,7 +225,6 @@ class BalanceViewModel(
 
     fun dismissSession() {
         _sessionState.value = SessionState.Idle
-        // Clear PIN so a retry forces fresh entry.
         _uiState.update { it.copy(pin = "") }
     }
 

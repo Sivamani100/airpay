@@ -17,12 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,8 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -49,19 +42,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import com.arkiolabs.airpay.R
-import com.arkiolabs.airpay.domain.OperationMode
-import com.arkiolabs.airpay.domain.SessionState
 import com.arkiolabs.airpay.airpayApp
+import com.arkiolabs.airpay.domain.SessionState
 import com.arkiolabs.airpay.platform.BiometricHelper
 import com.arkiolabs.airpay.platform.SoundManager
 import com.arkiolabs.airpay.presentation.BalanceViewModel
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.ui.components.AirpayLottieAnimation
 import com.arkiolabs.airpay.presentation.ui.components.UpiPinScreen
-import com.arkiolabs.airpay.presentation.ui.components.JioRegistrationSheet
-import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.airpay.presentation.ui.theme.Iconsax
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
+import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -71,12 +61,11 @@ import java.util.Locale
  * Dedicated Airpay Check Balance Screen.
  *
  * Implements:
- *  - Fresh check flow (does not display stale cached balances).
- *  - One-tap Biometric Fingerprint authorization.
- *  - Airpay UPI PIN Screen matching user screenshot.
+ *  - Direct entry to authentic Airpay UPI PIN Screen (no intermediate unnecessary landing page).
+ *  - One-tap Biometric Fingerprint authorization (auto-prompts if enabled).
  *  - Live animated offline verification with Airpay worm loader.
- *  - Dedicated full-screen Available Balance display with celebratory tick.
- *  - Zero visible carrier internal codes.
+ *  - Dedicated full-screen Available Balance display matching screenshot with celebratory tick.
+ *  - Pure, background USSD automation without visible carrier dialogs.
  */
 @Composable
 fun BalanceScreen(
@@ -86,7 +75,6 @@ fun BalanceScreen(
     modifier: Modifier = Modifier
 ) {
     val session by viewModel.sessionState.collectAsState()
-    val mode by viewModel.operationMode.collectAsState()
 
     val context = LocalContext.current
     val app = context.airpayApp
@@ -98,15 +86,27 @@ fun BalanceScreen(
     val savedPin by prefsRepo.savedBiometricPin.collectAsState(initial = null)
     val successSoundUri by prefsRepo.successSoundUri.collectAsState(initial = null)
     val failedSoundUri by prefsRepo.failedSoundUri.collectAsState(initial = null)
-    val jioRegistered by prefsRepo.jio123PayRegistered.collectAsState(initial = false)
 
-    var isJio by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        isJio = app.carrierDetector.isCurrentSimJio()
+    var hasPromptedBiometric by remember { mutableStateOf(false) }
+
+    // Auto-prompt biometric if enabled when entering screen
+    LaunchedEffect(biometricEnabled, savedPin) {
+        if (biometricEnabled && !savedPin.isNullOrBlank() && !hasPromptedBiometric && session is SessionState.Idle) {
+            hasPromptedBiometric = true
+            (context as? FragmentActivity)?.let { act ->
+                BiometricHelper.prompt(
+                    activity = act,
+                    title = "Check Bank Balance",
+                    subtitle = "Verify fingerprint to check balance",
+                    onSuccess = {
+                        viewModel.attemptCheckBalanceWithPin(savedPin!!)
+                    },
+                    onError = { /* Keep showing UPI PIN screen */ },
+                    onCancel = { /* Keep showing UPI PIN screen */ }
+                )
+            }
+        }
     }
-
-    var showPinScreen by remember { mutableStateOf(false) }
-    var showJioRegistrationSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(session) {
         when (session) {
@@ -128,71 +128,33 @@ fun BalanceScreen(
     ) {
         when (val s = session) {
             is SessionState.Idle -> {
-                if (showPinScreen) {
-                    UpiPinScreen(
-                        amount = "",
-                        recipientName = "Primary Bank Balance Check",
-                        bankName = "OFFLINE SIM BANK",
-                        submitLabel = "SUBMIT",
-                        onPinSubmitted = { enteredPin ->
-                            showPinScreen = false
-                            scope.launch { prefsRepo.setSavedBiometricPin(enteredPin) }
-                            viewModel.attemptCheckBalanceWithPin(enteredPin)
-                        },
-                        onCancel = { showPinScreen = false },
-                        onBiometricRequested = if (biometricEnabled) {
-                            {
-                                (context as? FragmentActivity)?.let { act ->
-                                    BiometricHelper.prompt(
-                                        activity = act,
-                                        title = "Check Bank Balance",
-                                        subtitle = "Verify fingerprint to check balance",
-                                        onSuccess = {
-                                            showPinScreen = false
-                                            if (!savedPin.isNullOrBlank()) {
-                                                viewModel.attemptCheckBalanceWithPin(savedPin!!)
-                                            }
-                                        },
-                                        onError = { /* stay on PIN screen */ },
-                                        onCancel = { /* stay on PIN screen */ }
-                                    )
-                                }
+                UpiPinScreen(
+                    amount = "",
+                    recipientName = "Primary Bank Balance Check",
+                    bankName = "OFFLINE SIM BANK",
+                    submitLabel = "SUBMIT",
+                    onPinSubmitted = { enteredPin ->
+                        scope.launch { prefsRepo.setSavedBiometricPin(enteredPin) }
+                        viewModel.attemptCheckBalanceWithPin(enteredPin)
+                    },
+                    onCancel = onClose,
+                    onBiometricRequested = if (biometricEnabled && !savedPin.isNullOrBlank()) {
+                        {
+                            (context as? FragmentActivity)?.let { act ->
+                                BiometricHelper.prompt(
+                                    activity = act,
+                                    title = "Check Bank Balance",
+                                    subtitle = "Verify fingerprint to check balance",
+                                    onSuccess = {
+                                        viewModel.attemptCheckBalanceWithPin(savedPin!!)
+                                    },
+                                    onError = { /* stay on PIN screen */ },
+                                    onCancel = { /* stay on PIN screen */ }
+                                )
                             }
-                        } else null
-                    )
-                } else {
-                    BalanceInitialScreen(
-                        onInitiateCheck = {
-                            if (isJio && !jioRegistered) {
-                                showJioRegistrationSheet = true
-                                return@BalanceInitialScreen
-                            }
-                            if (mode == OperationMode.MANUAL) {
-                                viewModel.attemptCheckBalance()
-                                return@BalanceInitialScreen
-                            }
-                            if (biometricEnabled && !savedPin.isNullOrBlank()) {
-                                (context as? FragmentActivity)?.let { act ->
-                                    BiometricHelper.prompt(
-                                        activity = act,
-                                        title = "Check Bank Balance",
-                                        subtitle = "Verify fingerprint to query balance",
-                                        onSuccess = {
-                                            viewModel.attemptCheckBalanceWithPin(savedPin!!)
-                                        },
-                                        onError = { showPinScreen = true },
-                                        onCancel = { showPinScreen = true }
-                                    )
-                                } ?: run {
-                                    showPinScreen = true
-                                }
-                            } else {
-                                showPinScreen = true
-                            }
-                        },
-                        onBack = onClose
-                    )
-                }
+                        }
+                    } else null
+                )
             }
 
             is SessionState.Running -> {
@@ -214,7 +176,6 @@ fun BalanceScreen(
                     message = s.message,
                     onRetry = {
                         viewModel.dismissSession()
-                        showPinScreen = true
                     },
                     onBack = {
                         viewModel.dismissSession()
@@ -222,356 +183,6 @@ fun BalanceScreen(
                     }
                 )
             }
-        }
-
-        if (showJioRegistrationSheet) {
-            JioRegistrationSheet(
-                onDismiss = { showJioRegistrationSheet = false },
-                onRegistrationConfirmed = { bank, lang ->
-                    scope.launch {
-                        prefsRepo.setJio123PayRegistered(true)
-                        prefsRepo.setUserBankName(bank)
-                        prefsRepo.setUserPreferredLanguage(lang)
-                    }
-                    showJioRegistrationSheet = false
-                    showPinScreen = true
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun BalanceInitialScreen(
-    onInitiateCheck: () -> Unit,
-    onBack: () -> Unit
-) {
-    val view = LocalView.current
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        // ── Top Bar Header (Airpay Style) ──────────────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .clickable { onBack() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Iconsax.ArrowLeft,
-                        contentDescription = "Back",
-                        tint = Color(0xFF1C1C1E),
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    text = "Check Balance",
-                    fontSize = 18.sp,
-                    fontFamily = ClashGrotesk,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1C1C1E)
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .clickable {
-                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.outline_help_white),
-                    contentDescription = "Help",
-                    tint = Color(0xFF1C1C1E),
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
-        ) {
-            // ── Promo Banner (Navy Blue Card with Gold Jar) ───────────
-            val bannerShape = RoundedCornerShape(14.dp)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(bannerShape)
-                    .background(Color(0xFF0C192E))
-                    .padding(18.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Build ₹1,200 in 1 month",
-                                fontSize = 15.sp,
-                                fontFamily = ClashGrotesk,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White.copy(alpha = 0.2f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("→", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = "Save ₹40/day in Gold",
-                            fontSize = 12.sp,
-                            color = Color(0xFF90A4AE)
-                        )
-                    }
-
-                    Image(
-                        painter = painterResource(id = R.drawable.home_gold_loan),
-                        contentDescription = "Gold Coins",
-                        modifier = Modifier.size(44.dp)
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            // ── Flat Payment Method Items (Exact Airpay Screenshot) ──
-            // 1. Primary Bank Account (State Bank of India)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                        onInitiateCheck()
-                    }
-                    .padding(vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF005696)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(14.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                    )
-                }
-
-                Spacer(Modifier.width(14.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "State Bank of India - 7188",
-                        fontSize = 15.sp,
-                        fontFamily = ClashGrotesk,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = "Bank Account",
-                        fontSize = 12.sp,
-                        color = Color(0xFF757575)
-                    )
-                }
-
-                Icon(
-                    imageVector = Iconsax.ArrowRight,
-                    contentDescription = null,
-                    tint = Color(0xFF9E9E9E),
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-
-            // 2. Airpay / Airpay Wallet
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { /* Wallet */ }
-                    .padding(vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier.size(40.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.wallet_home),
-                        contentDescription = null,
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-
-                Spacer(Modifier.width(14.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Airpay Wallet",
-                        fontSize = 15.sp,
-                        fontFamily = ClashGrotesk,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = "ⓘ Upgrade now to pay on any QR",
-                        fontSize = 11.sp,
-                        color = Color(0xFF757575)
-                    )
-                }
-
-                Text(
-                    text = "Activate",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = AirpayColors.Primary
-                )
-            }
-
-            // 3. RuPay Credit Card
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { /* Link card */ }
-                    .padding(vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color(0xFF0288D1)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("CARD", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-
-                Spacer(Modifier.width(14.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Linked Credit Card",
-                        fontSize = 15.sp,
-                        fontFamily = ClashGrotesk,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
-                    )
-                }
-
-                Text(
-                    text = "Link Now",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = AirpayColors.Primary
-                )
-            }
-
-            // 4. Add new payment method
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { /* Add */ }
-                    .padding(vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .border(1.5.dp, Color(0xFF1C1C1E), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("+", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1C1C1E))
-                }
-
-                Spacer(Modifier.width(14.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Add new payment method",
-                        fontSize = 15.sp,
-                        fontFamily = ClashGrotesk,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = "Bank Account, UPI Lite & more",
-                        fontSize = 12.sp,
-                        color = Color(0xFF757575)
-                    )
-                }
-
-                Icon(
-                    imageVector = Iconsax.ArrowRight,
-                    contentDescription = null,
-                    tint = Color(0xFF9E9E9E),
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-
-            Spacer(Modifier.height(36.dp))
-
-            // Carousel dots
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF1C1C1E)))
-                Spacer(Modifier.width(6.dp))
-                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color(0xFFCCCCCC)))
-                Spacer(Modifier.width(6.dp))
-                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color(0xFFCCCCCC)))
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // POWERED BY UPI Logo
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.upi_orange_border),
-                    contentDescription = "POWERED BY UPI",
-                    modifier = Modifier.height(24.dp)
-                )
-            }
-
-            Spacer(Modifier.height(20.dp))
         }
     }
 }
@@ -599,34 +210,37 @@ private fun BalanceRunningView(state: SessionState.Running, onCancel: () -> Unit
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Querying your bank through cellular network...",
+            text = "Connecting securely to bank via SIM USSD…",
             fontSize = 13.sp,
             color = AirpayColors.TextSecondary,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(20.dp))
         LinearProgressIndicator(
-            progress = { ((state.stepIndex + 1f) / state.total).coerceIn(0f, 1f) },
+            progress = {
+                val total = if (state.total <= 0) 2 else state.total
+                (state.stepIndex.toFloat() / total.toFloat()).coerceIn(0.1f, 0.95f)
+            },
             modifier = Modifier
                 .fillMaxWidth(0.7f)
                 .height(4.dp)
                 .clip(RoundedCornerShape(2.dp)),
             color = AirpayColors.Primary,
-            trackColor = AirpayColors.PurpleTint
+            trackColor = Color(0xFFE0E0E0),
         )
         Spacer(Modifier.height(24.dp))
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(10.dp))
-                .background(AirpayColors.DangerTint)
+                .clip(RoundedCornerShape(20.dp))
                 .clickable { onCancel() }
-                .padding(horizontal = 24.dp, vertical = 10.dp),
+                .padding(horizontal = 20.dp, vertical = 8.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Cancel",
                 fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontFamily = ClashGrotesk,
+                fontWeight = FontWeight.Medium,
                 color = AirpayColors.DangerRed
             )
         }
@@ -758,23 +372,24 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
                     fontWeight = FontWeight.Bold,
                     color = AirpayColors.DangerRed
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(10.dp))
                 Text(
                     text = message,
                     fontSize = 13.sp,
                     color = AirpayColors.TextSecondary,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    lineHeight = 18.sp
                 )
                 Spacer(Modifier.height(20.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(AirpayColors.PurpleTint)
+                            .background(Color(0xFFF2F2F7))
                             .clickable { onBack() }
                             .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center
@@ -782,8 +397,9 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
                         Text(
                             text = "Back",
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AirpayColors.Primary
+                            fontFamily = ClashGrotesk,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AirpayColors.TextPrimary
                         )
                     }
                     Box(
@@ -796,10 +412,10 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Try Again",
+                            text = "Retry",
                             fontSize = 13.sp,
                             fontFamily = ClashGrotesk,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
                     }
@@ -809,22 +425,15 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
     }
 }
 
+/**
+ * Extracts ₹ amount cleanly from USSD balance text.
+ */
 private fun parseBalance(raw: String): String? {
-    val regex = Regex("""(?i)(?:₹|rs\.?|inr|bal(?:ance)?[:\s=]*|balance\s+is[:\s]*)\s*(?:₹|rs\.?|inr)?\s*([0-9,]+(?:\.[0-9]{1,2})?)""")
+    val regex = Regex("(?:rs\\.?|inr|₹)\\s*([\\d,]+\\.?\\d{0,2})", RegexOption.IGNORE_CASE)
     val match = regex.find(raw)
-    if (match != null) {
-        val amount = match.groupValues[1]
-        return "₹$amount"
-    }
-    val rawDigits = raw.filter { it.isDigit() || it == '.' || it == ',' }
-    if (rawDigits.isNotEmpty() && rawDigits.any { it.isDigit() }) {
-        return "₹${rawDigits.trim(',', '.')}"
-    }
-    return null
+    return match?.let { "₹${it.groupValues[1]}" }
 }
 
-private fun formatTimestamp(timestamp: Long): String {
-    if (timestamp <= 0L) return "Recently"
-    val sdf = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-    return sdf.format(Date(timestamp))
+private fun formatTimestamp(ts: Long): String {
+    return SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(ts))
 }

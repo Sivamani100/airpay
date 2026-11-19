@@ -73,7 +73,6 @@ import com.arkiolabs.airpay.presentation.ui.components.AirpayLottieAnimation
 import com.arkiolabs.airpay.presentation.ui.components.StatusBanner
 import com.arkiolabs.airpay.presentation.ui.components.UpiPinScreen
 import com.arkiolabs.airpay.presentation.bottomsheets.BiometricSuggestionSheet
-import com.arkiolabs.airpay.presentation.ui.components.JioRegistrationSheet
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.airpay.presentation.ui.theme.Iconsax
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
@@ -114,15 +113,7 @@ fun PayScreen(
     val savedPin by prefsRepo.savedBiometricPin.collectAsState(initial = null)
     val successSoundUri by prefsRepo.successSoundUri.collectAsState(initial = null)
     val failedSoundUri by prefsRepo.failedSoundUri.collectAsState(initial = null)
-    val jioRegistered by prefsRepo.jio123PayRegistered.collectAsState(initial = false)
-
-    var isJio by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        isJio = app.carrierDetector.isCurrentSimJio()
-    }
-
     var showPinScreen by remember { mutableStateOf(false) }
-    var showJioRegistrationSheet by remember { mutableStateOf(false) }
     var showBiometricSuggestion by remember { mutableStateOf(false) }
 
     // Play custom sounds upon success or failure, and trigger biometric suggestion after 1st successful payment
@@ -189,11 +180,7 @@ fun PayScreen(
                         mode = mode,
                         permissions = permissions,
                         onProceed = {
-                            if (isJio && !jioRegistered) {
-                                showJioRegistrationSheet = true
-                                return@AirpayPayForm
-                            }
-                            if (!isJio && !permissions.accessibility) {
+                            if (!permissions.accessibility) {
                                 openAccessibilitySettings(context)
                                 return@AirpayPayForm
                             }
@@ -254,21 +241,6 @@ fun PayScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp)
         )
-
-        if (showJioRegistrationSheet) {
-            JioRegistrationSheet(
-                onDismiss = { showJioRegistrationSheet = false },
-                onRegistrationConfirmed = { bank, lang ->
-                    scope.launch {
-                        prefsRepo.setJio123PayRegistered(true)
-                        prefsRepo.setUserBankName(bank)
-                        prefsRepo.setUserPreferredLanguage(lang)
-                    }
-                    showJioRegistrationSheet = false
-                    showPinScreen = true
-                }
-            )
-        }
 
         if (showBiometricSuggestion) {
             BiometricSuggestionSheet(

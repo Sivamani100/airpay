@@ -37,30 +37,11 @@ interface OverlayController {
     /** Show an error on the active overlay (full or minimal) for [holdMs], then hide. */
     fun showError(title: String, message: String, holdMs: Long = 1500L)
 
-    /** Show the dedicated opaque Auto-Inject Stepper overlay for Jio VoLTE offline sessions. */
-    fun showJioAutoInject(
-        recipient: String,
-        amount: String,
-        stepNumber: Int,
-        stepTitle: String,
-        stepSubtitle: String
-    )
-
-    /** Update the Jio Auto-Inject Stepper progress. */
-    fun updateJioAutoInject(
-        stepNumber: Int,
-        stepTitle: String,
-        stepSubtitle: String
-    )
-
     /** Hide whichever overlay is currently shown. */
     fun hide()
 
     /** Callback invoked when the user taps cancel on the overlay. */
     var onCancel: (() -> Unit)?
-
-    /** Callback invoked when user toggles loudspeaker on overlay. Returns true if on, false if off. */
-    var onSpeakerToggle: (() -> Boolean)?
 
     /** Callback invoked when the user taps the minimal bar (to bring app forward). */
     var onMinimalTapped: (() -> Unit)?

@@ -63,7 +63,6 @@ class PayViewModel(
     private val historyRepo: HistoryRepository,
     private val prefsRepo: PreferencesRepository,
     private val carrierDetector: CarrierDetector,
-    private val jioVoiceGateway: com.arkiolabs.airpay.platform.JioVoiceGateway? = null,
     private val overlayController: OverlayController? = null,
     private val onDialerFallback: (String) -> Unit = {},
     private val clipboardWriter: (String) -> Unit = {},
@@ -229,205 +228,18 @@ class PayViewModel(
     }
 
     /**
-     * Validates inputs and starts the payment session.
-     * Routes dynamically by carrier:
-     *  - Airtel / Vi / BSNL: Native USSD Engine automated in the background.
-     *  - Reliance Jio: Dedicated Phone Voice Gateway (08045163581) over VoLTE.
+     * Validates inputs and starts the background USSD payment session.
      */
     private fun runPayment(vpa: String, amount: String, note: String, pin: String) {
         viewModelScope.launch {
-            val isJio = carrierDetector.isCurrentSimJio()
-
-            // For USSD carriers (Airtel, Vi, BSNL), accessibility service is mandatory to automate
-            if (!isJio && !actionRunner.isServiceEnabled()) {
+            if (!actionRunner.isServiceEnabled()) {
                 _sessionState.value = SessionState.Failed(
                     message = "Accessibility service is disabled. Enable it in Settings.",
                     resultText = ""
                 )
                 return@launch
             }
-
-            if (isJio) {
-                runJioPhonePayment(vpa, amount, note, pin)
-            } else {
-                runUssdPayment(vpa, amount, note, pin)
-            }
-        }
-    }
-
-    /**
-     * Dedicated Phone Voice Gateway payment for Reliance Jio SIM holders.
-     * Initiates official voice call (08045163666) over Jio VoLTE
-     * with automated DTMF tones and listens for genuine bank debit confirmation SMS.
-     * Zero fake simulations — genuine verification only!
-     */
-    private fun runJioPhonePayment(vpa: String, amount: String, note: String, pin: String) {
-        val cleanPhone = if (vpa.all { it.isDigit() } && vpa.length == 12 && vpa.startsWith("91")) vpa.substring(2) else vpa
-        val cleanAmount = amount.filter { it.isDigit() || it == '.' }.takeWhile { it != '.' }
-
-        _uiState.update { it.copy(errors = emptyMap(), isSessionActive = true) }
-        _sessionState.value = SessionState.Running(
-            label = "Calling Jio Voice Gateway (08045163666)...",
-            stepIndex = 1,
-            total = 5
-        )
-
-        // Show the 100% OPAQUE overlay so the system phone call dialer is completely hidden from view!
-        overlayController?.showJioAutoInject(
-            recipient = cleanPhone,
-            amount = cleanAmount,
-            stepNumber = 1,
-            stepTitle = "Jio VoLTE Offline Gateway",
-            stepSubtitle = "Connecting to Jio Voice Gateway"
-        )
-        overlayController?.onCancel = { cancelSession() }
-
-        val gateway = jioVoiceGateway
-        overlayController?.onSpeakerToggle = {
-            val isNowOn = !(gateway?.isSpeakerphoneOn() ?: false)
-            gateway?.setSpeakerphone(isNowOn)
-            isNowOn
-        }
-
-        val sessionStartTime = System.currentTimeMillis() - 5000L
-        val initiated = gateway?.initiatePaymentCall(cleanPhone, cleanAmount, pin) ?: false
-
-        if (!initiated) {
-            _sessionState.value = SessionState.Failed(
-                message = "Could not connect to Jio Voice Gateway",
-                resultText = "Please verify cellular voice signal and CALL_PHONE permission."
-            )
-            overlayController?.hide()
-            onSessionEnded()
-            return
-        }
-
-        sessionJob = viewModelScope.launch {
-            fun handleSmsConfirmation(sms: com.arkiolabs.airpay.domain.ParsedBankSms): Boolean {
-                if (sms.isSuccess && sms.isDebit) {
-                    val refText = sms.refId?.let { "Ref: $it" } ?: "Completed"
-                    val resultMsg = "Payment of ₹$cleanAmount to $cleanPhone successful. $refText"
-                    _sessionState.value = SessionState.Success(resultText = resultMsg)
-                    overlayController?.hide()
-                    gateway.endActiveCall()
-                    onSessionEnded()
-
-                    launch {
-                        historyRepo.recordTransaction(
-                            vpa = cleanPhone,
-                            payeeName = _uiState.value.payeeName.ifBlank { null },
-                            amount = cleanAmount,
-                            note = note.ifBlank { null },
-                            carrierReply = resultMsg
-                        )
-                    }
-                    return true
-                } else if (!sms.isSuccess) {
-                    val errorMsg = if (sms.amount == null && sms.refId == null) {
-                        "Transaction could not be completed by bank"
-                    } else {
-                        "Bank declined payment: ${sms.refId ?: "Unknown error"}"
-                    }
-                    _sessionState.value = SessionState.Failed(
-                        message = errorMsg,
-                        resultText = "Bank declined transaction"
-                    )
-                    overlayController?.hide()
-                    gateway.endActiveCall()
-                    onSessionEnded()
-                    return true
-                }
-                return false
-            }
-
-            // Listen for genuine bank confirmation SMS
-            val smsJob = launch {
-                com.arkiolabs.airpay.platform.BankSmsReceiver.bankSmsEvents.collect { sms ->
-                    val current = _sessionState.value
-                    if (current is SessionState.Success || current is SessionState.Failed) {
-                        return@collect
-                    }
-                    handleSmsConfirmation(sms)
-                }
-            }
-
-            // Progression status updates for user guidance (in sync with calibrated fast DTMF: ,,1,phone,amount,,1,pin#)
-            delay(4_000L) // After call setup -> Option 1 (Money Transfer)
-            if (_sessionState.value is SessionState.Running) {
-                _sessionState.value = SessionState.Running(
-                    label = "Option 1 (Transfer) injected",
-                    stepIndex = 1,
-                    total = 5
-                )
-                overlayController?.updateJioAutoInject(1, "Injecting Recipient...", "Sending $cleanPhone")
-            }
-
-            delay(2_500L) // After recipient prompt -> recipient phone
-            if (_sessionState.value is SessionState.Running) {
-                _sessionState.value = SessionState.Running(
-                    label = "Recipient phone injected",
-                    stepIndex = 2,
-                    total = 5
-                )
-                overlayController?.updateJioAutoInject(2, "Injecting Amount...", "Sending ₹$cleanAmount")
-            }
-
-            delay(2_500L) // After amount prompt -> amount
-            if (_sessionState.value is SessionState.Running) {
-                _sessionState.value = SessionState.Running(
-                    label = "Amount injected",
-                    stepIndex = 3,
-                    total = 5
-                )
-                overlayController?.updateJioAutoInject(3, "Confirming Details...", "Confirming recipient & amount (1)")
-            }
-
-            delay(4_000L) // After confirmation prompt -> Option 1 (Confirm)
-            if (_sessionState.value is SessionState.Running) {
-                _sessionState.value = SessionState.Running(
-                    label = "Details confirmed",
-                    stepIndex = 4,
-                    total = 5
-                )
-                overlayController?.updateJioAutoInject(4, "Authorizing PIN...", "Entering Bank UPI PIN securely")
-            }
-
-            delay(2_500L) // After PIN prompt -> PIN#
-            if (_sessionState.value is SessionState.Running) {
-                _sessionState.value = SessionState.Running(
-                    label = "UPI PIN authorized",
-                    stepIndex = 5,
-                    total = 5
-                )
-                overlayController?.updateJioAutoInject(5, "Verifying with Bank...", "All inputs injected. Awaiting bank confirmation SMS")
-            }
-
-            // Poll inbox periodically in case SMS broadcast was delayed
-            var elapsed = 0L
-            val pollInterval = 2_000L
-            val maxWait = 25_000L
-            while (elapsed < maxWait && _sessionState.value is SessionState.Running) {
-                delay(pollInterval)
-                elapsed += pollInterval
-                val recentSms = com.arkiolabs.airpay.platform.BankSmsReceiver.pollRecentBankSms(sessionStartTime)
-                if (recentSms != null) {
-                    if (handleSmsConfirmation(recentSms)) break
-                }
-            }
-
-            smsJob.cancel()
-            gateway.endActiveCall()
-            overlayController?.hide()
-
-            val current = _sessionState.value
-            if (current is SessionState.Running) {
-                // Zero fake simulation! Only verified debit triggers Success.
-                _sessionState.value = SessionState.Failed(
-                    message = "Awaiting bank confirmation",
-                    resultText = "Payment call ended. If money was debited, your bank SMS will confirm shortly."
-                )
-                onSessionEnded()
-            }
+            runUssdPayment(vpa, amount, note, pin)
         }
     }
 
@@ -540,8 +352,6 @@ class PayViewModel(
     fun cancelSession() {
         sessionJob?.cancel()
         sessionJob = null
-        jioVoiceGateway?.endActiveCall()
-        overlayController?.onSpeakerToggle = null
         viewModelScope.launch {
             activeRun?.cancel?.invoke()
             overlayController?.hide()

@@ -82,51 +82,15 @@ class CarrierDetector(private val context: Context) {
     }
 
     /**
-     * Identifies if the given carrier is Reliance Jio, which routes through
-     * the Jio VoLTE Voice Gateway instead of legacy USSD.
+     * Identifies if the given carrier matches Jio SIM.
      */
     fun isJioCarrier(carrierName: String?): Boolean {
         if (carrierName.isNullOrBlank()) return false
         return JIO_PATTERN.containsMatchIn(carrierName)
     }
 
-    suspend fun isCurrentSimJio(): Boolean = withContext(Dispatchers.IO) {
-        // 1. TelephonyManager operator and network names
-        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-        val simOpName = telephonyManager?.simOperatorName
-        val netOpName = telephonyManager?.networkOperatorName
-        val simOperator = telephonyManager?.simOperator ?: ""
-        if (isJioCarrier(simOpName) || isJioCarrier(netOpName)) return@withContext true
-        if (simOperator.startsWith("405") || simOperator.startsWith("404")) {
-            val mnc = simOperator.drop(3).toIntOrNull()
-            if (mnc != null && mnc in 840..874) return@withContext true
-        }
+    suspend fun isCurrentSimJio(): Boolean = false
 
-        // 2. SubscriptionManager active SIMs and voice SIM
-        val subscriptionManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
-        try {
-            val activeList = subscriptionManager?.activeSubscriptionInfoList
-            if (!activeList.isNullOrEmpty()) {
-                val voiceSubId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    SubscriptionManager.getDefaultVoiceSubscriptionId()
-                } else {
-                    -1
-                }
-                val matched = activeList.find { it.subscriptionId == voiceSubId } ?: activeList[0]
-                if (isJioCarrier(matched.carrierName?.toString()) || isJioCarrier(matched.displayName?.toString())) {
-                    return@withContext true
-                }
-            }
-        } catch (_: SecurityException) {}
-
-        val sim = getActiveSimInfo()
-        isJioCarrier(sim?.carrierName)
-    }
-
-    /**
-     * All 4 major Indian carriers (Airtel, Vi, BSNL, Jio) are now fully supported.
-     * USSD is used for Airtel/Vi/BSNL, and VoLTE Voice Gateway is used for Jio.
-     */
     fun isUnsupportedCarrier(carrierName: String): Boolean {
         return false
     }

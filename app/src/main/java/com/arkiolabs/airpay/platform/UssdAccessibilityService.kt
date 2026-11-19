@@ -85,6 +85,8 @@ class UssdAccessibilityService : AccessibilityService() {
     private val frameFilter = FrameFilter()
     private var lastEmittedText: String? = null
     private var hasSeenFirstDialog: Boolean = false
+    @Volatile
+    private var activeDialogRoot: AccessibilityNodeInfo? = null
 
     private val main = Handler(Looper.getMainLooper())
     private val sessionEndCheck = Runnable { verifySessionStillAlive() }
@@ -141,6 +143,7 @@ class UssdAccessibilityService : AccessibilityService() {
                 val root: AccessibilityNodeInfo =
                     event.source ?: findUssdRoot() ?: return
                 if (!isUssdPackage(root.packageName?.toString())) return
+                activeDialogRoot = root
                 handleDialog(root)
             }
         }
@@ -196,26 +199,43 @@ class UssdAccessibilityService : AccessibilityService() {
 
     /**
      * Dismisses the current USSD dialog by clicking any close-style button
-     * (ok/cancel/close/dismiss/done). Falls back to system back action ONLY if
-     * a confirmed USSD window is active. NEVER presses back when no USSD window exists.
+     * (ok/cancel/close/dismiss/done). Never performs system back action to ensure
+     * MainActivity is never accidentally closed.
      *
      * @return true if the dialog was dismissed or no dialog was present
      */
     fun dismissDialog(): Boolean {
-        val root = findUssdRoot() ?: return true // No USSD dialog on screen -> NOTHING to dismiss! Do not press BACK!
+        val root = findUssdRoot() ?: activeDialogRoot ?: return true
         var ok = false
         val close = findClickableButton(root, DISMISS_LABELS)
         if (close != null) {
-            val target = if (close.isClickable) close else (close.parent?.takeIf { it.isClickable } ?: close)
-            ok = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            var target: AccessibilityNodeInfo? = close
+            while (target != null && !target.isClickable) {
+                target = target.parent
+            }
+            val toClick = target ?: close
+            ok = toClick.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
-        // ONLY if root was confirmed to be a USSD window, and clicking close button failed,
-        // and findUssdRoot() STILL returns a USSD window, perform back:
-        if (!ok && findUssdRoot() != null) {
-            ok = performGlobalAction(GLOBAL_ACTION_BACK)
+        if (!ok) {
+            walk(root) { node ->
+                if (!ok) {
+                    val t = node.text?.toString()?.trim()?.lowercase().orEmpty()
+                    if (t in DISMISS_LABELS) {
+                        var curr: AccessibilityNodeInfo? = node
+                        while (curr != null && !curr.isClickable) {
+                            curr = curr.parent
+                        }
+                        val toClick = curr ?: node
+                        if (toClick.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                            ok = true
+                        }
+                    }
+                }
+            }
         }
         lastEmittedText = null
         frameFilter.reset()
+        activeDialogRoot = null
         return ok
     }
 
@@ -226,6 +246,7 @@ class UssdAccessibilityService : AccessibilityService() {
      * Clears the deduplication filter, seen flag, and last emitted text.
      */
     fun resetForNewSession() {
+        activeDialogRoot = null
         hasSeenFirstDialog = false
         lastEmittedText = null
         frameFilter.reset()
@@ -265,6 +286,9 @@ class UssdAccessibilityService : AccessibilityService() {
      * can be "on top" once we show it.
      */
     private fun findUssdRoot(): AccessibilityNodeInfo? {
+        activeDialogRoot?.let { cached ->
+            if (isUssdPackage(cached.packageName?.toString())) return cached
+        }
         rootInActiveWindow?.let { active ->
             if (isUssdPackage(active.packageName?.toString())) return active
         }

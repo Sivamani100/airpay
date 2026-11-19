@@ -28,8 +28,7 @@ object PreferencesKeys {
     // Dynamic QR Profile UPI ID (fetched via SIM profile lookup)
     val USER_UPI_ID = stringPreferencesKey("user_upi_id")
 
-    // Jio 123PAY 1-time Bank Registration Status
-    val JIO_123PAY_REGISTERED = booleanPreferencesKey("jio_123pay_registered")
+    // Bank and SIM Preferences
     val USER_BANK_NAME = stringPreferencesKey("user_bank_name")
     val USER_PREFERRED_LANGUAGE = stringPreferencesKey("user_preferred_language")
 
@@ -189,18 +188,6 @@ class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
     suspend fun setUserUpiId(upiId: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.USER_UPI_ID] = upiId
-        }
-    }
-
-    // ── Jio 123PAY Registration ────────────────────────────────────
-
-    val jio123PayRegistered: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.JIO_123PAY_REGISTERED] ?: false
-    }
-
-    suspend fun setJio123PayRegistered(registered: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.JIO_123PAY_REGISTERED] = registered
         }
     }
 
