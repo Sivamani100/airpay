@@ -138,10 +138,9 @@ class UssdAccessibilityService : AccessibilityService() {
                 val pkg = event.packageName?.toString() ?: return
                 if (!isUssdPackage(pkg)) return
 
-                // event.source is the dialog node tree even when the overlay
-                // is on top; rootInActiveWindow would point at the overlay.
-                val root: AccessibilityNodeInfo =
-                    event.source ?: findUssdRoot() ?: return
+                // Retrieve top-level window root so the entire dialog tree is captured
+                val rawNode = event.source ?: findUssdRoot() ?: return
+                val root: AccessibilityNodeInfo = getWindowRoot(rawNode) ?: rawNode
                 if (!isRealUssdDialog(root)) return
                 activeDialogRoot = root
                 handleDialog(root)
@@ -197,15 +196,28 @@ class UssdAccessibilityService : AccessibilityService() {
         return true
     }
 
+    private fun getWindowRoot(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
+        var curr = node ?: return null
+        while (curr.parent != null) {
+            curr = curr.parent ?: break
+        }
+        return curr
+    }
+
     /**
      * Dismisses the current USSD dialog by clicking any close-style button
-     * (ok/cancel/close/dismiss/done). Never performs system back action to ensure
-     * MainActivity is never accidentally closed.
+     * (ok/cancel/close/dismiss/done). If the dialog is still present, performs system back action.
      *
      * @return true if the dialog was dismissed or no dialog was present
      */
     fun dismissDialog(): Boolean {
-        val root = findUssdRoot() ?: activeDialogRoot ?: return true
+        val root = findUssdRoot() ?: activeDialogRoot
+        if (root == null) {
+            lastEmittedText = null
+            frameFilter.reset()
+            activeDialogRoot = null
+            return true
+        }
         var ok = false
         val close = findClickableButton(root, DISMISS_LABELS)
         if (close != null) {
@@ -235,6 +247,11 @@ class UssdAccessibilityService : AccessibilityService() {
                     }
                 }
             }
+        }
+        // If button click didn't close it and a USSD dialog window is still present, dismiss via system BACK
+        if ((!ok || findUssdRoot() != null) && findUssdRoot() != null) {
+            performGlobalAction(GLOBAL_ACTION_BACK)
+            ok = true
         }
         lastEmittedText = null
         frameFilter.reset()

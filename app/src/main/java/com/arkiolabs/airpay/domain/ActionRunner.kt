@@ -184,6 +184,9 @@ class ActionRunner(private val engine: UssdEnginePort) {
 
                     // ── Priority 4: terminal frame with no match ───────────
                     if (frame.isTerminal) {
+                        if (text.equals("dialog_dismissed", ignoreCase = true) || text.isBlank()) {
+                            return@collect
+                        }
                         terminated = true
                         eventFlow.emit(ActionEvent.Error("Unexpected carrier response", text))
                         resultDeferred.complete(ActionResult(success = false, resultText = text))

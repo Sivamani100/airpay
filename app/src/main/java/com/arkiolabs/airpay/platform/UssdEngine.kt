@@ -215,18 +215,9 @@ class UssdEngine(
 
     override fun onSessionEnded(reason: String) {
         if (!sessionActive) return
-        // The dialog window went away unexpectedly. Surface a terminal frame
-        // so ActionRunner sees the session ended.
-        frameCounter++
-        _frames.tryEmit(
-            UssdFrame(
-                text = reason,
-                isMenu = false,
-                isTerminal = true,
-                sessionId = sessionId,
-                frameId = frameCounter
-            )
-        )
+        // Do NOT synthesize an artificial terminal frame for transient dialog dismissal.
+        // Carrier multi-step USSD flows close the prompt window while preparing the next frame.
+        // genuine disconnects are safely handled by the 12s slow-watch and hard timeout.
     }
 
     // ─── Timer Management ──────────────────────────────────────────────────────
