@@ -162,8 +162,8 @@ class BalanceViewModel(
                             )
                         }
                         is ActionEvent.Done -> {
-                            _sessionState.value = SessionState.Success(resultText = event.resultText)
                             overlayController?.hide()
+                            _sessionState.value = SessionState.Success(resultText = event.resultText)
                             launch {
                                 prefsRepo.setLastBalance(
                                     text = event.resultText,
@@ -233,6 +233,7 @@ class BalanceViewModel(
     }
 
     private fun onSessionEnd() {
+        overlayController?.hide()
         _uiState.update { it.copy(isSessionActive = false) }
         viewModelScope.launch {
             delay(500)

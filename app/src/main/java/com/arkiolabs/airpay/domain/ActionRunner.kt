@@ -146,9 +146,6 @@ class ActionRunner(private val engine: UssdEnginePort) {
                         val step = action.steps[matchedIndex]
                         currentStepIndex = maxOf(currentStepIndex, matchedIndex + 1)
 
-                        eventFlow.emit(ActionEvent.Progress(matchedIndex, totalSteps, step.label))
-                        eventFlow.emit(ActionEvent.Frame(frame, matchedIndex))
-
                         if (step.done) {
                             terminated = true
                             eventFlow.emit(ActionEvent.Done(text))
@@ -158,6 +155,9 @@ class ActionRunner(private val engine: UssdEnginePort) {
                             job?.cancel()
                             return@collect
                         }
+
+                        eventFlow.emit(ActionEvent.Progress(matchedIndex, totalSteps, step.label))
+                        eventFlow.emit(ActionEvent.Frame(frame, matchedIndex))
 
                         val reply = step.reply?.let { fillTemplate(it, vars) }
                         if (reply != null) {

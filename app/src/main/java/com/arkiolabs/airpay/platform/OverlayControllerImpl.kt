@@ -125,10 +125,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
     override fun update(title: String, subtitle: String, stepLabel: String) {
         handler.post {
-            if (overlayView == null) {
-                show(title, subtitle, stepLabel)
-                return@post
-            }
+            if (overlayView == null) return@post
             spinnerView?.visibility = View.VISIBLE
             titleView?.text = title
             subtitleView?.text = subtitle
@@ -203,6 +200,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
     }
 
     override fun hide() {
+        handler.removeCallbacksAndMessages(null)
         handler.post {
             removeFullView()
             removeMinimalView()

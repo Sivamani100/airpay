@@ -400,6 +400,7 @@ class PayViewModel(
      * it never lingers in memory longer than necessary.
      */
     private fun onSessionEnded() {
+        overlayController?.hide()
         _uiState.update { it.copy(isSessionActive = false) }
         activeRun = null
         viewModelScope.launch {

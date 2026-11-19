@@ -209,25 +209,28 @@ class UssdAccessibilityService : AccessibilityService() {
         var ok = false
         val close = findClickableButton(root, DISMISS_LABELS)
         if (close != null) {
-            var target: AccessibilityNodeInfo? = close
-            while (target != null && !target.isClickable) {
-                target = target.parent
+            ok = close.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            if (!ok) {
+                var target: AccessibilityNodeInfo? = close.parent
+                while (target != null && !ok) {
+                    ok = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    target = target.parent
+                }
             }
-            val toClick = target ?: close
-            ok = toClick.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
         if (!ok) {
             walk(root) { node ->
                 if (!ok) {
                     val t = node.text?.toString()?.trim()?.lowercase().orEmpty()
-                    if (t in DISMISS_LABELS) {
-                        var curr: AccessibilityNodeInfo? = node
-                        while (curr != null && !curr.isClickable) {
-                            curr = curr.parent
-                        }
-                        val toClick = curr ?: node
-                        if (toClick.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
-                            ok = true
+                    val d = node.contentDescription?.toString()?.trim()?.lowercase().orEmpty()
+                    if (t in DISMISS_LABELS || d in DISMISS_LABELS) {
+                        ok = node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        if (!ok) {
+                            var curr: AccessibilityNodeInfo? = node.parent
+                            while (curr != null && !ok) {
+                                ok = curr.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                curr = curr.parent
+                            }
                         }
                     }
                 }
@@ -286,15 +289,15 @@ class UssdAccessibilityService : AccessibilityService() {
      * can be "on top" once we show it.
      */
     private fun findUssdRoot(): AccessibilityNodeInfo? {
-        activeDialogRoot?.let { cached ->
-            if (isUssdPackage(cached.packageName?.toString())) return cached
-        }
         rootInActiveWindow?.let { active ->
             if (isUssdPackage(active.packageName?.toString())) return active
         }
         for (w: AccessibilityWindowInfo in windows.orEmpty()) {
             val r = w.root ?: continue
             if (isUssdPackage(r.packageName?.toString())) return r
+        }
+        activeDialogRoot?.let { cached ->
+            if (isUssdPackage(cached.packageName?.toString())) return cached
         }
         return null
     }

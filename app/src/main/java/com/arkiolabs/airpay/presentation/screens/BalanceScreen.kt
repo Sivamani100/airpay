@@ -429,9 +429,19 @@ private fun BalanceFailedView(message: String, onRetry: () -> Unit, onBack: () -
  * Extracts ₹ amount cleanly from USSD balance text.
  */
 private fun parseBalance(raw: String): String? {
-    val regex = Regex("(?:rs\\.?|inr|₹)\\s*([\\d,]+\\.?\\d{0,2})", RegexOption.IGNORE_CASE)
-    val match = regex.find(raw)
-    return match?.let { "₹${it.groupValues[1]}" }
+    // 1. Prefix: Rs. 108.11, ₹ 108.11, INR 108.11
+    val prefixRegex = Regex("(?:rs\\.?|inr|₹)\\s*([\\d,]+(?:\\.\\d{1,2})?)", RegexOption.IGNORE_CASE)
+    prefixRegex.find(raw)?.let { return "₹${it.groupValues[1]}" }
+
+    // 2. Suffix: 108.11 INR, 108.11 Rs
+    val suffixRegex = Regex("([\\d,]+(?:\\.\\d{1,2})?)\\s*(?:rs\\.?|inr|₹)", RegexOption.IGNORE_CASE)
+    suffixRegex.find(raw)?.let { return "₹${it.groupValues[1]}" }
+
+    // 3. Keyword: balance is 108.11, bal: 108.11, a/c bal 108.11
+    val keywordRegex = Regex("(?:bal(?:ance)?|amount)\\s*(?:is|:)?\\s*(?:rs\\.?|inr|₹)?\\s*([\\d,]+(?:\\.\\d{1,2})?)", RegexOption.IGNORE_CASE)
+    keywordRegex.find(raw)?.let { return "₹${it.groupValues[1]}" }
+
+    return null
 }
 
 private fun formatTimestamp(ts: Long): String {

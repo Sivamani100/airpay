@@ -77,7 +77,8 @@ private fun currentStatus(context: Context): PermissionStatus {
         camera = isGranted(context, Manifest.permission.CAMERA),
         accessibility = isAccessibilityServiceEnabled(context),
         overlay = Settings.canDrawOverlays(context),
-        smsGranted = isGranted(context, Manifest.permission.RECEIVE_SMS),
+        smsGranted = isGranted(context, Manifest.permission.RECEIVE_SMS) &&
+            isGranted(context, Manifest.permission.READ_SMS),
         contactsGranted = isGranted(context, Manifest.permission.READ_CONTACTS)
     )
 }
