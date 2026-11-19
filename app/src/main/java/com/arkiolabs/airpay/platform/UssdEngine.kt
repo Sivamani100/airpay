@@ -63,9 +63,9 @@ class UssdEngine(
 
     companion object {
         const val DOUBLE_TAP_COOLDOWN_MS = 2_000L
-        const val SLOW_WATCH_TIMEOUT_MS = 12_000L
-        const val HARD_TIMEOUT_SEND_MS = 25_000L
-        const val HARD_TIMEOUT_OTHER_MS = 30_000L
+        const val SLOW_WATCH_TIMEOUT_MS = 25_000L
+        const val HARD_TIMEOUT_SEND_MS = 35_000L
+        const val HARD_TIMEOUT_OTHER_MS = 35_000L
     }
 
     // ─── UssdEnginePort Implementation ─────────────────────────────────────────
@@ -316,10 +316,6 @@ class UssdEngine(
     }
 
     private fun inferHardTimeout(code: String): Long {
-        return if (code.contains("*99*1*3")) {
-            HARD_TIMEOUT_SEND_MS
-        } else {
-            HARD_TIMEOUT_OTHER_MS
-        }
+        return HARD_TIMEOUT_OTHER_MS
     }
 }

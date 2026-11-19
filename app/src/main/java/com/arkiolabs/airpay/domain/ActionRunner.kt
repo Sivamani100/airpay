@@ -60,11 +60,13 @@ class ActionRunner(private val engine: UssdEnginePort) {
             // A real referenceId in the text is a strong success signal
             Regex("ref(?:erence)?\\s*(?:id|no|number|#)?\\s*[:\\-]?\\s*\\d{6,}", RegexOption.IGNORE_CASE),
             // Balance check success signals (match balance before common failure regexes can misclassify)
-            Regex("(?:account\\s+)?bal(?:ance)?\\s+(?:is\\s+)?(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE),
-            Regex("(?:rs\\.?|inr|₹)\\s*([\\d,]+(?:\\.\\d{1,2})?)\\s+(?:is\\s+your|avail|balance)", RegexOption.IGNORE_CASE),
-            Regex("avail(?:able)?\\s+bal(?:ance)?", RegexOption.IGNORE_CASE),
-            Regex("bal(?:ance)?\\s*[:\\-]?\\s*(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE),
-            Regex("a/c\\s*(?:bal|balance)\\s*[:\\-]?\\s*(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE)
+            Regex("\\b(?:available\\s+)?(?:account\\s+)?bal(?:ance)?\\b.*(?:rs\\.?|inr|₹|is\\s*[:=]?)\\s*[\\d,]+", RegexOption.IGNORE_CASE),
+            Regex("(?:rs\\.?|inr|₹)\\s*[\\d,]+(?:\\.\\d{1,2})?.*(?:is\\s+your|avail|balance|bal\\b)", RegexOption.IGNORE_CASE),
+            Regex("\\b(?:avail(?:able)?|ledger|a/c)\\s+bal(?:ance)?\\b", RegexOption.IGNORE_CASE),
+            Regex("\\bbal(?:ance)?\\s*[:\\-=]\\s*(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE),
+            Regex("\\ba/c\\s*(?:no\\.?)?\\s*\\S+.*(?:bal|balance)\\s*[:\\-=]?\\s*(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE),
+            Regex("\\byour\\s+(?:account\\s+)?balance\\s+is\\b", RegexOption.IGNORE_CASE),
+            Regex("\\bcurrent\\s+balance\\s*[:\\-=]?\\s*(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE)
         )
     }
 

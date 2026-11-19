@@ -43,8 +43,8 @@ object Actions {
         // raw carrier dialog.
         Regex("\\b(pin|upi\\s*pin|upi\\s*id|vpa|password)\\s+(is\\s+)?(incorrect|invalid|wrong|mismatch)\\b", RegexOption.IGNORE_CASE),
         Regex("entered\\s+(upi\\s+)?pin\\s+(is\\s+)?(incorrect|invalid|wrong)", RegexOption.IGNORE_CASE),
-        Regex("enter\\s+(a\\s+)?(valid|correct)", RegexOption.IGNORE_CASE),
-        Regex("please\\s+enter\\s+(correct|valid)", RegexOption.IGNORE_CASE),
+        Regex("re-?enter\\s+(a\\s+)?(valid|correct)", RegexOption.IGNORE_CASE),
+        Regex("please\\s+re-?enter\\s+(correct|valid)", RegexOption.IGNORE_CASE),
         Regex("please\\s+check\\s+and\\s+try\\s+again", RegexOption.IGNORE_CASE),
 
         // Specific UPI / PSP phrases — kept separately for clarity even though
@@ -214,7 +214,7 @@ object Actions {
             Regex("max(imum)?\\s*(attempts|tries|retries)", RegexOption.IGNORE_CASE),
             Regex("pin\\s*(blocked|locked|expired)", RegexOption.IGNORE_CASE)
         ),
-        timeoutMs = 25_000L
+        timeoutMs = 30_000L
     )
 
     /**

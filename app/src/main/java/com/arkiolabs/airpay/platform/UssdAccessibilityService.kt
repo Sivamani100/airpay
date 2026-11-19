@@ -181,12 +181,12 @@ class UssdAccessibilityService : AccessibilityService() {
 
         // Give Android binder/IPC a brief gap to commit text to the telephony process
         try {
-            Thread.sleep(80)
+            Thread.sleep(120)
         } catch (_: InterruptedException) {}
 
-        // Clear the dedup state so the very next frame is re-emitted to the
-        // listener even if its text duplicates what was last shown. Without
-        // this, repeats of the same prompt are silently dropped.
+        // Clear the dedup and cached dialog state so the very next frame is re-emitted
+        // to the listener even if its text duplicates what was last shown.
+        activeDialogRoot = null
         lastEmittedText = null
         frameFilter.reset()
 
@@ -322,20 +322,19 @@ class UssdAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Find the currently-visible USSD dialog's root node. Walks all windows
-     * rather than relying on rootInActiveWindow, since our own overlay window
-     * can be "on top" once we show it.
+     * Find the currently-visible USSD dialog's root node. Prioritizes the active
+     * focused window, then walks interactive windows, and falls back to refreshed cached root.
      */
     private fun findUssdRoot(): AccessibilityNodeInfo? {
-        activeDialogRoot?.let { cached ->
-            if (isRealUssdDialog(cached)) return cached
-        }
         rootInActiveWindow?.let { active ->
             if (isRealUssdDialog(active)) return active
         }
         for (w: AccessibilityWindowInfo in windows.orEmpty()) {
             val r = w.root ?: continue
             if (isRealUssdDialog(r)) return r
+        }
+        activeDialogRoot?.let { cached ->
+            if (cached.refresh() && isRealUssdDialog(cached)) return cached
         }
         return null
     }
@@ -456,6 +455,27 @@ class UssdAccessibilityService : AccessibilityService() {
                     if (cls.contains("Button", true) || n.isClickable || n.parent?.isClickable == true || isStandardSend || isStandardCancel) {
                         found = n
                     }
+                }
+            }
+        }
+
+        // Priority 3: Fallback for custom OEM dialogs — if wantsSend and no button matched yet,
+        // pick any clickable button that is explicitly not a Cancel/Close/Dismiss action.
+        if (found == null && wantsSend) {
+            walk(node) { n ->
+                if (found != null) return@walk
+                val cls = n.className?.toString().orEmpty()
+                if (cls.contains("EditText", true)) return@walk
+
+                val text = n.text?.toString()?.trim()?.lowercase().orEmpty()
+                val desc = n.contentDescription?.toString()?.trim()?.lowercase().orEmpty()
+
+                if (text in setOf("cancel", "close", "dismiss", "exit") || desc in setOf("cancel", "close", "dismiss", "exit")) {
+                    return@walk
+                }
+
+                if (cls.contains("Button", true) || (n.isClickable && !n.isScrollable)) {
+                    found = n
                 }
             }
         }

@@ -233,8 +233,11 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
     private fun removeFullView() {
         overlayView?.let { view ->
             try {
-                if (view.parent != null) windowManager.removeView(view)
+                windowManager.removeViewImmediate(view)
             } catch (_: Exception) {
+                try {
+                    windowManager.removeView(view)
+                } catch (_: Exception) {}
             }
         }
         overlayView = null
@@ -247,8 +250,11 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
     private fun removeMinimalView() {
         minimalView?.let { view ->
             try {
-                if (view.parent != null) windowManager.removeView(view)
+                windowManager.removeViewImmediate(view)
             } catch (_: Exception) {
+                try {
+                    windowManager.removeView(view)
+                } catch (_: Exception) {}
             }
         }
         minimalView = null

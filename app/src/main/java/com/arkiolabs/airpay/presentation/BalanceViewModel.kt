@@ -162,6 +162,7 @@ class BalanceViewModel(
                             )
                         }
                         is ActionEvent.Done -> {
+                            com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
                             overlayController?.hide()
                             _sessionState.value = SessionState.Success(resultText = event.resultText)
                             launch {
@@ -173,6 +174,8 @@ class BalanceViewModel(
                             onSessionEnd()
                         }
                         is ActionEvent.Error -> {
+                            com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
+                            overlayController?.hide()
                             _sessionState.value = SessionState.Failed(
                                 message = event.message,
                                 resultText = event.resultText
