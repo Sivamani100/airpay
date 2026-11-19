@@ -97,7 +97,7 @@ import java.io.FileOutputStream
 @Composable
 fun MyQrScreen(
     onClose: () -> Unit,
-    onOpenFaq: () -> Unit,
+    onOpenFaq: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -204,14 +204,15 @@ fun MyQrScreen(
 
                         // Ensure carrier dialog is dismissed completely while overlay is still covering it
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
-                        kotlinx.coroutines.delay(300)
+                        kotlinx.coroutines.delay(400)
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
                         overlayController.hide()
                         isActivating = false
                     }
                     is ActionEvent.Error -> {
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
-                        kotlinx.coroutines.delay(200)
+                        kotlinx.coroutines.delay(400)
+                        com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
                         overlayController.hide()
                         isActivating = false
                         activationStatus = "Activation failed"
@@ -271,24 +272,8 @@ fun MyQrScreen(
                     modifier = Modifier.weight(1f)
                 )
 
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFF4F5F7))
-                        .clickable {
-                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                            onOpenFaq()
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Iconsax.InfoCircle,
-                        contentDescription = "Help",
-                        tint = AirpayColors.TextPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
+                // Balanced spacer to match left navigation button
+                Spacer(Modifier.size(38.dp))
             }
         }
 

@@ -39,11 +39,10 @@ import com.arkiolabs.airpay.presentation.navigation.Screen
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 
 /**
- * Authentic Airpay Bottom Navigation Bar:
- *  - 5 tabs: Home, Search, [Center QR Scanner], Alerts, History.
- *  - Center QR button is an authentic vibrant purple circle, vertically centered and NEVER cut off.
- *  - Clean white surface with subtle top hairline divider matching Airpay screenshots.
- *  - Active tab is solid black (Airpay style), inactive is crisp gray.
+ * Streamlined 3-Tab Bottom Navigation Bar:
+ *  - Home (Left)
+ *  - Scanner (Center elevated button)
+ *  - History (Right)
  */
 @Composable
 fun AirpayBottomNav(
@@ -74,7 +73,7 @@ fun AirpayBottomNav(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Tab 1: Home
+            // Tab 1: Home (Left)
             NavTabItem(
                 label = "Home",
                 isActive = currentRoute == Screen.Home.route,
@@ -87,20 +86,7 @@ fun AirpayBottomNav(
                 modifier = Modifier.weight(1f)
             )
 
-            // Tab 2: Search
-            NavTabItem(
-                label = "Search",
-                isActive = currentRoute == Screen.Search.route,
-                activeResId = R.drawable.bottom_nav_search_selected,
-                inactiveResId = R.drawable.bottom_nav_search_unselected,
-                onClick = {
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                    onNavigate(Screen.Search.route)
-                },
-                modifier = Modifier.weight(1f)
-            )
-
-            // Tab 3: Center QR Scanner Button (Authentic Airpay Purple Circle - Perfectly Centered, Never Cut Off)
+            // Tab 2: Center QR Scanner Button
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -109,10 +95,10 @@ fun AirpayBottomNav(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(52.dp)
                         .shadow(elevation = 4.dp, shape = CircleShape)
                         .clip(CircleShape)
-                        .background(AirpayColors.PurpleGradient)
+                        .background(AirpayColors.Primary)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
@@ -125,26 +111,13 @@ fun AirpayBottomNav(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_qr_scan),
                         contentDescription = "Scan any QR",
-                        tint = Color.White,
+                        tint = AirpayColors.Saffron,
                         modifier = Modifier.size(26.dp)
                     )
                 }
             }
 
-            // Tab 4: Alerts
-            NavTabItem(
-                label = "Alerts",
-                isActive = currentRoute == Screen.Alerts.route,
-                activeResId = R.drawable.bottom_nav_alerts_selected,
-                inactiveResId = R.drawable.bottom_nav_alerts_unselected,
-                onClick = {
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                    onNavigate(Screen.Alerts.route)
-                },
-                modifier = Modifier.weight(1f)
-            )
-
-            // Tab 5: History
+            // Tab 3: History (Right)
             NavTabItem(
                 label = "History",
                 isActive = currentRoute == Screen.History.route,
@@ -170,7 +143,7 @@ private fun NavTabItem(
     modifier: Modifier = Modifier
 ) {
     val tint by animateColorAsState(
-        targetValue = if (isActive) Color(0xFF1C1C1E) else Color(0xFF757575),
+        targetValue = if (isActive) AirpayColors.Primary else Color(0xFF8E8E93),
         label = "nav_tint_$label"
     )
 
@@ -193,8 +166,8 @@ private fun NavTabItem(
         Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = label,
-            fontSize = 11.sp,
-            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
+            fontSize = 11.5.sp,
+            fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
             color = tint
         )
     }

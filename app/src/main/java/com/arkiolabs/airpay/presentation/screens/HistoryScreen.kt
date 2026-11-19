@@ -2,11 +2,6 @@ package com.arkiolabs.airpay.presentation.screens
 
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,11 +23,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -63,14 +56,8 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Authentic Airpay Styled Transaction History Screen.
- *
- * Implements the exact layout from Airpay screenshot:
- *  - Header: "History" title on left, "My Statements" pill on right, Help (?) icon.
- *  - Search bar: Lavender tint (#F5F3FB) with search icon and filter icon.
- *  - Month summary header: "November 2026" on left, "+ ₹3,913.2 >" on right.
- *  - Flat transaction rows with hairline dividers (NO boxed cards).
- *  - Circular icon with diagonal debit arrow (↗), bold black name, timestamp, bold amount, and "Debited from [Bank]".
+ * Clean, streamlined Offline Transaction History Screen.
+ * Shows offline payment records stored on this device without unwanted clutter.
  */
 @Composable
 fun HistoryScreen(
@@ -95,104 +82,52 @@ fun HistoryScreen(
         }
     }
 
-    val totalAmount = remember(filteredTxns) {
-        filteredTxns.sumOf { it.amount.toDoubleOrNull() ?: 0.0 }
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(Color.White)
             .statusBarsPadding()
     ) {
-        // ── Top Header Row (Airpay Style) ──────────────────────────
+        // ── Top Header ──────────────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "History",
-                fontSize = 22.sp,
+                text = "Transaction History",
+                fontSize = 20.sp,
                 fontFamily = ClashGrotesk,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1C1C1E)
+                color = AirpayColors.TextPrimary
             )
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // "My Statements" pill button
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .border(1.dp, Color(0xFFDDDDDD), RoundedCornerShape(20.dp))
-                        .clickable { /* Statements */ }
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(18.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFF0F0F0)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Download,
-                            contentDescription = null,
-                            tint = Color(0xFF1C1C1E),
-                            modifier = Modifier.size(12.dp)
-                        )
-                    }
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = "My Statements",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF1C1C1E)
-                    )
-                }
-
-                Spacer(Modifier.width(10.dp))
-
-                // Help (?) Icon
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .clickable {
-                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.outline_help_white),
-                        contentDescription = "Help",
-                        tint = Color(0xFF1C1C1E),
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = "${filteredTxns.size} payments",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = AirpayColors.TextSecondary
+            )
         }
 
-        // ── Search & Filter Bar (Airpay Style) ─────────────────────
-        val pillShape = RoundedCornerShape(24.dp)
+        // ── Clean Search Bar ────────────────────────────────────────
+        val pillShape = RoundedCornerShape(16.dp)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .clip(pillShape)
-                .background(Color(0xFFF5F3FB))
-                .border(1.dp, Color(0xFFE8E5F3), pillShape)
+                .background(Color(0xFFF6F7F9))
+                .border(1.dp, Color(0xFFE5E7EB), pillShape)
                 .padding(horizontal = 14.dp, vertical = 11.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
-                    tint = Color(0xFF757575),
-                    modifier = Modifier.size(20.dp)
+                    tint = AirpayColors.TextSecondary,
+                    modifier = Modifier.size(19.dp)
                 )
 
                 Spacer(Modifier.width(10.dp))
@@ -200,8 +135,8 @@ fun HistoryScreen(
                 Box(Modifier.weight(1f)) {
                     if (searchQuery.isEmpty()) {
                         Text(
-                            text = "Search",
-                            fontSize = 14.sp,
+                            text = "Search by name, UPI ID, or amount",
+                            fontSize = 13.5.sp,
                             color = Color(0xFF9E9E9E)
                         )
                     }
@@ -210,65 +145,38 @@ fun HistoryScreen(
                         onValueChange = { searchQuery = it },
                         singleLine = true,
                         textStyle = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color(0xFF1C1C1E)
+                            fontSize = 13.5.sp,
+                            color = AirpayColors.TextPrimary,
+                            fontWeight = FontWeight.Medium
                         ),
                         cursorBrush = SolidColor(AirpayColors.Primary),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                Spacer(Modifier.width(8.dp))
-
-                Icon(
-                    imageVector = Icons.Default.Tune,
-                    contentDescription = "Filter",
-                    tint = Color(0xFF1C1C1E),
-                    modifier = Modifier.size(20.dp)
-                )
+                if (searchQuery.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFDDDDDD))
+                            .clickable { searchQuery = "" },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear",
+                            tint = Color.White,
+                            modifier = Modifier.size(13.dp)
+                        )
+                    }
+                }
             }
         }
 
         Spacer(Modifier.height(14.dp))
 
-        // ── Month Summary Header (Airpay Style) ────────────────────
-        val currentMonth = remember {
-            SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(Date())
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFFAFAFC))
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = currentMonth,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFF757575)
-            )
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = if (totalAmount > 0) "+ ₹${String.format(Locale.getDefault(), "%,.1f", totalAmount)}" else "₹0.00",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = AirpayColors.SuccessGreen
-                )
-                Spacer(Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
-                    tint = Color(0xFF757575),
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        }
-
-        // ── Flat Transactions List (NO cards, clean dividers) ───────
+        // ── Clean Transaction List ──────────────────────────────────
         if (filteredTxns.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -279,30 +187,34 @@ fun HistoryScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(
                         modifier = Modifier
-                            .size(56.dp)
+                            .size(64.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFF5F3FB)),
+                            .background(Color(0xFFF5F7FA)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.txn_outflow),
                             contentDescription = null,
-                            tint = AirpayColors.Primary,
+                            tint = AirpayColors.TextSecondary,
                             modifier = Modifier.size(28.dp)
                         )
                     }
-                    Spacer(Modifier.height(14.dp))
+                    Spacer(Modifier.height(16.dp))
                     Text(
-                        text = "No transactions yet",
+                        text = if (searchQuery.isEmpty()) "No offline transactions yet" else "No matching transactions",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
+                        color = AirpayColors.TextPrimary
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "Make your first offline payment or balance check.",
+                        text = if (searchQuery.isEmpty()) {
+                            "Completed offline payments via SIM will appear here."
+                        } else {
+                            "Try searching with a different name or number."
+                        },
                         fontSize = 12.sp,
-                        color = Color(0xFF757575)
+                        color = AirpayColors.TextSecondary
                     )
                 }
             }
@@ -313,11 +225,14 @@ fun HistoryScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 items(filteredTxns, key = { it.id }) { txn ->
-                    AirpayHistoryRow(
+                    CleanHistoryItem(
                         txn = txn,
-                        onPayAgain = { onPayAgain(txn) }
+                        onPayAgain = {
+                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                            onPayAgain(txn)
+                        }
                     )
-                    HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
+                    HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
                 }
             }
         }
@@ -325,21 +240,17 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun AirpayHistoryRow(
+private fun CleanHistoryItem(
     txn: TransactionEntity,
     onPayAgain: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val formattedTime = remember(txn.timestamp) {
-        val diff = System.currentTimeMillis() - txn.timestamp
-        when {
-            diff < 3600_000 -> "${diff / 60_000} mins ago"
-            diff < 86400_000 -> "${diff / 3600_000} hours ago"
-            else -> SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()).format(Date(txn.timestamp))
-        }
+
+    val formattedDate = remember(txn.timestamp) {
+        SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(txn.timestamp))
     }
 
-    val displayName = txn.payeeName?.takeIf { it.isNotBlank() } ?: txn.vpa.uppercase()
+    val displayName = txn.payeeName?.takeIf { it.isNotBlank() } ?: txn.vpa
 
     Column(
         modifier = Modifier
@@ -351,7 +262,7 @@ private fun AirpayHistoryRow(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Diagonal Arrow Circle Icon (↗)
+            // Outflow Circle Icon
             Box(
                 modifier = Modifier
                     .size(42.dp)
@@ -362,117 +273,100 @@ private fun AirpayHistoryRow(
                 Icon(
                     painter = painterResource(R.drawable.txn_outflow),
                     contentDescription = null,
-                    tint = Color(0xFF1C1C1E),
+                    tint = AirpayColors.Primary,
                     modifier = Modifier.size(20.dp)
                 )
             }
 
             Spacer(Modifier.width(14.dp))
 
-            // Center details
+            // Details (Name / VPA & Timestamp)
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Paid to",
-                    fontSize = 11.sp,
-                    color = Color(0xFF757575)
-                )
-                Text(
                     text = displayName,
-                    fontSize = 14.sp,
+                    fontSize = 14.5.sp,
                     fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1C1C1E),
-                    maxLines = 1
+                    color = AirpayColors.TextPrimary
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = formattedTime,
-                    fontSize = 11.sp,
-                    color = Color(0xFF757575)
+                    text = formattedDate,
+                    fontSize = 11.5.sp,
+                    color = AirpayColors.TextSecondary
                 )
             }
 
-            // Right amount & Debited info
+            // Amount (Debited)
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = "₹${txn.amount}",
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
+                    fontFamily = ClashGrotesk,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1C1C1E)
+                    color = AirpayColors.TextPrimary
                 )
                 Spacer(Modifier.height(2.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Debited from",
-                        fontSize = 10.sp,
-                        color = Color(0xFF757575)
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(12.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF005696)), // SBI Blue dot
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("i", fontSize = 8.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                }
+                Text(
+                    text = "Successful",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = AirpayColors.SuccessGreen
+                )
             }
         }
 
-        // Expandable details (Pay Again shortcut + Bank raw reply)
-        AnimatedVisibility(
-            visible = expanded,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut()
-        ) {
+        // Expanded Options: Details & Pay Again button
+        AnimatedVisibility(visible = expanded) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF9FAFB))
+                    .padding(12.dp)
             ) {
-                if (txn.carrierReply.isNotBlank()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFF6F7F9))
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = "Bank Response: ${txn.carrierReply}",
-                            fontSize = 11.sp,
-                            color = Color(0xFF555555)
-                        )
-                    }
-                    Spacer(Modifier.height(10.dp))
-                }
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Column {
+                        Text(
+                            text = "To: ${txn.vpa}",
+                            fontSize = 12.sp,
+                            color = AirpayColors.TextSecondary
+                        )
+                        if (!txn.note.isNullOrBlank()) {
+                            Text(
+                                text = "Note: ${txn.note}",
+                                fontSize = 11.sp,
+                                color = AirpayColors.TextSecondary
+                            )
+                        }
+                    }
+
+                    // Pay Again Button
                     Row(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(AirpayColors.PurpleTint)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(AirpayColors.Primary)
                             .clickable { onPayAgain() }
-                            .padding(horizontal = 14.dp, vertical = 6.dp),
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             imageVector = Icons.Default.Replay,
                             contentDescription = null,
-                            tint = AirpayColors.Primary,
-                            modifier = Modifier.size(14.dp)
+                            tint = Color.White,
+                            modifier = Modifier.size(13.dp)
                         )
-                        Spacer(Modifier.width(6.dp))
+                        Spacer(Modifier.width(4.dp))
                         Text(
                             text = "Pay Again",
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = AirpayColors.Primary
+                            color = Color.White
                         )
                     }
                 }

@@ -47,7 +47,7 @@ class UssdAccessibilityService : AccessibilityService() {
         private const val TAG = "UssdA11y"
 
         /** Debounce window before deciding the carrier dialog is gone. */
-        private const val SESSION_END_DEBOUNCE_MS = 500L
+        private const val SESSION_END_DEBOUNCE_MS = 1500L
 
         @Volatile
         var instance: UssdAccessibilityService? = null
@@ -84,6 +84,7 @@ class UssdAccessibilityService : AccessibilityService() {
 
     private val frameFilter = FrameFilter()
     private var lastEmittedText: String? = null
+    private var hasSeenFirstDialog: Boolean = false
 
     private val main = Handler(Looper.getMainLooper())
     private val sessionEndCheck = Runnable { verifySessionStillAlive() }
@@ -195,15 +196,24 @@ class UssdAccessibilityService : AccessibilityService() {
 
     /**
      * Dismisses the current USSD dialog by clicking any close-style button
-     * (ok/cancel/close/dismiss/done).
+     * (ok/cancel/close/dismiss/done). Falls back to system back action.
      *
      * @return true if the dialog was dismissed
      */
     fun dismissDialog(): Boolean {
-        val root = findUssdRoot() ?: return false
-        val close = findClickableButton(root, DISMISS_LABELS) ?: return false
-        val target = if (close.isClickable) close else (close.parent?.takeIf { it.isClickable } ?: close)
-        val ok = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        val root = findUssdRoot()
+        var ok = false
+        if (root != null) {
+            val close = findClickableButton(root, DISMISS_LABELS)
+            if (close != null) {
+                val target = if (close.isClickable) close else (close.parent?.takeIf { it.isClickable } ?: close)
+                ok = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            }
+        }
+        if (!ok || findUssdRoot() != null) {
+            // Dismiss via system BACK action for ColorOS/Oppo/Xiaomi/Realme dialogs
+            ok = performGlobalAction(GLOBAL_ACTION_BACK)
+        }
         lastEmittedText = null
         frameFilter.reset()
         return ok
@@ -213,9 +223,10 @@ class UssdAccessibilityService : AccessibilityService() {
 
     /**
      * Resets state for a new USSD session.
-     * Clears the deduplication filter and last emitted text.
+     * Clears the deduplication filter, seen flag, and last emitted text.
      */
     fun resetForNewSession() {
+        hasSeenFirstDialog = false
         lastEmittedText = null
         frameFilter.reset()
         main.removeCallbacks(sessionEndCheck)
@@ -232,6 +243,9 @@ class UssdAccessibilityService : AccessibilityService() {
 
         // Filter system placeholders
         if (frameFilter.isSystemPlaceholder(joinedText)) return
+
+        // Mark that a legitimate USSD dialog frame has been received
+        hasSeenFirstDialog = true
 
         // Dedup: don't re-emit identical frames
         if (joinedText == lastEmittedText) return
@@ -262,9 +276,10 @@ class UssdAccessibilityService : AccessibilityService() {
     }
 
     private fun verifySessionStillAlive() {
-        if (!sessionActive) return
+        if (!sessionActive || !hasSeenFirstDialog) return
         if (findUssdRoot() == null) {
             Log.d(TAG, "USSD window gone — session ended")
+            hasSeenFirstDialog = false
             frameListener?.onSessionEnded("dialog_dismissed")
             lastEmittedText = null
             frameFilter.reset()

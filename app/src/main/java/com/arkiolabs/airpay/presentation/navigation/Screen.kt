@@ -20,9 +20,7 @@ package com.arkiolabs.airpay.presentation.navigation
  */
 sealed class Screen(val route: String) {
     object Home : Screen("home")
-    object Search : Screen("search")
     object Scan : Screen("scan")
-    object Alerts : Screen("alerts")
     object History : Screen("history")
 
     object Pay : Screen("pay")

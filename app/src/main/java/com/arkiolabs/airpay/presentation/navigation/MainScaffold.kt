@@ -33,7 +33,6 @@ import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.PayViewModel
 import com.arkiolabs.airpay.presentation.permissions.rememberPermissionStatus
 import com.arkiolabs.airpay.presentation.screens.AboutScreen
-import com.arkiolabs.airpay.presentation.screens.AlertsScreen
 import com.arkiolabs.airpay.presentation.screens.BalanceScreen
 import com.arkiolabs.airpay.presentation.screens.HistoryScreen
 import com.arkiolabs.airpay.presentation.screens.HomeScreen
@@ -41,7 +40,6 @@ import com.arkiolabs.airpay.presentation.screens.LegalScreen
 import com.arkiolabs.airpay.presentation.screens.MyQrScreen
 import com.arkiolabs.airpay.presentation.screens.PayScreen
 import com.arkiolabs.airpay.presentation.screens.ScanScreen
-import com.arkiolabs.airpay.presentation.screens.SearchScreen
 import com.arkiolabs.airpay.presentation.screens.SettingsScreen
 import com.arkiolabs.airpay.presentation.screens.SupportScreen
 import com.arkiolabs.airpay.presentation.screens.ToMobileScreen
@@ -186,37 +184,7 @@ private fun MainScaffold(app: AirpayApplication) {
                     )
                 }
 
-                // ── Tab 2: Search Screen ────────────────────────────────
-                composable(Screen.Search.route) {
-                    SearchScreen(
-                        historyViewModel = historyViewModel,
-                        onNavigatePay = { vpa ->
-                            if (vpa.isNotBlank()) {
-                                payViewModel.prefillFromTransaction(vpa = vpa, amount = "", note = "")
-                            }
-                            navController.navigate(Screen.Pay.route) {
-                                launchSingleTop = true
-                            }
-                        },
-                        onNavigateScan = {
-                            navController.navigate(Screen.Scan.route) {
-                                launchSingleTop = true
-                            }
-                        },
-                        onNavigateBalance = {
-                            navController.navigate(Screen.Balance.route) {
-                                launchSingleTop = true
-                            }
-                        },
-                        onOpenFaq = {
-                            navController.navigate(Screen.Settings.route) {
-                                launchSingleTop = true
-                            }
-                        }
-                    )
-                }
-
-                // ── Tab 3: Center QR Scanner ────────────────────────────
+                // ── Tab 2: Center QR Scanner ────────────────────────────
                 composable(Screen.Scan.route) {
                     ScanScreen(
                         qrManager = app.qrScannerManager,
@@ -235,23 +203,7 @@ private fun MainScaffold(app: AirpayApplication) {
                     )
                 }
 
-                // ── Tab 4: Alerts Screen ────────────────────────────────
-                composable(Screen.Alerts.route) {
-                    AlertsScreen(
-                        onOpenFaq = {
-                            navController.navigate(Screen.Settings.route) {
-                                launchSingleTop = true
-                            }
-                        },
-                        onOpenSettings = {
-                            navController.navigate(Screen.Settings.route) {
-                                launchSingleTop = true
-                            }
-                        }
-                    )
-                }
-
-                // ── Tab 5: Transaction History ──────────────────────────
+                // ── Tab 3: Transaction History ──────────────────────────
                 composable(Screen.History.route) {
                     HistoryScreen(
                         viewModel = historyViewModel,
