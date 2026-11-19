@@ -201,7 +201,34 @@ object Actions {
     )
 
     /**
-     * Fetch user's registered UPI ID from SIM profile via carrier gateway code.
+     * Fetch user's registered UPI ID from *99# menu.
+     * Flow: *99# -> 4 (My Profile) -> 4 (UPI ID) -> Read UPI ID.
+     */
+    val FetchUpiProfile = Action(
+        code = "*99#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("(welcome|select\\s*option|send\\s*money|my\\s*profile|profile|1\\s*[:.]\\s*send)", RegexOption.IGNORE_CASE),
+                reply = "4",
+                label = "Opening My Profile"
+            ),
+            ActionStep(
+                match = Regex("(profile|change\\s*bank|change\\s*language|upi\\s*id|vpa|my\\s*details|1\\s*[:.]|2\\s*[:.]|3\\s*[:.]|4\\s*[:.])", RegexOption.IGNORE_CASE),
+                reply = "4",
+                label = "Selecting UPI ID"
+            ),
+            ActionStep(
+                match = Regex("(upi\\s*id|vpa|your\\s*upi|is\\s*[:\\s]|@|details|.*)", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Capturing UPI ID"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 25_000L
+    )
+
+    /**
+     * Fetch user's registered UPI ID from SIM profile via carrier direct code.
      */
     val FetchUpiId = Action(
         code = "*99*4*4#",
