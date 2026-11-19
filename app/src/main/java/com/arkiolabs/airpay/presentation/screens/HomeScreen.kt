@@ -318,8 +318,6 @@ private fun HomeHeaderWithHeroBanner(
                         modifier = Modifier
                             .size(30.dp)
                             .clip(RoundedCornerShape(7.dp))
-                            .background(Color.Black)
-                            .padding(2.dp)
                     )
 
                     Spacer(Modifier.width(8.dp))
@@ -399,9 +397,7 @@ private fun HomeHeaderWithHeroBanner(
                 Box(
                     modifier = Modifier
                         .size(60.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Color.Black)
-                        .padding(5.dp),
+                        .clip(RoundedCornerShape(14.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(

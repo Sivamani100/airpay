@@ -328,14 +328,13 @@ fun MyQrScreen(
                             modifier = Modifier
                                 .size(42.dp)
                                 .shadow(3.dp, CircleShape)
-                                .clip(CircleShape)
-                                .background(Color.Black),
+                                .clip(CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_airpay_logo),
                                 contentDescription = "Airpay",
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(42.dp)
                             )
                         }
                     }

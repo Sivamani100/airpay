@@ -13,6 +13,7 @@
     <color name="black">#000000</color>
     
     <!-- UI Surface & Text Colors -->
+    <color name="airpay_splash_bg">#08101D</color>
     <color name="airpay_surface">#FFFFFF</color>
     <color name="airpay_background">#F5F6F8</color>
     <color name="airpay_text_primary">#1A1A1A</color>
