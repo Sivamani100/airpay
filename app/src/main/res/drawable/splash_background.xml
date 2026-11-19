@@ -3,7 +3,7 @@
     <item android:drawable="@android:color/black" />
     <item
         android:width="160dp"
-        android:height="80dp"
+        android:height="95dp"
         android:gravity="center"
         android:drawable="@drawable/ic_splash_logo" />
 </layer-list>
