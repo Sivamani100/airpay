@@ -258,9 +258,9 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f)
                     )
 
-                    // Action 2: To Bank & UPI ID
+                    // Action 2: To UPI ID
                     AirpayActionTile(
-                        label = "To Bank &\nUPI ID",
+                        label = "To UPI\nID",
                         iconResId = R.drawable.to_bank_self_account,
                         onClick = {
                             when {

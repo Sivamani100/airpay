@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.SimCard
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -60,6 +61,7 @@ import com.arkiolabs.airpay.platform.ApkShareUtil
 import com.arkiolabs.airpay.platform.BiometricHelper
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.bottomsheets.LogoutConfirmationSheet
+import com.arkiolabs.airpay.presentation.bottomsheets.SimPreferenceSheet
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 import kotlinx.coroutines.launch
@@ -86,12 +88,15 @@ fun SettingsScreen(
     val biometricEnabled by prefsRepo.biometricEnabled.collectAsState(initial = false)
     val shakeToScanEnabled by prefsRepo.shakeToScanEnabled.collectAsState(initial = false)
     val openScannerOnLaunch by prefsRepo.openScannerOnLaunch.collectAsState(initial = false)
+    val preferredSimSlot by prefsRepo.preferredSimSlot.collectAsState(initial = 0)
+    val preferredSimCarrier by prefsRepo.preferredSimCarrier.collectAsState(initial = null)
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val view = LocalView.current
 
     var showLogoutSheet by remember { mutableStateOf(false) }
+    var showSimSheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -213,6 +218,27 @@ fun SettingsScreen(
 
             HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
 
+            // ── Item: Payment SIM Card (Switch SIM) ─────────────────
+            val simSlotText = (preferredSimSlot ?: 0) + 1
+            val simSubtitle = if (!preferredSimCarrier.isNullOrBlank()) {
+                "SIM $simSlotText: $preferredSimCarrier · Tap to switch active SIM"
+            } else {
+                "SIM $simSlotText · Tap to switch active payment SIM"
+            }
+            SettingsClickableRow(
+                icon = Icons.Default.SimCard,
+                iconBg = Color(0xFFFFF3E0),
+                iconTint = Color(0xFFE65100),
+                title = "Payment SIM Card",
+                subtitle = simSubtitle,
+                onClick = {
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    showSimSheet = true
+                }
+            )
+
+            HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
+
             // ── Item 3: Share with a Friend ─────────────────────────
             SettingsClickableRow(
                 icon = Icons.Default.Share,
@@ -329,6 +355,23 @@ fun SettingsScreen(
                     }
                 },
                 onDismiss = { showLogoutSheet = false }
+            )
+        }
+
+        // ── SIM Preference Bottom Sheet (Switch SIM) ────────────────
+        if (showSimSheet) {
+            SimPreferenceSheet(
+                currentSlot = preferredSimSlot ?: 0,
+                onSimSelected = { slot, carrier, subId ->
+                    scope.launch {
+                        prefsRepo.setPreferredSim(slot, carrier, subId)
+                        val cachedPrefs = context.getSharedPreferences("airpay_fast_cache", Context.MODE_PRIVATE)
+                        cachedPrefs.edit().putInt("preferred_sim_slot", slot).commit()
+                        val carrierName = carrier ?: "SIM ${slot + 1}"
+                        Toast.makeText(context, "Switched payment SIM to $carrierName (Slot ${slot + 1})", Toast.LENGTH_SHORT).show()
+                    }
+                    showSimSheet = false
+                }
             )
         }
     }

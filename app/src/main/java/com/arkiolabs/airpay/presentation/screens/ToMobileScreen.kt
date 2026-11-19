@@ -29,7 +29,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
@@ -71,7 +70,6 @@ import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
  *  - Top bar with Back arrow, Refresh, Help (?), and 3-dots menu.
  *  - "Send Money" header with "to any UPI app [Airpay] [Airpay] [online UPI] [online wallets]".
  *  - Search bar: "#F5F3FB", search icon, "Search any contact / name".
- *  - "Split expenses [New]" row.
  *  - "PAYMENTS & CHAT" flat list with contact avatar, UPI badge, last activity, green dot, time.
  *  - Bottom floating "+ New Payment" purple button.
  */
@@ -315,62 +313,6 @@ fun ToMobileScreen(
                     )
                 }
             }
-
-            // ── Split expenses Row ──────────────────────────────────
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { /* Split expenses */ }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFFF4F5F8)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Dialpad,
-                        contentDescription = null,
-                        tint = AirpayColors.Primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-
-                Spacer(Modifier.width(12.dp))
-
-                Text(
-                    text = "Split expenses",
-                    fontSize = 14.sp,
-                    fontFamily = ClashGrotesk,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF1C1C1E)
-                )
-
-                Spacer(Modifier.width(6.dp))
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color(0xFF1E3A8A))
-                        .padding(horizontal = 5.dp, vertical = 1.dp)
-                ) {
-                    Text(text = "New", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-
-                Spacer(Modifier.weight(1f))
-
-                Icon(
-                    imageVector = Iconsax.ArrowRight,
-                    contentDescription = null,
-                    tint = Color(0xFF9E9E9E),
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-
-            HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
 
             // ── PAYMENTS & CHAT List Header ─────────────────────────
             Text(
