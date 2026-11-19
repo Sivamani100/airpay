@@ -79,7 +79,7 @@ private val step3ImageRes: Int? = null
 @Composable
 fun FaqScreen(
     onClose: () -> Unit,
-    onReplayOnboarding: () -> Unit = {},
+    onCheckPermissions: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val scroll = rememberScrollState()
@@ -567,7 +567,7 @@ fun FaqScreen(
                     .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(10.dp))
                     .clickable {
                         view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                        onReplayOnboarding()
+                        onCheckPermissions()
                     }
                     .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -580,7 +580,7 @@ fun FaqScreen(
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    text = "Play Onboarding Flow Again",
+                    text = "Review Offline UPI Permissions",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF1C1C1E)

@@ -41,41 +41,23 @@ import com.arkiolabs.airpay.presentation.screens.SearchScreen
 import com.arkiolabs.airpay.presentation.screens.SettingsScreen
 import com.arkiolabs.airpay.presentation.screens.ToMobileScreen
 import com.arkiolabs.airpay.presentation.screens.ToUpiScreen
-import com.arkiolabs.airpay.presentation.screens.onboarding.OnboardingFlow
 import com.arkiolabs.airpay.presentation.ui.components.AirpayBottomNav
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 import kotlinx.coroutines.launch
 
 /**
  * Top-level scaffold for the Airpay-styled Offline UPI architecture.
- *
- *  - First-launch onboarding flow gates the app until complete.
- *  - Persistent Airpay Bottom Navigation Bar with 5 destinations:
- *      Home, Search, Center Floating QR, Alerts, History.
- *  - Sub-destinations: Pay (Send Money), Balance, MyQr, Settings, Faq, Legal.
+ * Opens directly into the Home Screen without onboarding wizard or splash delay.
+ * Permissions, SIM, and Bank configuration are requested via dedicated bottom sheets.
  */
 @Composable
 fun AirpayApp() {
     val app = LocalContext.current.airpayApp
-    val firstLaunchDone by app.prefsRepo.firstLaunchComplete.collectAsState(initial = true)
-    val scope = rememberCoroutineScope()
-
-    if (!firstLaunchDone) {
-        OnboardingFlow(onComplete = {
-            scope.launch { app.prefsRepo.setFirstLaunchComplete(true) }
-        })
-    } else {
-        MainScaffold(
-            app = app,
-            onReplayOnboarding = {
-                scope.launch { app.prefsRepo.setFirstLaunchComplete(false) }
-            }
-        )
-    }
+    MainScaffold(app = app)
 }
 
 @Composable
-private fun MainScaffold(app: AirpayApplication, onReplayOnboarding: () -> Unit) {
+private fun MainScaffold(app: AirpayApplication) {
     val navController = rememberNavController()
     val backstackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backstackEntry?.destination?.route ?: Screen.Home.route
@@ -357,7 +339,7 @@ private fun MainScaffold(app: AirpayApplication, onReplayOnboarding: () -> Unit)
                 composable(Screen.Faq.route) {
                     FaqScreen(
                         onClose = { navController.popBackStack() },
-                        onReplayOnboarding = onReplayOnboarding
+                        onCheckPermissions = { navController.navigate(Screen.Home.route) }
                     )
                 }
 

@@ -243,8 +243,8 @@ fun SettingsScreen(
 
             SettingsRow(
                 icon = Icons.Default.Settings,
-                iconBg = Color(0xFFF3E5F5),
-                iconTint = Color(0xFF7B1FA2),
+                iconBg = AirpayColors.SaffronTint,
+                iconTint = AirpayColors.SaffronDark,
                 title = "AutoPay",
                 subtitle = "Manage your IPOs, SIPs & recurring payments",
                 onClick = onOpenFaq
@@ -252,8 +252,8 @@ fun SettingsScreen(
 
             SettingsRow(
                 icon = Icons.Default.Fingerprint,
-                iconBg = Color(0xFFEDE7F6),
-                iconTint = AirpayColors.Primary,
+                iconBg = AirpayColors.SuccessTint,
+                iconTint = AirpayColors.SuccessGreen,
                 title = "Pay with Fingerprint",
                 subtitle = if (biometricEnabled) "Enabled · Verify fingerprint without UPI PIN" else "Disabled · Tap to set up biometric pay",
                 onClick = {
@@ -293,7 +293,7 @@ fun SettingsScreen(
 
             SettingsRow(
                 icon = Icons.Default.PhoneAndroid,
-                iconBg = Color(0xFFEDE7F6),
+                iconBg = AirpayColors.SaffronTint,
                 iconTint = AirpayColors.Primary,
                 title = "Jio Offline UPI 123PAY",
                 subtitle = if (jioRegistered) "Linked · ${userBankName ?: "Primary Bank"} (080 4516 3666)" else "Not Linked · Tap to link your bank account",
@@ -369,7 +369,7 @@ fun SettingsScreen(
             // Custom Sounds row (Airpay feature)
             SettingsRow(
                 icon = Icons.Default.MusicNote,
-                iconBg = Color(0xFFF5EDFD),
+                iconBg = AirpayColors.SaffronTint,
                 iconTint = AirpayColors.Primary,
                 title = "Transaction Sounds",
                 subtitle = if (successSoundUri != null) "Custom sound active" else "Default Airpay chime",

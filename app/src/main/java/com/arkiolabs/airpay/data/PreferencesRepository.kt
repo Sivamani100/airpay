@@ -32,6 +32,11 @@ object PreferencesKeys {
     val JIO_123PAY_REGISTERED = booleanPreferencesKey("jio_123pay_registered")
     val USER_BANK_NAME = stringPreferencesKey("user_bank_name")
     val USER_PREFERRED_LANGUAGE = stringPreferencesKey("user_preferred_language")
+
+    // SIM Preference for Offline UPI
+    val PREFERRED_SIM_SLOT = androidx.datastore.preferences.core.intPreferencesKey("preferred_sim_slot")
+    val PREFERRED_SIM_CARRIER = stringPreferencesKey("preferred_sim_carrier")
+    val PREFERRED_SIM_SUB_ID = androidx.datastore.preferences.core.intPreferencesKey("preferred_sim_sub_id")
 }
 
 class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
@@ -210,6 +215,36 @@ class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
     suspend fun setUserPreferredLanguage(lang: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.USER_PREFERRED_LANGUAGE] = lang
+        }
+    }
+
+    // ── SIM Preference ──────────────────────────────────────────────
+
+    val preferredSimSlot: Flow<Int?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PREFERRED_SIM_SLOT]
+    }
+
+    val preferredSimCarrier: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PREFERRED_SIM_CARRIER]
+    }
+
+    val preferredSimSubId: Flow<Int?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PREFERRED_SIM_SUB_ID]
+    }
+
+    suspend fun setPreferredSim(slot: Int, carrier: String?, subId: Int? = null) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PREFERRED_SIM_SLOT] = slot
+            if (carrier != null) {
+                preferences[PreferencesKeys.PREFERRED_SIM_CARRIER] = carrier
+            } else {
+                preferences.remove(PreferencesKeys.PREFERRED_SIM_CARRIER)
+            }
+            if (subId != null) {
+                preferences[PreferencesKeys.PREFERRED_SIM_SUB_ID] = subId
+            } else {
+                preferences.remove(PreferencesKeys.PREFERRED_SIM_SUB_ID)
+            }
         }
     }
 }

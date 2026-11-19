@@ -399,7 +399,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
             letterSpacing = 0.12f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#EDE7F6"))
+                setColor(Color.parseColor("#FFF4E5"))
                 cornerRadius = dp(6).toFloat()
             }
             setPadding(dp(8), dp(4), dp(8), dp(4))
@@ -601,7 +601,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
             letterSpacing = 0.12f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#EDE7F6"))
+                setColor(Color.parseColor("#FFF4E5"))
                 cornerRadius = dp(6).toFloat()
             }
             setPadding(dp(8), dp(4), dp(8), dp(4))

@@ -39,13 +39,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,10 +57,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.airpay.R
+import com.arkiolabs.airpay.airpayApp
 import com.arkiolabs.airpay.data.TransactionEntity
 import com.arkiolabs.airpay.domain.OperationMode
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.PayViewModel
+import com.arkiolabs.airpay.presentation.bottomsheets.SetupBottomSheetCoordinator
+import com.arkiolabs.airpay.presentation.bottomsheets.SetupSheetType
 import com.arkiolabs.airpay.presentation.permissions.PermissionStatus
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.airpay.presentation.ui.theme.Iconsax
@@ -95,6 +101,32 @@ fun HomeScreen(
     val mode by payViewModel.operationMode.collectAsState()
     val transactions by historyViewModel.transactions.collectAsState()
 
+    val context = LocalContext.current
+    val app = context.airpayApp
+    val preferredSimSlot by app.prefsRepo.preferredSimSlot.collectAsState(initial = -1)
+    val userBankName by app.prefsRepo.userBankName.collectAsState(initial = "")
+
+    var activeSheetOverride by remember { mutableStateOf<SetupSheetType?>(null) }
+
+    val isPhoneReady = permissions.callPhone && permissions.readPhoneState
+    val isSmsReady = permissions.smsGranted
+    val isCameraReady = permissions.camera
+    val isAccessibilityReady = permissions.accessibility
+    val isOverlayReady = permissions.overlay
+    val isSimReady = preferredSimSlot != null && preferredSimSlot != -1
+    val isBankReady = !userBankName.isNullOrBlank()
+
+    val completedCount = listOf(
+        isPhoneReady,
+        isSmsReady,
+        isCameraReady,
+        isAccessibilityReady,
+        isOverlayReady,
+        isSimReady,
+        isBankReady
+    ).count { it }
+    val totalCount = 7
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -115,13 +147,58 @@ fun HomeScreen(
                 onBannerClick = onNavigateFaq
             )
 
+            // ── Setup Progress Banner (Shown if any permission or preference pending) ──
+            if (completedCount < totalCount) {
+                AirpaySetupProgressCard(
+                    completedCount = completedCount,
+                    totalCount = totalCount,
+                    onClick = {
+                        activeSheetOverride = when {
+                            !isPhoneReady -> SetupSheetType.PHONE
+                            !isSmsReady -> SetupSheetType.SMS
+                            !isCameraReady -> SetupSheetType.CAMERA
+                            !isAccessibilityReady -> SetupSheetType.ACCESSIBILITY
+                            !isOverlayReady -> SetupSheetType.OVERLAY
+                            !isSimReady -> SetupSheetType.SIM_PREFERENCE
+                            !isBankReady -> SetupSheetType.BANK_SELECTION
+                            else -> SetupSheetType.NONE
+                        }
+                    }
+                )
+            }
+
             // ── Money Transfers Section (NO Card Wrapper, flat on white) ──
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
                 MoneyTransfersSection(
-                    onToMobileClick = onNavigateToMobile,
-                    onToBankClick = onNavigateToUpi,
-                    onToSelfClick = onNavigateToUpi,
-                    onCheckBalanceClick = onNavigateBalance
+                    onToMobileClick = {
+                        when {
+                            !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                            !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
+                            else -> onNavigateToMobile()
+                        }
+                    },
+                    onToBankClick = {
+                        when {
+                            !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                            !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
+                            else -> onNavigateToUpi()
+                        }
+                    },
+                    onToSelfClick = {
+                        when {
+                            !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                            !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
+                            else -> onNavigateToUpi()
+                        }
+                    },
+                    onCheckBalanceClick = {
+                        when {
+                            !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                            !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
+                            !isBankReady -> activeSheetOverride = SetupSheetType.BANK_SELECTION
+                            else -> onNavigateBalance()
+                        }
+                    }
                 )
             }
 
@@ -207,6 +284,94 @@ fun HomeScreen(
 
             Spacer(Modifier.height(24.dp))
         }
+
+        // Dedicated Bottom Sheet Coordinator for Permissions, SIM & Bank Setup
+        SetupBottomSheetCoordinator(
+            permissions = permissions,
+            activeSheetOverride = activeSheetOverride,
+            onSheetDismissed = { activeSheetOverride = null }
+        )
+    }
+}
+
+/**
+ * Setup progress card displayed at the top of the Home Screen when any
+ * permission, SIM, or bank preference is pending.
+ */
+@Composable
+private fun AirpaySetupProgressCard(
+    completedCount: Int,
+    totalCount: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(AirpayColors.SaffronTint)
+            .border(1.5.dp, AirpayColors.SaffronLight.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                onClick()
+            }
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(AirpayColors.Primary),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.ElectricBolt,
+                contentDescription = null,
+                tint = AirpayColors.Saffron,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Complete Offline UPI Setup",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = AirpayColors.TextPrimary
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = "$completedCount of $totalCount configured • Tap to grant permissions",
+                fontSize = 12.sp,
+                color = AirpayColors.SaffronDark,
+                fontWeight = FontWeight.Medium
+            )
+        }
+
+        Spacer(Modifier.width(8.dp))
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(AirpayColors.Primary)
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Setup →",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        }
     }
 }
 
@@ -227,15 +392,15 @@ private fun HomeHeaderWithHeroBanner(
             .fillMaxWidth()
             .height(210.dp)
     ) {
-        // Hero Banner Gradient Background
+        // Hero Banner Gradient Background (Official Logo Colors: Deep Dark Navy)
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     androidx.compose.ui.graphics.Brush.verticalGradient(
                         listOf(
-                            Color(0xFF4A148C),
-                            Color(0xFF5F259F)
+                            Color(0xFF08101D),
+                            Color(0xFF142033)
                         )
                     )
                 )
@@ -274,8 +439,8 @@ private fun HomeHeaderWithHeroBanner(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF7B1FA2))
-                            .border(1.5.dp, Color.White, CircleShape),
+                            .background(AirpayColors.Primary)
+                            .border(1.5.dp, AirpayColors.Saffron, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

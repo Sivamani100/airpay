@@ -275,7 +275,7 @@ fun ToMobileScreen(
                             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                             onContactSelected(normalizedPhone, "Mobile: +91 $normalizedPhone")
                         }
-                        .background(Color(0xFFF5EDFD))
+                        .background(AirpayColors.SaffronTint)
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

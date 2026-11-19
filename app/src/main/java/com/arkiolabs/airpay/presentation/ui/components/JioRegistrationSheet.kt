@@ -106,7 +106,7 @@ fun JioRegistrationSheet(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFEDE7F6))
+                    .background(AirpayColors.SaffronTint)
                     .padding(horizontal = 10.dp, vertical = 4.dp)
             ) {
                 Text(
@@ -227,7 +227,7 @@ fun JioRegistrationSheet(
                                     color = if (isSelected) AirpayColors.Primary else Color(0xFFE2E8F0),
                                     shape = RoundedCornerShape(8.dp)
                                 )
-                                .background(if (isSelected) Color(0xFFEDE7F6) else Color.White)
+                                .background(if (isSelected) AirpayColors.SaffronTint else Color.White)
                                 .clickable {
                                     view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                                     selectedLanguage = Pair(lang, code)
