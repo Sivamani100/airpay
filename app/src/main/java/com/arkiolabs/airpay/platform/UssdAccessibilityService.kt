@@ -47,7 +47,7 @@ class UssdAccessibilityService : AccessibilityService() {
         private const val TAG = "UssdA11y"
 
         /** Debounce window before deciding the carrier dialog is gone. */
-        private const val SESSION_END_DEBOUNCE_MS = 1500L
+        private const val SESSION_END_DEBOUNCE_MS = 4000L
 
         @Volatile
         var instance: UssdAccessibilityService? = null
@@ -142,7 +142,7 @@ class UssdAccessibilityService : AccessibilityService() {
                 // is on top; rootInActiveWindow would point at the overlay.
                 val root: AccessibilityNodeInfo =
                     event.source ?: findUssdRoot() ?: return
-                if (!isUssdPackage(root.packageName?.toString())) return
+                if (!isRealUssdDialog(root)) return
                 activeDialogRoot = root
                 handleDialog(root)
             }
@@ -283,21 +283,44 @@ class UssdAccessibilityService : AccessibilityService() {
         frameListener?.onFrame(joinedText, isMenu, isTerminal)
     }
 
+    private fun isRealUssdDialog(node: AccessibilityNodeInfo?): Boolean {
+        if (node == null) return false
+        val pkg = node.packageName?.toString().orEmpty()
+        if (!isUssdPackage(pkg)) return false
+        if (pkg == "android") {
+            return hasInput(node) || hasButtons(node) || collectTexts(node).isNotEmpty()
+        }
+        return true
+    }
+
+    private fun hasButtons(node: AccessibilityNodeInfo): Boolean {
+        var found = false
+        walk(node) { n ->
+            if (found) return@walk
+            val cls = n.className?.toString().orEmpty()
+            val text = n.text?.toString()?.trim()?.lowercase().orEmpty()
+            if (cls.contains("Button", true) || text in SEND_LABELS || text in DISMISS_LABELS) {
+                found = true
+            }
+        }
+        return found
+    }
+
     /**
      * Find the currently-visible USSD dialog's root node. Walks all windows
      * rather than relying on rootInActiveWindow, since our own overlay window
      * can be "on top" once we show it.
      */
     private fun findUssdRoot(): AccessibilityNodeInfo? {
+        activeDialogRoot?.let { cached ->
+            if (isRealUssdDialog(cached)) return cached
+        }
         rootInActiveWindow?.let { active ->
-            if (isUssdPackage(active.packageName?.toString())) return active
+            if (isRealUssdDialog(active)) return active
         }
         for (w: AccessibilityWindowInfo in windows.orEmpty()) {
             val r = w.root ?: continue
-            if (isUssdPackage(r.packageName?.toString())) return r
-        }
-        activeDialogRoot?.let { cached ->
-            if (isUssdPackage(cached.packageName?.toString())) return cached
+            if (isRealUssdDialog(r)) return r
         }
         return null
     }

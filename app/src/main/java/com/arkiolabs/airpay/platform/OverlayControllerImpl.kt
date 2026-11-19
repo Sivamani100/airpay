@@ -38,6 +38,8 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
         context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
     private val handler = Handler(Looper.getMainLooper())
+    private var isShowing: Boolean = false
+    private var delayedHideRunnable: Runnable? = null
 
     // ── Full overlay state ─────────────────────────────────────────────────────
     private var overlayView: FrameLayout? = null
@@ -105,10 +107,14 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
     override fun show(title: String, subtitle: String, stepLabel: String) {
         if (!canShow()) return
+        isShowing = true
+        delayedHideRunnable?.let { handler.removeCallbacks(it) }
+        delayedHideRunnable = null
         // If the minimal bar is up, dismiss it before opening the full overlay.
         removeMinimalView()
 
         handler.post {
+            if (!isShowing) return@post
             if (overlayView != null) {
                 update(title, subtitle, stepLabel)
                 return@post
@@ -125,7 +131,11 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
     override fun update(title: String, subtitle: String, stepLabel: String) {
         handler.post {
-            if (overlayView == null) return@post
+            if (!isShowing) return@post
+            if (overlayView == null) {
+                show(title, subtitle, stepLabel)
+                return@post
+            }
             spinnerView?.visibility = View.VISIBLE
             titleView?.text = title
             subtitleView?.text = subtitle
@@ -137,10 +147,14 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
     override fun showMinimal(progress: Int, total: Int, label: String) {
         if (!canShow()) return
+        isShowing = true
+        delayedHideRunnable?.let { handler.removeCallbacks(it) }
+        delayedHideRunnable = null
         // If the full overlay is up, dismiss it before opening the minimal bar.
         removeFullView()
 
         handler.post {
+            if (!isShowing) return@post
             if (minimalView != null) {
                 updateMinimal(progress, total, label)
                 return@post
@@ -157,6 +171,7 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
 
     override fun updateMinimal(progress: Int, total: Int, label: String) {
         handler.post {
+            if (!isShowing) return@post
             minimalLabel?.text = label.uppercase() + "…"
             minimalLabel?.setTextColor(OVERLAY_WHITE)
             val safeTotal = total.coerceAtLeast(1)
@@ -184,7 +199,10 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
                 minimalLabel?.text = title.uppercase()
                 minimalLabel?.setTextColor(OVERLAY_DANGER)
                 minimalStepCount?.text = message.take(40)
-                handler.postDelayed({ hide() }, holdMs)
+                delayedHideRunnable?.let { handler.removeCallbacks(it) }
+                val r = Runnable { hide() }
+                delayedHideRunnable = r
+                handler.postDelayed(r, holdMs)
                 return@post
             }
             if (overlayView == null) {
@@ -195,12 +213,17 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
             titleView?.text = title
             subtitleView?.text = message
             stepLabelView?.text = "TAP CANCEL TO DISMISS"
-            handler.postDelayed({ hide() }, holdMs)
+            delayedHideRunnable?.let { handler.removeCallbacks(it) }
+            val r = Runnable { hide() }
+            delayedHideRunnable = r
+            handler.postDelayed(r, holdMs)
         }
     }
 
     override fun hide() {
-        handler.removeCallbacksAndMessages(null)
+        isShowing = false
+        delayedHideRunnable?.let { handler.removeCallbacks(it) }
+        delayedHideRunnable = null
         handler.post {
             removeFullView()
             removeMinimalView()

@@ -118,7 +118,6 @@ class ActionRunner(private val engine: UssdEnginePort) {
                         eventFlow.emit(ActionEvent.Done(text))
                         resultDeferred.complete(ActionResult(success = true, resultText = text))
                         engine.dismissDialog()
-                        engine.cancel()
                         job?.cancel()
                         return@collect
                     }
@@ -151,7 +150,6 @@ class ActionRunner(private val engine: UssdEnginePort) {
                             eventFlow.emit(ActionEvent.Done(text))
                             resultDeferred.complete(ActionResult(success = true, resultText = text))
                             engine.dismissDialog()
-                            engine.cancel()
                             job?.cancel()
                             return@collect
                         }
