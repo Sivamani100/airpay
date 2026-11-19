@@ -186,8 +186,7 @@ class UssdAccessibilityService : AccessibilityService() {
         frameFilter.reset()
 
         val sendBtn = findClickableButton(root, SEND_LABELS)
-        val target = if (sendBtn?.isClickable == true) sendBtn else (sendBtn?.parent?.takeIf { it.isClickable } ?: sendBtn)
-        val clicked = target?.performAction(AccessibilityNodeInfo.ACTION_CLICK) ?: false
+        val clicked = if (sendBtn != null) performClick(sendBtn) else false
         if (!clicked) {
             // Some OEMs auto-submit when the EditText itself is clicked
             // (the IME action triggers a hidden Send button).
@@ -206,7 +205,8 @@ class UssdAccessibilityService : AccessibilityService() {
 
     /**
      * Dismisses the current USSD dialog by clicking any close-style button
-     * (ok/cancel/close/dismiss/done). If the dialog is still present, performs system back action.
+     * (ok/cancel/close/dismiss/done). Never performs system back action to ensure
+     * MainActivity is never accidentally closed.
      *
      * @return true if the dialog was dismissed or no dialog was present
      */
@@ -221,14 +221,7 @@ class UssdAccessibilityService : AccessibilityService() {
         var ok = false
         val close = findClickableButton(root, DISMISS_LABELS)
         if (close != null) {
-            ok = close.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            if (!ok) {
-                var target: AccessibilityNodeInfo? = close.parent
-                while (target != null && !ok) {
-                    ok = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    target = target.parent
-                }
-            }
+            ok = performClick(close)
         }
         if (!ok) {
             walk(root) { node ->
@@ -236,27 +229,27 @@ class UssdAccessibilityService : AccessibilityService() {
                     val t = node.text?.toString()?.trim()?.lowercase().orEmpty()
                     val d = node.contentDescription?.toString()?.trim()?.lowercase().orEmpty()
                     if (t in DISMISS_LABELS || d in DISMISS_LABELS) {
-                        ok = node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        if (!ok) {
-                            var curr: AccessibilityNodeInfo? = node.parent
-                            while (curr != null && !ok) {
-                                ok = curr.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                                curr = curr.parent
-                            }
-                        }
+                        ok = performClick(node)
                     }
                 }
             }
-        }
-        // If button click didn't close it and a USSD dialog window is still present, dismiss via system BACK
-        if ((!ok || findUssdRoot() != null) && findUssdRoot() != null) {
-            performGlobalAction(GLOBAL_ACTION_BACK)
-            ok = true
         }
         lastEmittedText = null
         frameFilter.reset()
         activeDialogRoot = null
         return ok
+    }
+
+    private fun performClick(node: AccessibilityNodeInfo?): Boolean {
+        var curr: AccessibilityNodeInfo? = node ?: return false
+        while (curr != null) {
+            if (curr.isClickable) {
+                val res = curr.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                if (res) return true
+            }
+            curr = curr.parent
+        }
+        return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
     }
 
     fun cancelDialog(): Boolean = dismissDialog()

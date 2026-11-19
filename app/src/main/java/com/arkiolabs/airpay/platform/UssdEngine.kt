@@ -133,8 +133,6 @@ class UssdEngine(
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(callIntent)
-        bringAppToFront()
-        com.arkiolabs.airpay.presentation.MainActivity.currentInstance?.setImmersiveMode(true)
     }
 
     /**
@@ -178,16 +176,18 @@ class UssdEngine(
     /** Check whether a USSD session is currently active. */
     fun isSessionActive(): Boolean = sessionActive
 
-    /** Ensure MainActivity stays in the foreground and does not close. */
-    fun bringAppToFront() {
-        try {
-            val intent = Intent(context, com.arkiolabs.airpay.presentation.MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP
-            }
-            context.startActivity(intent)
-        } catch (_: Exception) {}
+    /** Closes the active session cleanly on success without synthesizing error frames. */
+    override fun finishSession() {
+        if (!sessionActive) return
+        sessionActive = false
+        UssdAccessibilityService.instance?.sessionActive = false
+
+        slowWatchJob?.cancel()
+        slowWatchJob = null
+        hardTimeoutJob?.cancel()
+        hardTimeoutJob = null
+
+        UssdAccessibilityService.instance?.dismissDialog()
     }
 
     // ─── UssdFrameListener Implementation ──────────────────────────────────────
@@ -262,10 +262,6 @@ class UssdEngine(
 
         UssdAccessibilityService.instance?.dismissDialog()
         overlayController?.hide()
-
-        com.arkiolabs.airpay.presentation.MainActivity.currentInstance?.setImmersiveMode(false)
-        // Bring MainActivity back to foreground so the app stays open!
-        bringAppToFront()
 
         // Emit a terminal frame so ActionRunner knows the session ended.
         frameCounter++

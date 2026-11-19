@@ -13,6 +13,7 @@ import android.graphics.RectF
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.view.HapticFeedbackConstants
 import android.widget.Toast
 import androidx.annotation.DrawableRes
@@ -128,6 +129,7 @@ fun MyQrScreen(
 
     var isActivating by remember { mutableStateOf(false) }
     var activationStatus by remember { mutableStateOf("Connecting to SIM…") }
+    var currentActionRun by remember { mutableStateOf<com.arkiolabs.airpay.domain.ActionRun?>(null) }
 
     // Pre-load square app logo bitmap for center of QR
     val logoBitmap = remember(context) {
@@ -156,6 +158,18 @@ fun MyQrScreen(
             return
         }
 
+        if (!Settings.canDrawOverlays(context)) {
+            Toast.makeText(context, "Display over other apps permission is required to hide carrier dialogs", Toast.LENGTH_LONG).show()
+            try {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${context.packageName}")
+                )
+                context.startActivity(intent)
+            } catch (_: Exception) {}
+            return
+        }
+
         isActivating = true
         activationStatus = "Connecting to SIM channel…"
 
@@ -165,16 +179,19 @@ fun MyQrScreen(
             subtitle = "Airpay is querying your bank…",
             stepLabel = "CONNECTING"
         )
-        overlayController.onCancel = {
-            overlayController.hide()
-            isActivating = false
-        }
 
         val run = actionRunner.runAction(
             action = Actions.FetchUpiProfile,
             vars = emptyMap(),
             scope = scope
         )
+        currentActionRun = run
+
+        overlayController.onCancel = {
+            scope.launch { run.cancel() }
+            overlayController.hide()
+            isActivating = false
+        }
 
         scope.launch {
             run.events.collect { event ->
@@ -206,14 +223,14 @@ fun MyQrScreen(
 
                         // Ensure carrier dialog is dismissed completely while overlay is still covering it
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
-                        kotlinx.coroutines.delay(700)
+                        kotlinx.coroutines.delay(800)
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
                         overlayController.hide()
                         isActivating = false
                     }
                     is ActionEvent.Error -> {
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
-                        kotlinx.coroutines.delay(700)
+                        kotlinx.coroutines.delay(800)
                         com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
                         overlayController.hide()
                         isActivating = false
@@ -654,6 +671,7 @@ fun MyQrScreen(
                         .clickable {
                             isActivating = false
                             overlayController.hide()
+                            scope.launch { currentActionRun?.cancel?.invoke() }
                         }
                         .padding(horizontal = 20.dp, vertical = 8.dp),
                     contentAlignment = Alignment.Center

@@ -16,6 +16,9 @@ interface UssdEnginePort {
     /** Cancel the active USSD session and dismiss the carrier dialog. */
     suspend fun cancel()
 
+    /** Closes the active session cleanly on success without synthesizing error frames. */
+    fun finishSession() {}
+
     /** Dismiss any leftover carrier dialog from a prior session. Returns true if dismissed. */
     suspend fun dismissDialog(): Boolean
 

@@ -9,9 +9,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.FragmentActivity
 import com.arkiolabs.airpay.AirpayApplication
 import com.arkiolabs.airpay.presentation.navigation.AirpayApp
@@ -69,33 +66,5 @@ class MainActivity : FragmentActivity() {
             return true
         }
         return super.dispatchTouchEvent(ev)
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        val app = application as? AirpayApplication
-        if (!hasFocus && app?.ussdEngine?.isSessionActive() == true) {
-            app.ussdEngine.bringAppToFront()
-        }
-    }
-
-    override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
-        val app = application as? AirpayApplication
-        if (app?.ussdEngine?.isSessionActive() == true) {
-            app.ussdEngine.bringAppToFront()
-        }
-    }
-
-    fun setImmersiveMode(enable: Boolean) {
-        try {
-            val controller = WindowCompat.getInsetsController(window, window.decorView)
-            if (enable) {
-                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                controller.hide(WindowInsetsCompat.Type.systemBars())
-            } else {
-                controller.show(WindowInsetsCompat.Type.systemBars())
-            }
-        } catch (_: Exception) {}
     }
 }
