@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -25,17 +26,25 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +61,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -92,6 +103,7 @@ fun ToMobileScreen(
 
     var contacts by remember { mutableStateOf<List<ContactItem>>(emptyList()) }
     var query by remember { mutableStateOf("") }
+    var showNewPaymentSheet by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -386,6 +398,58 @@ fun ToMobileScreen(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
             ) {
+                // Top PhonePe-style row to add/enter any new mobile number
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                showNewPaymentSheet = true
+                            }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(CircleShape)
+                                .background(AirpayColors.Primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "New Mobile Number",
+                                tint = Color.White,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "New Mobile Number",
+                                fontSize = 14.5.sp,
+                                fontFamily = ClashGrotesk,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1C1C1E)
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                text = "Pay any 10-digit mobile number offline",
+                                fontSize = 11.5.sp,
+                                color = Color(0xFF757575)
+                            )
+                        }
+                        Text(
+                            text = "→",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = AirpayColors.Primary
+                        )
+                    }
+                    HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
+                }
+
                 items(filteredContacts, key = { it.phone }) { contact ->
                     ContactAirpayRow(
                         contact = contact,
@@ -429,7 +493,7 @@ fun ToMobileScreen(
                     .background(AirpayColors.Primary)
                     .clickable {
                         view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                        // Trigger direct pay input
+                        showNewPaymentSheet = true
                     }
                     .padding(horizontal = 18.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -449,6 +513,17 @@ fun ToMobileScreen(
                     color = Color.White
                 )
             }
+        }
+
+        // ── PhonePe-Style Modal Bottom Sheet for New Mobile Number ─
+        if (showNewPaymentSheet) {
+            NewMobileNumberSheet(
+                onDismiss = { showNewPaymentSheet = false },
+                onProceed = { phone, name ->
+                    showNewPaymentSheet = false
+                    onContactSelected(phone, name)
+                }
+            )
         }
     }
 }
@@ -531,5 +606,272 @@ private fun ContactAirpayRow(
                 .clip(CircleShape)
                 .background(Color(0xFF2E7D32))
         )
+    }
+}
+
+/**
+ * PhonePe-styled Modal Bottom Sheet for initiating payment to a new mobile number.
+ * Features 10-digit validation, real-time address book resolution, and offline payment routing.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NewMobileNumberSheet(
+    onDismiss: () -> Unit,
+    onProceed: (phone: String, name: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val view = LocalView.current
+    var inputNumber by remember { mutableStateOf("") }
+    val cleanDigits = remember(inputNumber) {
+        inputNumber.filter { it.isDigit() }.take(10)
+    }
+    val isValid = cleanDigits.length == 10
+
+    val matchedContactName = remember(cleanDigits, context) {
+        if (isValid) ContactsHelper.getContactName(context, cleanDigits) else null
+    }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .navigationBarsPadding()
+                .padding(bottom = 24.dp)
+        ) {
+            // Top header row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(AirpayColors.PurpleTint),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Call,
+                            contentDescription = null,
+                            tint = AirpayColors.Primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "To Mobile Number",
+                            fontSize = 17.sp,
+                            fontFamily = ClashGrotesk,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1C1C1E)
+                        )
+                        Text(
+                            text = "Send money to any UPI-linked number offline",
+                            fontSize = 11.5.sp,
+                            color = Color(0xFF757575)
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFF5F5F5))
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = Color(0xFF555555),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            // Input Card
+            Text(
+                text = "Enter Mobile Number",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF555555),
+                letterSpacing = 0.5.sp
+            )
+            Spacer(Modifier.height(8.dp))
+
+            val inputShape = RoundedCornerShape(12.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(inputShape)
+                    .background(Color(0xFFF7F6FB))
+                    .border(
+                        1.5.dp,
+                        if (isValid) AirpayColors.Primary else Color(0xFFE5E0F2),
+                        inputShape
+                    )
+                    .padding(horizontal = 14.dp, vertical = 14.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "+91",
+                        fontSize = 16.sp,
+                        fontFamily = ClashGrotesk,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1C1C1E)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .height(20.dp)
+                            .width(1.dp)
+                            .background(Color(0xFFCCCCCC))
+                    )
+                    Spacer(Modifier.width(10.dp))
+
+                    Box(Modifier.weight(1f)) {
+                        if (inputNumber.isEmpty()) {
+                            Text(
+                                text = "Enter 10-digit number",
+                                fontSize = 15.sp,
+                                color = Color(0xFF9E9E9E)
+                            )
+                        }
+                        BasicTextField(
+                            value = inputNumber,
+                            onValueChange = { newValue ->
+                                val digitsOnly = newValue.filter { it.isDigit() }.take(10)
+                                inputNumber = digitsOnly
+                            },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Phone,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    if (isValid) {
+                                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                        val resolvedName = matchedContactName ?: "+91 $cleanDigits"
+                                        onProceed(cleanDigits, resolvedName)
+                                    }
+                                }
+                            ),
+                            textStyle = TextStyle(
+                                fontSize = 16.sp,
+                                fontFamily = ClashGrotesk,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1C1C1E),
+                                letterSpacing = 1.sp
+                            ),
+                            cursorBrush = SolidColor(AirpayColors.Primary),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    if (inputNumber.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Clear",
+                            tint = Color(0xFF757575),
+                            modifier = Modifier
+                                .size(18.dp)
+                                .clickable { inputNumber = "" }
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            // Real-time Contact Resolution Banner
+            if (isValid) {
+                val isSaved = matchedContactName != null
+                val bannerBg = if (isSaved) Color(0xFFE8F5E9) else AirpayColors.PurpleTint
+                val bannerBorder = if (isSaved) Color(0xFFA5D6A7) else Color(0xFFD1C4E9)
+                val iconTint = if (isSaved) Color(0xFF2E7D32) else AirpayColors.Primary
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(bannerBg)
+                        .border(1.dp, bannerBorder, RoundedCornerShape(10.dp))
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = if (isSaved) Icons.Default.CheckCircle else Icons.Default.Person,
+                        contentDescription = null,
+                        tint = iconTint,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = if (isSaved) matchedContactName!! else "Mobile: +91 $cleanDigits",
+                            fontSize = 13.5.sp,
+                            fontFamily = ClashGrotesk,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1C1C1E)
+                        )
+                        Text(
+                            text = if (isSaved) "Saved Contact · Verified for offline payment" else "Direct offline SIM payment to UPI account",
+                            fontSize = 11.sp,
+                            color = Color(0xFF555555)
+                        )
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            } else {
+                Spacer(Modifier.height(8.dp))
+            }
+
+            // Proceed Button
+            Button(
+                onClick = {
+                    if (isValid) {
+                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                        val resolvedName = matchedContactName ?: "+91 $cleanDigits"
+                        onProceed(cleanDigits, resolvedName)
+                    }
+                },
+                enabled = isValid,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AirpayColors.Primary,
+                    disabledContainerColor = Color(0xFFCCCCCC),
+                    contentColor = Color.White,
+                    disabledContentColor = Color.White.copy(alpha = 0.7f)
+                ),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Text(
+                    text = "PROCEED TO PAY →",
+                    fontSize = 14.sp,
+                    fontFamily = ClashGrotesk,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
     }
 }

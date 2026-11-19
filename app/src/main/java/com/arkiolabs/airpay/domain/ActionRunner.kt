@@ -58,7 +58,13 @@ class ActionRunner(private val engine: UssdEnginePort) {
             Regex("txn\\s+successful", RegexOption.IGNORE_CASE),
             Regex("payment\\s+successful", RegexOption.IGNORE_CASE),
             // A real referenceId in the text is a strong success signal
-            Regex("ref(?:erence)?\\s*(?:id|no|number|#)?\\s*[:\\-]?\\s*\\d{6,}", RegexOption.IGNORE_CASE)
+            Regex("ref(?:erence)?\\s*(?:id|no|number|#)?\\s*[:\\-]?\\s*\\d{6,}", RegexOption.IGNORE_CASE),
+            // Balance check success signals (match balance before common failure regexes can misclassify)
+            Regex("(?:account\\s+)?bal(?:ance)?\\s+(?:is\\s+)?(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE),
+            Regex("(?:rs\\.?|inr|₹)\\s*([\\d,]+(?:\\.\\d{1,2})?)\\s+(?:is\\s+your|avail|balance)", RegexOption.IGNORE_CASE),
+            Regex("avail(?:able)?\\s+bal(?:ance)?", RegexOption.IGNORE_CASE),
+            Regex("bal(?:ance)?\\s*[:\\-]?\\s*(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE),
+            Regex("a/c\\s*(?:bal|balance)\\s*[:\\-]?\\s*(?:rs\\.?|inr|₹)?\\s*\\d", RegexOption.IGNORE_CASE)
         )
     }
 
@@ -126,7 +132,8 @@ class ActionRunner(private val engine: UssdEnginePort) {
                     // ── Priority 2: action-specific failure patterns ───────
                     if (matchesFailurePattern(text, action.failurePatterns)) {
                         terminated = true
-                        eventFlow.emit(ActionEvent.Error("Transaction failed", text))
+                        val failureReason = parseFailureReason(text)
+                        eventFlow.emit(ActionEvent.Error(failureReason, text))
                         resultDeferred.complete(ActionResult(success = false, resultText = text))
                         engine.dismissDialog()
                         engine.cancel()
@@ -190,7 +197,8 @@ class ActionRunner(private val engine: UssdEnginePort) {
                             return@collect
                         }
                         terminated = true
-                        eventFlow.emit(ActionEvent.Error("Unexpected carrier response", text))
+                        val failureMsg = if (parseFailureReason(text) != "Transaction failed") parseFailureReason(text) else "Unexpected carrier response"
+                        eventFlow.emit(ActionEvent.Error(failureMsg, text))
                         resultDeferred.complete(ActionResult(success = false, resultText = text))
                         engine.dismissDialog()
                         engine.cancel()
@@ -311,4 +319,20 @@ class ActionRunner(private val engine: UssdEnginePort) {
 
     fun matchesFailurePattern(text: String, patterns: List<Regex>): Boolean =
         patterns.any { it.containsMatchIn(text) }
+
+    fun parseFailureReason(text: String): String {
+        val clean = text.trim()
+        val lower = clean.lowercase()
+        return when {
+            lower.contains("wrong") || lower.contains("incorrect") || lower.contains("invalid pin") -> "Incorrect UPI PIN"
+            lower.contains("pin mismatch") || lower.contains("pin does not match") -> "UPI PIN mismatch"
+            lower.contains("blocked") || lower.contains("locked") || lower.contains("expired") -> "UPI PIN blocked or expired"
+            lower.contains("exceed") || lower.contains("limit") -> "Transaction limit exceeded"
+            lower.contains("insufficient") -> "Insufficient account balance"
+            lower.contains("timeout") || lower.contains("timed out") -> "Bank request timed out"
+            lower.contains("server") || lower.contains("technical") || lower.contains("unavailable") -> "Bank server temporarily unavailable"
+            clean.isNotBlank() && clean.length in 5..80 -> clean
+            else -> "Transaction failed"
+        }
+    }
 }

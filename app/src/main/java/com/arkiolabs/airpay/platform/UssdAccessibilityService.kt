@@ -179,6 +179,11 @@ class UssdAccessibilityService : AccessibilityService() {
         edit.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
         edit.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
 
+        // Give Android binder/IPC a brief gap to commit text to the telephony process
+        try {
+            Thread.sleep(80)
+        } catch (_: InterruptedException) {}
+
         // Clear the dedup state so the very next frame is re-emitted to the
         // listener even if its text duplicates what was last shown. Without
         // this, repeats of the same prompt are silently dropped.
@@ -398,29 +403,63 @@ class UssdAccessibilityService : AccessibilityService() {
         val wantsSend = labels.contains("send") || labels.contains("submit")
         val wantsCancel = labels.contains("cancel") || labels.contains("close")
 
+        // Priority 1: Exact / prefix match on button text or contentDescription
         walk(node) { n ->
             if (found != null) return@walk
             val cls = n.className?.toString().orEmpty()
             if (cls.contains("EditText", true)) return@walk
 
-            val id = n.viewIdResourceName.orEmpty().lowercase()
             val text = n.text?.toString()?.trim()?.lowercase().orEmpty()
             val desc = n.contentDescription?.toString()?.trim()?.lowercase().orEmpty()
 
-            val isStandardSend = wantsSend && (id.endsWith(":id/button1") || id.endsWith("/button1"))
-            val isStandardCancel = wantsCancel && (id.endsWith(":id/button2") || id.endsWith("/button2"))
+            // If we want Send, NEVER match a Cancel/Dismiss button!
+            if (wantsSend && (text in setOf("cancel", "close", "dismiss", "exit") || desc in setOf("cancel", "close", "dismiss", "exit"))) {
+                return@walk
+            }
+            // If we want Cancel, NEVER match a Send button!
+            if (wantsCancel && (text in setOf("send", "submit", "reply", "continue", "yes") || desc in setOf("send", "submit", "reply", "continue", "yes"))) {
+                return@walk
+            }
 
             val matchesLabel = labels.any { label ->
                 text == label || desc == label ||
                     (text.startsWith(label) && text.length <= label.length + 2)
             }
 
-            if (isStandardSend || isStandardCancel || matchesLabel) {
-                if (cls.contains("Button", true) || n.isClickable || n.parent?.isClickable == true || isStandardSend || isStandardCancel) {
-                    found = n
+            if (matchesLabel && (cls.contains("Button", true) || n.isClickable || n.parent?.isClickable == true)) {
+                found = n
+            }
+        }
+
+        // Priority 2: Fallback to standard button IDs (button1 / button2) only if text didn't match
+        if (found == null) {
+            walk(node) { n ->
+                if (found != null) return@walk
+                val cls = n.className?.toString().orEmpty()
+                if (cls.contains("EditText", true)) return@walk
+
+                val id = n.viewIdResourceName.orEmpty().lowercase()
+                val text = n.text?.toString()?.trim()?.lowercase().orEmpty()
+                val desc = n.contentDescription?.toString()?.trim()?.lowercase().orEmpty()
+
+                if (wantsSend && (text in setOf("cancel", "close", "dismiss", "exit") || desc in setOf("cancel", "close", "dismiss", "exit"))) {
+                    return@walk
+                }
+                if (wantsCancel && (text in setOf("send", "submit", "reply", "continue", "yes") || desc in setOf("send", "submit", "reply", "continue", "yes"))) {
+                    return@walk
+                }
+
+                val isStandardSend = wantsSend && (id.endsWith(":id/button1") || id.endsWith("/button1"))
+                val isStandardCancel = wantsCancel && (id.endsWith(":id/button2") || id.endsWith("/button2"))
+
+                if (isStandardSend || isStandardCancel) {
+                    if (cls.contains("Button", true) || n.isClickable || n.parent?.isClickable == true || isStandardSend || isStandardCancel) {
+                        found = n
+                    }
                 }
             }
         }
+
         return found
     }
 

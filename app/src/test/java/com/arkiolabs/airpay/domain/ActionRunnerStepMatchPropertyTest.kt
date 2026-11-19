@@ -85,14 +85,26 @@ class ActionRunnerStepMatchPropertyTest : FunSpec({
 
     // Frame texts that match CheckBalance steps
     val checkBalanceStepFrameGenerators = listOf(
-        // Step 0: PIN prompt
+        // Step 0: Main menu / root fallback
+        Arb.element(
+            "Welcome to *99# 1. Send Money",
+            "Select option: 1. Send Money",
+            "1. Send Money 2. Request Money"
+        ),
+        // Step 1: Account selection fallback
+        Arb.element(
+            "Select Account 1. State Bank of India",
+            "Choose account: 1. HDFC Bank",
+            "Select bank: 1. Canara Bank"
+        ),
+        // Step 2: PIN prompt
         Arb.element(
             "Enter UPI PIN",
             "Enter your 6 digit pin",
             "Enter UPI pin",
             "Please enter pin"
         ),
-        // Step 1: Balance display (done step)
+        // Step 3: Balance display (done step)
         Arb.element(
             "Available balance: Rs 5000",
             "Your balance is Rs. 1234.56",

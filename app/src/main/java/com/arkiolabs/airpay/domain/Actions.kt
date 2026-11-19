@@ -173,31 +173,48 @@ object Actions {
 
     /**
      * Check balance via carrier gateway code.
-     * 2-step flow: PIN → Balance display.
-     * 18-second hard timeout.
+     * Flow: (Optional Root/Account Menu) → UPI PIN → Balance display.
+     * 25-second timeout.
      */
     val CheckBalance = Action(
         code = "*99*3#",
         steps = listOf(
+            // Fallback 1: Main menu if carrier routed to *99# root
             ActionStep(
-                match = Regex("upi\\s*pin|enter.*pin|6\\s*digit.*pin|4\\s*digit.*pin", RegexOption.IGNORE_CASE),
-                reply = "{pin}",
-                label = "Entering UPI PIN"
+                match = Regex("(welcome|select\\s*option|send\\s*money|1\\s*[:.]\\s*send)", RegexOption.IGNORE_CASE),
+                reply = "3",
+                label = "Selecting Check Balance"
             ),
+            // Fallback 2: Account selection if multiple accounts or account list appears
+            ActionStep(
+                match = Regex("\\b(select\\s*account|select\\s*bank|choose\\s*account|1\\s*[:.]\\s*\\S+)\\b", RegexOption.IGNORE_CASE),
+                reply = "1",
+                label = "Selecting Account"
+            ),
+            // Step: PIN prompt
+            ActionStep(
+                match = Regex("\\b(upi\\s*pin|mpin|\\d+\\s*digit.*pin|enter.*pin)\\b", RegexOption.IGNORE_CASE),
+                reply = "{pin}",
+                label = "Entering UPI PIN",
+                delayMs = 300L
+            ),
+            // Final Step: Balance display
             ActionStep(
                 match = Regex("balance|avail(able)?|rs\\.?\\s*\\d|inr\\s*\\d|₹\\s*\\d|amount\\s*(is|:)|ledger|a/c\\s*bal", RegexOption.IGNORE_CASE),
                 done = true,
                 label = "Balance fetched"
             )
         ),
-        failurePatterns = COMMON_FAILURES + listOf(
+        failurePatterns = COMMON_FAILURES.filterNot {
+            it.pattern.contains("insufficient", ignoreCase = true) || it.pattern.contains("low\\s+balance", ignoreCase = true)
+        } + listOf(
             Regex("pin\\s*(does\\s*not|doesn['']?t)\\s*match", RegexOption.IGNORE_CASE),
             Regex("pin\\s*mismatch", RegexOption.IGNORE_CASE),
             Regex("authentication\\s*failed", RegexOption.IGNORE_CASE),
             Regex("max(imum)?\\s*(attempts|tries|retries)", RegexOption.IGNORE_CASE),
             Regex("pin\\s*(blocked|locked|expired)", RegexOption.IGNORE_CASE)
         ),
-        timeoutMs = 18_000L
+        timeoutMs = 25_000L
     )
 
     /**

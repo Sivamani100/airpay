@@ -13,6 +13,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 /**
@@ -132,6 +133,34 @@ class UssdEngine(
             data = Uri.parse("tel:$encodedCode")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+
+        // Inject preferred SIM slot so dual-SIM devices always route through the selected SIM
+        val app = context.applicationContext as? com.arkiolabs.airpay.AirpayApplication
+        val prefSlot = app?.prefsRepo?.let {
+            it.preferredSimSlot.firstOrNull()
+        } ?: -1
+
+        if (prefSlot >= 0) {
+            callIntent.putExtra("com.android.phone.extra.slot", prefSlot)
+            callIntent.putExtra("simSlot", prefSlot)
+            callIntent.putExtra("slot", prefSlot)
+            try {
+                val subManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? android.telephony.SubscriptionManager
+                val subs = subManager?.activeSubscriptionInfoList
+                val sub = subs?.firstOrNull { it.simSlotIndex == prefSlot }
+                if (sub != null) {
+                    callIntent.putExtra("subscription", sub.subscriptionId)
+                    callIntent.putExtra("subscription_id", sub.subscriptionId)
+                    callIntent.putExtra("android.telephony.extra.SUBSCRIPTION_INDEX", sub.subscriptionId)
+                }
+                val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as? android.telecom.TelecomManager
+                val accounts = telecomManager?.callCapablePhoneAccounts
+                if (accounts != null && prefSlot in 0 until accounts.size) {
+                    callIntent.putExtra(android.telecom.TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, accounts[prefSlot])
+                }
+            } catch (_: SecurityException) {} catch (_: Exception) {}
+        }
+
         context.startActivity(callIntent)
     }
 

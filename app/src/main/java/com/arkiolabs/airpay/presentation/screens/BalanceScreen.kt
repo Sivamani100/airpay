@@ -173,7 +173,7 @@ fun BalanceScreen(
 
             is SessionState.Failed -> {
                 BalanceFailedView(
-                    message = s.message,
+                    message = s.resultText.ifBlank { s.message },
                     onRetry = {
                         viewModel.dismissSession()
                     },
