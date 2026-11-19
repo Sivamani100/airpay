@@ -136,9 +136,7 @@ fun BalanceScreen(
                         submitLabel = "SUBMIT",
                         onPinSubmitted = { enteredPin ->
                             showPinScreen = false
-                            if (biometricEnabled) {
-                                scope.launch { prefsRepo.setSavedBiometricPin(enteredPin) }
-                            }
+                            scope.launch { prefsRepo.setSavedBiometricPin(enteredPin) }
                             viewModel.attemptCheckBalanceWithPin(enteredPin)
                         },
                         onCancel = { showPinScreen = false },

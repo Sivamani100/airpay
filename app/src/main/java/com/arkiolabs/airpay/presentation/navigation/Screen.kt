@@ -31,7 +31,9 @@ sealed class Screen(val route: String) {
     object Balance : Screen("balance")
     object MyQr : Screen("myqr")
     object Settings : Screen("settings")
-    object Faq : Screen("faq")
+    object Support : Screen("support")
+    object About : Screen("about")
+    object Faq : Screen("settings") // Help Center redirected to Settings
     object Legal : Screen("legal")
     object Privacy : Screen("privacy")
     object Terms : Screen("terms")

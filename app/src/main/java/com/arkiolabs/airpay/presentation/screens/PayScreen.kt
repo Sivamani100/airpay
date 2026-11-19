@@ -72,6 +72,7 @@ import com.arkiolabs.airpay.presentation.permissions.rememberPermissionLaunchers
 import com.arkiolabs.airpay.presentation.ui.components.AirpayLottieAnimation
 import com.arkiolabs.airpay.presentation.ui.components.StatusBanner
 import com.arkiolabs.airpay.presentation.ui.components.UpiPinScreen
+import com.arkiolabs.airpay.presentation.bottomsheets.BiometricSuggestionSheet
 import com.arkiolabs.airpay.presentation.ui.components.JioRegistrationSheet
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.airpay.presentation.ui.theme.Iconsax
@@ -109,6 +110,7 @@ fun PayScreen(
     val scope = rememberCoroutineScope()
 
     val biometricEnabled by prefsRepo.biometricEnabled.collectAsState(initial = false)
+    val biometricSuggestionDismissed by prefsRepo.biometricSuggestionDismissed.collectAsState(initial = false)
     val savedPin by prefsRepo.savedBiometricPin.collectAsState(initial = null)
     val successSoundUri by prefsRepo.successSoundUri.collectAsState(initial = null)
     val failedSoundUri by prefsRepo.failedSoundUri.collectAsState(initial = null)
@@ -121,11 +123,17 @@ fun PayScreen(
 
     var showPinScreen by remember { mutableStateOf(false) }
     var showJioRegistrationSheet by remember { mutableStateOf(false) }
+    var showBiometricSuggestion by remember { mutableStateOf(false) }
 
-    // Play custom sounds upon success or failure
+    // Play custom sounds upon success or failure, and trigger biometric suggestion after 1st successful payment
     LaunchedEffect(session) {
         when (session) {
-            is SessionState.Success -> SoundManager.playSuccess(context, successSoundUri)
+            is SessionState.Success -> {
+                SoundManager.playSuccess(context, successSoundUri)
+                if (!biometricEnabled && !biometricSuggestionDismissed && !savedPin.isNullOrBlank()) {
+                    showBiometricSuggestion = true
+                }
+            }
             is SessionState.Failed -> {
                 if (!failedSoundUri.isNullOrBlank()) {
                     SoundManager.playFailure(context, failedSoundUri)
@@ -152,9 +160,8 @@ fun PayScreen(
                         submitLabel = "PAY",
                         onPinSubmitted = { enteredPin ->
                             showPinScreen = false
-                            if (biometricEnabled) {
-                                scope.launch { prefsRepo.setSavedBiometricPin(enteredPin) }
-                            }
+                            // Always store entered PIN for biometric reuse
+                            scope.launch { prefsRepo.setSavedBiometricPin(enteredPin) }
                             viewModel.attemptPaymentWithPin(enteredPin)
                         },
                         onCancel = { showPinScreen = false },
@@ -259,6 +266,24 @@ fun PayScreen(
                     }
                     showJioRegistrationSheet = false
                     showPinScreen = true
+                }
+            )
+        }
+
+        if (showBiometricSuggestion) {
+            BiometricSuggestionSheet(
+                onEnable = {
+                    showBiometricSuggestion = false
+                    scope.launch {
+                        prefsRepo.setBiometricEnabled(true)
+                        prefsRepo.setBiometricSuggestionDismissed(true)
+                    }
+                },
+                onDismiss = {
+                    showBiometricSuggestion = false
+                    scope.launch {
+                        prefsRepo.setBiometricSuggestionDismissed(true)
+                    }
                 }
             )
         }

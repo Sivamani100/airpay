@@ -207,18 +207,27 @@ object Actions {
     val FetchUpiProfile = Action(
         code = "*99*4*4#",
         steps = listOf(
+            // Direct match: carrier immediately returns "Your payment address\nPrimary: 9849497911@upi"
             ActionStep(
-                match = Regex("(welcome|select\\s*option|send\\s*money|my\\s*profile|profile|1\\s*[:.]\\s*send)", RegexOption.IGNORE_CASE),
+                match = Regex("(payment\\s*address|primary\\s*[:\\s]|upi\\s*id|vpa|@[a-zA-Z0-9]+)", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Capturing UPI ID"
+            ),
+            // Fallback step 1: main menu
+            ActionStep(
+                match = Regex("(welcome|select\\s*option|send\\s*money|1\\s*[:.]\\s*send)", RegexOption.IGNORE_CASE),
                 reply = "4",
                 label = "Opening My Profile"
             ),
+            // Fallback step 2: profile submenu
             ActionStep(
-                match = Regex("(profile|change\\s*bank|change\\s*language|upi\\s*id|vpa|my\\s*details|1\\s*[:.]|2\\s*[:.]|3\\s*[:.]|4\\s*[:.])", RegexOption.IGNORE_CASE),
+                match = Regex("(my\\s*profile|profile|change\\s*bank|change\\s*language)", RegexOption.IGNORE_CASE),
                 reply = "4",
                 label = "Selecting UPI ID"
             ),
+            // Fallback step 3: final address screen
             ActionStep(
-                match = Regex("(upi\\s*id|vpa|your\\s*upi|is\\s*[:\\s]|@|details|.*)", RegexOption.IGNORE_CASE),
+                match = Regex("(payment\\s*address|primary\\s*[:\\s]|upi\\s*id|vpa|@[a-zA-Z0-9]+)", RegexOption.IGNORE_CASE),
                 done = true,
                 label = "Capturing UPI ID"
             )
@@ -234,9 +243,9 @@ object Actions {
         code = "*99*4*4#",
         steps = listOf(
             ActionStep(
-                match = Regex(".*", RegexOption.IGNORE_CASE),
+                match = Regex("(payment\\s*address|primary\\s*[:\\s]|upi\\s*id|vpa|@[a-zA-Z0-9]+)", RegexOption.IGNORE_CASE),
                 done = true,
-                label = "Fetching UPI ID from SIM"
+                label = "Capturing UPI ID from SIM"
             )
         ),
         failurePatterns = COMMON_FAILURES,

@@ -33,6 +33,8 @@ class FrameFilterPropertyTest : FunSpec({
         "Connecting...",
         "ussd code running",
         "USSD Code Running",
+        "Running USSD code...",
+        "running ussd code",
         "please wait while we process",
         "loading your request"
     )

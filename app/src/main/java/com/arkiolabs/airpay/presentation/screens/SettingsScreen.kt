@@ -1,12 +1,9 @@
 package com.arkiolabs.airpay.presentation.screens
 
-import android.net.Uri
+import android.app.Activity
+import android.content.Context
 import android.view.HapticFeedbackConstants
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,17 +24,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Fingerprint
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Vibration
-import com.arkiolabs.airpay.presentation.ui.components.JioRegistrationSheet
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
@@ -57,88 +51,47 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
-import com.arkiolabs.airpay.R
 import com.arkiolabs.airpay.data.PreferencesRepository
-import com.arkiolabs.airpay.domain.OperationMode
+import com.arkiolabs.airpay.platform.ApkShareUtil
 import com.arkiolabs.airpay.platform.BiometricHelper
 import com.arkiolabs.airpay.presentation.HistoryViewModel
-import com.arkiolabs.airpay.presentation.permissions.PermissionStatus
-import com.arkiolabs.airpay.presentation.permissions.openAccessibilitySettings
-import com.arkiolabs.airpay.presentation.permissions.openOverlaySettings
+import com.arkiolabs.airpay.presentation.bottomsheets.LogoutConfirmationSheet
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
-import com.arkiolabs.airpay.presentation.ui.theme.Iconsax
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 import kotlinx.coroutines.launch
 
 /**
- * Authentic Airpay Styled Settings Screen.
- *
- * Implements the exact layout from Airpay screenshots:
- *  - Promo Banner: "Did you know? Passkeys enable OTP-free login ->"
- *  - Section "Payment Settings":
- *      - AutoPay >
- *      - Pay with Fingerprint (Biometric toggle / setup) >
- *      - International >
- *      - UPI Settings >
- *  - Section "Preferences & Security":
- *      - Preferences & Security >
- *      - Shake to Scan (Switch toggle)
- *      - Custom Transaction Sounds
- *      - Operation Mode (Auto / Manual SIM Tunnel)
- *      - Refer and earn ₹100 >
- *      - Help and support >
- *      - About Airpay >
- *  - Log out in red.
+ * Streamlined Airpay Settings Screen.
+ * Strictly presents the 6 requested features:
+ *  1. Pay with Fingerprint
+ *  2. Shake to Scan (+ Open Scanner on Launch)
+ *  3. Share with a Friend
+ *  4. Support Us
+ *  5. About Airpay
+ *  6. Log Out (with Confirmation Bottom Sheet)
  */
 @Composable
 fun SettingsScreen(
     prefsRepo: PreferencesRepository,
     historyViewModel: HistoryViewModel,
-    permissions: PermissionStatus,
-    versionName: String,
-    onClearAllData: () -> Unit,
-    onOpenFaq: () -> Unit,
-    onOpenHistory: () -> Unit,
-    onOpenLegal: () -> Unit,
+    onOpenSupport: () -> Unit,
+    onOpenAbout: () -> Unit,
+    onBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val mode by prefsRepo.operationMode.collectAsState(initial = OperationMode.AUTO)
     val biometricEnabled by prefsRepo.biometricEnabled.collectAsState(initial = false)
-    val successSoundUri by prefsRepo.successSoundUri.collectAsState(initial = null)
-    val failedSoundUri by prefsRepo.failedSoundUri.collectAsState(initial = null)
-    val jioRegistered by prefsRepo.jio123PayRegistered.collectAsState(initial = false)
-    val userBankName by prefsRepo.userBankName.collectAsState(initial = null)
+    val shakeToScanEnabled by prefsRepo.shakeToScanEnabled.collectAsState(initial = false)
+    val openScannerOnLaunch by prefsRepo.openScannerOnLaunch.collectAsState(initial = false)
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val view = LocalView.current
 
-    var shakeToScan by remember { mutableStateOf(true) }
-    var showJioRegistrationSheet by remember { mutableStateOf(false) }
-
-    // Audio pickers
-    val successAudioPicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            scope.launch { prefsRepo.setSuccessSoundUri(uri.toString()) }
-            Toast.makeText(context, "Success sound updated!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    val failedAudioPicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            scope.launch { prefsRepo.setFailedSoundUri(uri.toString()) }
-            Toast.makeText(context, "Failed sound updated!", Toast.LENGTH_SHORT).show()
-        }
-    }
+    var showLogoutSheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -151,31 +104,37 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (onBack != null) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFF4F5F8))
+                        .clickable {
+                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                            onBack()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = AirpayColors.TextPrimary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+            }
+
             Text(
                 text = "Settings",
                 fontSize = 20.sp,
                 fontFamily = ClashGrotesk,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1C1C1E)
+                color = AirpayColors.TextPrimary
             )
-
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .clickable { onOpenFaq() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.outline_help_white),
-                    contentDescription = "Help",
-                    tint = Color(0xFF1C1C1E),
-                    modifier = Modifier.size(24.dp)
-                )
-            }
         }
 
         Column(
@@ -183,161 +142,144 @@ fun SettingsScreen(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            // ── Passkey Promo Banner (Airpay Style) ─────────────────
-            val bannerShape = RoundedCornerShape(14.dp)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .clip(bannerShape)
-                    .background(Color(0xFF1B0A33)) // Deep Airpay Purple Banner
-                    .clickable { onOpenFaq() }
-                    .padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Did you know?",
-                            fontSize = 11.sp,
-                            color = Color(0xFFCE93D8)
-                        )
-                        Spacer(Modifier.height(3.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Passkeys enable OTP-free login",
-                                fontSize = 14.sp,
-                                fontFamily = ClashGrotesk,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text("→", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
+            Spacer(Modifier.height(8.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Fingerprint,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            // ── Section 1: Payment Settings ─────────────────────────
-            SectionHeader(title = "Payment Settings")
-
-            SettingsRow(
-                icon = Icons.Default.Settings,
-                iconBg = AirpayColors.SaffronTint,
-                iconTint = AirpayColors.SaffronDark,
-                title = "AutoPay",
-                subtitle = "Manage your IPOs, SIPs & recurring payments",
-                onClick = onOpenFaq
-            )
-
-            SettingsRow(
+            // ── Item 1: Pay with Fingerprint ────────────────────────
+            SettingsToggleRow(
                 icon = Icons.Default.Fingerprint,
                 iconBg = AirpayColors.SuccessTint,
                 iconTint = AirpayColors.SuccessGreen,
                 title = "Pay with Fingerprint",
-                subtitle = if (biometricEnabled) "Enabled · Verify fingerprint without UPI PIN" else "Disabled · Tap to set up biometric pay",
-                onClick = {
-                    (context as? FragmentActivity)?.let { act ->
-                        BiometricHelper.prompt(
-                            activity = act,
-                            title = "Biometric Authorization",
-                            subtitle = "Verify fingerprint to toggle biometric pay",
-                            onSuccess = {
-                                scope.launch { prefsRepo.setBiometricEnabled(!biometricEnabled) }
-                                Toast.makeText(context, if (!biometricEnabled) "Biometric Enabled" else "Biometric Disabled", Toast.LENGTH_SHORT).show()
-                            },
-                            onError = { Toast.makeText(context, "Verification failed", Toast.LENGTH_SHORT).show() },
-                            onCancel = {}
-                        )
+                subtitle = if (biometricEnabled) {
+                    "Enabled · Verify fingerprint to authorize offline payments"
+                } else {
+                    "Disabled · Tap to authorize payments with your fingerprint"
+                },
+                checked = biometricEnabled,
+                onCheckedChange = { targetChecked ->
+                    if (targetChecked) {
+                        (context as? FragmentActivity)?.let { activity ->
+                            BiometricHelper.prompt(
+                                activity = activity,
+                                title = "Enable Biometric Pay",
+                                subtitle = "Verify fingerprint to enable biometric offline payments",
+                                onSuccess = {
+                                    scope.launch { prefsRepo.setBiometricEnabled(true) }
+                                    Toast.makeText(context, "Pay with Fingerprint enabled!", Toast.LENGTH_SHORT).show()
+                                },
+                                onError = { err ->
+                                    Toast.makeText(context, "Biometric error: $err", Toast.LENGTH_SHORT).show()
+                                },
+                                onCancel = {}
+                            )
+                        } ?: run {
+                            scope.launch { prefsRepo.setBiometricEnabled(true) }
+                        }
+                    } else {
+                        scope.launch { prefsRepo.setBiometricEnabled(false) }
+                        Toast.makeText(context, "Biometric pay disabled", Toast.LENGTH_SHORT).show()
                     }
                 }
             )
 
-            SettingsRow(
-                icon = Icons.Default.Language,
-                iconBg = Color(0xFFE1F5FE),
-                iconTint = Color(0xFF0288D1),
-                title = "International",
-                subtitle = "Scan & Pay at Global Merchants",
-                onClick = onOpenFaq
-            )
+            HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
 
-            SettingsRow(
-                icon = Icons.Default.Security,
-                iconBg = Color(0xFFE8F5E9),
-                iconTint = Color(0xFF2E7D32),
-                title = "UPI Settings",
-                subtitle = "Manage UPI IDs and UPI Number",
-                onClick = onOpenHistory
-            )
-
-            SettingsRow(
-                icon = Icons.Default.PhoneAndroid,
+            // ── Item 2: Shake to Scan ───────────────────────────────
+            SettingsToggleRow(
+                icon = Icons.Default.Vibration,
                 iconBg = AirpayColors.SaffronTint,
                 iconTint = AirpayColors.Primary,
-                title = "Jio Offline UPI 123PAY",
-                subtitle = if (jioRegistered) "Linked · ${userBankName ?: "Primary Bank"} (080 4516 3666)" else "Not Linked · Tap to link your bank account",
-                onClick = { showJioRegistrationSheet = true }
-            )
-
-            // Section divider
-            Box(Modifier.fillMaxWidth().height(6.dp).background(Color(0xFFF4F4F6)))
-
-            // ── Section 2: Preferences & Security ───────────────────
-            SectionHeader(title = "Preferences & Security")
-
-            SettingsRow(
-                icon = Icons.Default.Notifications,
-                iconBg = Color(0xFFFFF3E0),
-                iconTint = Color(0xFFE65100),
-                title = "Preferences & Security",
-                subtitle = "Languages, reminders, permissions, themes, screen lock",
-                onClick = {
-                    if (!permissions.accessibility) openAccessibilitySettings(context)
-                    else if (!permissions.overlay) openOverlaySettings(context)
-                    else Toast.makeText(context, "All required permissions granted!", Toast.LENGTH_SHORT).show()
+                title = "Shake to Scan",
+                subtitle = "Shake phone anywhere to open QR scanner instantly",
+                checked = shakeToScanEnabled,
+                onCheckedChange = { checked ->
+                    scope.launch { prefsRepo.setShakeToScanEnabled(checked) }
                 }
             )
 
-            // Shake to Scan with toggle switch
+            // Sub-item: Open Scanner on App Launch
+            SettingsToggleRow(
+                icon = Icons.Default.Vibration,
+                iconBg = Color(0xFFF4F5F8),
+                iconTint = Color(0xFF757575),
+                title = "Open Scanner on Launch",
+                subtitle = "Open QR scanner automatically when app opens",
+                checked = openScannerOnLaunch,
+                onCheckedChange = { checked ->
+                    scope.launch { prefsRepo.setOpenScannerOnLaunch(checked) }
+                },
+                isSubItem = true
+            )
+
+            HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
+
+            // ── Item 3: Share with a Friend ─────────────────────────
+            SettingsClickableRow(
+                icon = Icons.Default.Share,
+                iconBg = Color(0xFFE1F5FE),
+                iconTint = Color(0xFF0288D1),
+                title = "Share with a Friend",
+                subtitle = "Share Airpay APK for 100% offline payments",
+                onClick = {
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    ApkShareUtil.shareInstalledApk(context)
+                }
+            )
+
+            HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
+
+            // ── Item 4: Support Us ──────────────────────────────────
+            SettingsClickableRow(
+                icon = Icons.Default.Favorite,
+                iconBg = Color(0xFFFFEBEE),
+                iconTint = Color(0xFFE91E63),
+                title = "Support Us",
+                subtitle = "Help India pay offline, merchant advocacy & feedback",
+                onClick = {
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    onOpenSupport()
+                }
+            )
+
+            HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
+
+            // ── Item 5: About Airpay ────────────────────────────────
+            SettingsClickableRow(
+                icon = Icons.Default.Info,
+                iconBg = Color(0xFFEDE7F6),
+                iconTint = Color(0xFF512DA8),
+                title = "About Airpay",
+                subtitle = "Version 2.4.0 · Zero-Internet Architecture & Privacy",
+                onClick = {
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    onOpenAbout()
+                }
+            )
+
+            HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
+
+            // ── Item 6: Log Out in Red ──────────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { shakeToScan = !shakeToScan }
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                    .clickable {
+                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                        showLogoutSheet = true
+                    }
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFF4F5F8)),
+                        .background(Color(0xFFFFEBEE)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Vibration,
-                        contentDescription = null,
-                        tint = Color(0xFF1C1C1E),
+                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                        contentDescription = "Log out",
+                        tint = AirpayColors.DangerRed,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -346,179 +288,54 @@ fun SettingsScreen(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Shake to Scan",
-                        fontSize = 14.sp,
+                        text = "Log Out",
+                        fontSize = 15.sp,
                         fontFamily = ClashGrotesk,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
+                        color = AirpayColors.DangerRed
                     )
-                }
-
-                Switch(
-                    checked = shakeToScan,
-                    onCheckedChange = { shakeToScan = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = AirpayColors.Primary
-                    )
-                )
-            }
-
-            HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
-
-            // Custom Sounds row (Airpay feature)
-            SettingsRow(
-                icon = Icons.Default.MusicNote,
-                iconBg = AirpayColors.SaffronTint,
-                iconTint = AirpayColors.Primary,
-                title = "Transaction Sounds",
-                subtitle = if (successSoundUri != null) "Custom sound active" else "Default Airpay chime",
-                onClick = { successAudioPicker.launch("audio/*") }
-            )
-
-            // Operation Mode switch
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        val next = if (mode == OperationMode.AUTO) OperationMode.MANUAL else OperationMode.AUTO
-                        scope.launch { prefsRepo.setOperationMode(next) }
-                    }
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFE8F5E9)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("⚡", fontSize = 16.sp)
-                }
-
-                Spacer(Modifier.width(14.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
+                    Spacer(Modifier.height(2.dp))
                     Text(
-                        text = "Automated SIM Session",
-                        fontSize = 14.sp,
-                        fontFamily = ClashGrotesk,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
-                    )
-                    Text(
-                        text = if (mode == OperationMode.AUTO) "Automatic dialog handling active" else "Manual dialer fallback mode",
+                        text = "Clear all data and reset app as a fresh installation",
                         fontSize = 12.sp,
-                        color = Color(0xFF757575)
+                        color = Color(0xFF9E9E9E)
                     )
                 }
-
-                Switch(
-                    checked = mode == OperationMode.AUTO,
-                    onCheckedChange = { isAuto ->
-                        scope.launch {
-                            prefsRepo.setOperationMode(if (isAuto) OperationMode.AUTO else OperationMode.MANUAL)
-                        }
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = AirpayColors.Primary
-                    )
-                )
             }
 
-            HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
-
-            SettingsRow(
-                icon = Icons.Default.Security,
-                iconBg = Color(0xFFF6F7F9),
-                iconTint = Color(0xFF1C1C1E),
-                title = "Refer and earn ₹100",
-                subtitle = "Invite friends to offline UPI",
-                onClick = onOpenHistory
-            )
-
-            SettingsRow(
-                icon = Icons.Default.Settings,
-                iconBg = Color(0xFFF6F7F9),
-                iconTint = Color(0xFF1C1C1E),
-                title = "Help and support",
-                subtitle = "Guides, FAQs, and carrier setup",
-                onClick = onOpenFaq
-            )
-
-            SettingsRow(
-                icon = Icons.Default.Security,
-                iconBg = Color(0xFFF6F7F9),
-                iconTint = Color(0xFF1C1C1E),
-                title = "About Airpay",
-                subtitle = "Version $versionName · 100% Offline UPI",
-                onClick = onOpenLegal
-            )
-
-            HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
-
-            // ── Log Out in Red (Airpay Style) ──────────────────────
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        Toast.makeText(context, "Offline session reset", Toast.LENGTH_SHORT).show()
-                    }
-                    .padding(horizontal = 20.dp, vertical = 18.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                    contentDescription = "Log out",
-                    tint = Color(0xFFD32F2F),
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(Modifier.width(14.dp))
-                Text(
-                    text = "Log out",
-                    fontSize = 15.sp,
-                    fontFamily = ClashGrotesk,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFD32F2F)
-                )
-            }
-
-            Spacer(Modifier.height(30.dp))
+            Spacer(Modifier.height(40.dp))
         }
 
-        if (showJioRegistrationSheet) {
-            JioRegistrationSheet(
-                onDismiss = { showJioRegistrationSheet = false },
-                onRegistrationConfirmed = { bank, lang ->
+        // ── Logout Confirmation Bottom Sheet ───────────────────────
+        if (showLogoutSheet) {
+            LogoutConfirmationSheet(
+                onConfirmLogout = {
+                    showLogoutSheet = false
                     scope.launch {
-                        prefsRepo.setJio123PayRegistered(true)
-                        prefsRepo.setUserBankName(bank)
-                        prefsRepo.setUserPreferredLanguage(lang)
+                        // 1. Wipe all DataStore preferences
+                        prefsRepo.clearAllData()
+
+                        // 2. Wipe fast cache SharedPreferences
+                        val cachedPrefs = context.getSharedPreferences("airpay_fast_cache", Context.MODE_PRIVATE)
+                        cachedPrefs.edit().clear().commit()
+
+                        // 3. Clear Room database transaction records
+                        historyViewModel.clearHistory()
+
+                        Toast.makeText(context, "Airpay reset successfully", Toast.LENGTH_SHORT).show()
+
+                        // 4. Cleanly exit the app so next launch opens fresh as new
+                        (context as? Activity)?.finishAffinity()
                     }
-                    showJioRegistrationSheet = false
-                    Toast.makeText(context, "Bank account linked with Jio 123PAY!", Toast.LENGTH_SHORT).show()
-                }
+                },
+                onDismiss = { showLogoutSheet = false }
             )
         }
     }
 }
 
 @Composable
-private fun SectionHeader(title: String) {
-    Text(
-        text = title,
-        fontSize = 14.sp,
-        fontFamily = ClashGrotesk,
-        fontWeight = FontWeight.Bold,
-        color = Color(0xFF1C1C1E),
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
-    )
-}
-
-@Composable
-private fun SettingsRow(
+private fun SettingsClickableRow(
     icon: ImageVector,
     iconBg: Color,
     iconTint: Color,
@@ -530,12 +347,12 @@ private fun SettingsRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 18.dp, vertical = 15.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(38.dp)
+                .size(40.dp)
                 .clip(CircleShape)
                 .background(iconBg),
             contentAlignment = Alignment.Center
@@ -553,24 +370,103 @@ private fun SettingsRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                fontSize = 14.sp,
+                fontSize = 14.5.sp,
                 fontFamily = ClashGrotesk,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1C1C1E)
+                color = AirpayColors.TextPrimary
             )
             Spacer(Modifier.height(2.dp))
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
-                color = Color(0xFF757575)
+                color = AirpayColors.TextSecondary,
+                lineHeight = 16.sp
             )
         }
 
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = Color(0xFF9E9E9E),
+            tint = Color(0xFFBDBDBD),
             modifier = Modifier.size(18.dp)
+        )
+    }
+}
+
+@Composable
+private fun SettingsToggleRow(
+    icon: ImageVector,
+    iconBg: Color,
+    iconTint: Color,
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    isSubItem: Boolean = false
+) {
+    val view = LocalView.current
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                onCheckedChange(!checked)
+            }
+            .padding(
+                start = if (isSubItem) 28.dp else 18.dp,
+                end = 18.dp,
+                top = 13.dp,
+                bottom = 13.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(if (isSubItem) 34.dp else 40.dp)
+                .clip(CircleShape)
+                .background(iconBg),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(if (isSubItem) 17.dp else 20.dp)
+            )
+        }
+
+        Spacer(Modifier.width(14.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontSize = if (isSubItem) 13.5.sp else 14.5.sp,
+                fontFamily = ClashGrotesk,
+                fontWeight = FontWeight.Bold,
+                color = AirpayColors.TextPrimary
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                fontSize = 11.5.sp,
+                color = AirpayColors.TextSecondary,
+                lineHeight = 15.sp
+            )
+        }
+
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                onCheckedChange(it)
+            },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = AirpayColors.Primary,
+                uncheckedTrackColor = Color(0xFFE0E0E0),
+                uncheckedThumbColor = Color.White
+            )
         )
     }
 }

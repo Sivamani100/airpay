@@ -37,6 +37,12 @@ object PreferencesKeys {
     val PREFERRED_SIM_SLOT = androidx.datastore.preferences.core.intPreferencesKey("preferred_sim_slot")
     val PREFERRED_SIM_CARRIER = stringPreferencesKey("preferred_sim_carrier")
     val PREFERRED_SIM_SUB_ID = androidx.datastore.preferences.core.intPreferencesKey("preferred_sim_sub_id")
+
+    // Shake to Scan & Smart Suggestions
+    val SHAKE_TO_SCAN_ENABLED = booleanPreferencesKey("shake_to_scan_enabled")
+    val OPEN_SCANNER_ON_LAUNCH = booleanPreferencesKey("open_scanner_on_launch")
+    val BIOMETRIC_SUGGESTION_DISMISSED = booleanPreferencesKey("biometric_suggestion_dismissed")
+    val SHAKE_SUGGESTION_DISMISSED = booleanPreferencesKey("shake_suggestion_dismissed")
 }
 
 class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
@@ -245,6 +251,54 @@ class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
             } else {
                 preferences.remove(PreferencesKeys.PREFERRED_SIM_SUB_ID)
             }
+        }
+    }
+
+    // ── Shake to Scan & Smart Suggestions ───────────────────────────
+
+    val shakeToScanEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHAKE_TO_SCAN_ENABLED] ?: false
+    }
+
+    suspend fun setShakeToScanEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHAKE_TO_SCAN_ENABLED] = enabled
+        }
+    }
+
+    val openScannerOnLaunch: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.OPEN_SCANNER_ON_LAUNCH] ?: false
+    }
+
+    suspend fun setOpenScannerOnLaunch(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.OPEN_SCANNER_ON_LAUNCH] = enabled
+        }
+    }
+
+    val biometricSuggestionDismissed: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.BIOMETRIC_SUGGESTION_DISMISSED] ?: false
+    }
+
+    suspend fun setBiometricSuggestionDismissed(dismissed: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BIOMETRIC_SUGGESTION_DISMISSED] = dismissed
+        }
+    }
+
+    val shakeSuggestionDismissed: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHAKE_SUGGESTION_DISMISSED] ?: false
+    }
+
+    suspend fun setShakeSuggestionDismissed(dismissed: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHAKE_SUGGESTION_DISMISSED] = dismissed
+        }
+    }
+
+    suspend fun clearAllData() {
+        dataStore.edit { preferences ->
+            preferences.clear()
         }
     }
 }

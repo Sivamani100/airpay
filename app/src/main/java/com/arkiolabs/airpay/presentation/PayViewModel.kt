@@ -526,6 +526,11 @@ class PayViewModel(
                     resultText = result.resultText
                 )
                 overlayController?.showError(title = "Payment failed", message = result.resultText)
+                if (result.resultText.contains("pin", ignoreCase = true) ||
+                    result.resultText.contains("incorrect", ignoreCase = true) ||
+                    result.resultText.contains("wrong", ignoreCase = true)) {
+                    launch { prefsRepo.clearBiometricPin() }
+                }
                 onSessionEnded()
             }
         }

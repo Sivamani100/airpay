@@ -365,6 +365,11 @@ class BalanceViewModel(
                     message = "Balance check failed",
                     resultText = result.resultText
                 )
+                if (result.resultText.contains("pin", ignoreCase = true) ||
+                    result.resultText.contains("incorrect", ignoreCase = true) ||
+                    result.resultText.contains("wrong", ignoreCase = true)) {
+                    launch { prefsRepo.clearBiometricPin() }
+                }
                 onSessionEnd()
             }
         }

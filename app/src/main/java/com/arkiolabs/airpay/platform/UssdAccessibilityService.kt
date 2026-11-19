@@ -183,7 +183,8 @@ class UssdAccessibilityService : AccessibilityService() {
         frameFilter.reset()
 
         val sendBtn = findClickableButton(root, SEND_LABELS)
-        val clicked = sendBtn?.performAction(AccessibilityNodeInfo.ACTION_CLICK) ?: false
+        val target = if (sendBtn?.isClickable == true) sendBtn else (sendBtn?.parent?.takeIf { it.isClickable } ?: sendBtn)
+        val clicked = target?.performAction(AccessibilityNodeInfo.ACTION_CLICK) ?: false
         if (!clicked) {
             // Some OEMs auto-submit when the EditText itself is clicked
             // (the IME action triggers a hidden Send button).
@@ -201,7 +202,8 @@ class UssdAccessibilityService : AccessibilityService() {
     fun dismissDialog(): Boolean {
         val root = findUssdRoot() ?: return false
         val close = findClickableButton(root, DISMISS_LABELS) ?: return false
-        val ok = close.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        val target = if (close.isClickable) close else (close.parent?.takeIf { it.isClickable } ?: close)
+        val ok = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         lastEmittedText = null
         frameFilter.reset()
         return ok
@@ -321,9 +323,19 @@ class UssdAccessibilityService : AccessibilityService() {
         walk(node) { n ->
             if (found != null) return@walk
             val text = n.text?.toString()?.lowercase().orEmpty()
+            val desc = n.contentDescription?.toString()?.lowercase().orEmpty()
             val cls = n.className?.toString().orEmpty()
-            if (cls.contains("Button", true) && labels.any { text.contains(it) }) {
-                found = n
+            val isButtonLike = n.isClickable ||
+                cls.contains("Button", true) ||
+                cls.contains("TextView", true) ||
+                (n.parent?.isClickable == true)
+            if (isButtonLike && (text.isNotBlank() || desc.isNotBlank())) {
+                val matchesLabel = labels.any { label ->
+                    text == label || text.contains(label) || desc == label || desc.contains(label)
+                }
+                if (matchesLabel) {
+                    found = n
+                }
             }
         }
         return found

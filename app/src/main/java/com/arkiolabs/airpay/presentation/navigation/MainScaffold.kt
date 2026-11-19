@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
@@ -24,13 +27,14 @@ import androidx.navigation.compose.rememberNavController
 import com.arkiolabs.airpay.AirpayApplication
 import com.arkiolabs.airpay.domain.SessionState
 import com.arkiolabs.airpay.airpayApp
+import com.arkiolabs.airpay.platform.ShakeDetector
 import com.arkiolabs.airpay.presentation.BalanceViewModel
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.PayViewModel
 import com.arkiolabs.airpay.presentation.permissions.rememberPermissionStatus
+import com.arkiolabs.airpay.presentation.screens.AboutScreen
 import com.arkiolabs.airpay.presentation.screens.AlertsScreen
 import com.arkiolabs.airpay.presentation.screens.BalanceScreen
-import com.arkiolabs.airpay.presentation.screens.FaqScreen
 import com.arkiolabs.airpay.presentation.screens.HistoryScreen
 import com.arkiolabs.airpay.presentation.screens.HomeScreen
 import com.arkiolabs.airpay.presentation.screens.LegalScreen
@@ -39,11 +43,11 @@ import com.arkiolabs.airpay.presentation.screens.PayScreen
 import com.arkiolabs.airpay.presentation.screens.ScanScreen
 import com.arkiolabs.airpay.presentation.screens.SearchScreen
 import com.arkiolabs.airpay.presentation.screens.SettingsScreen
+import com.arkiolabs.airpay.presentation.screens.SupportScreen
 import com.arkiolabs.airpay.presentation.screens.ToMobileScreen
 import com.arkiolabs.airpay.presentation.screens.ToUpiScreen
 import com.arkiolabs.airpay.presentation.ui.components.AirpayBottomNav
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
-import kotlinx.coroutines.launch
 
 /**
  * Top-level scaffold for the Airpay-styled Offline UPI architecture.
@@ -58,6 +62,7 @@ fun AirpayApp() {
 
 @Composable
 private fun MainScaffold(app: AirpayApplication) {
+    val context = LocalContext.current
     val navController = rememberNavController()
     val backstackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backstackEntry?.destination?.route ?: Screen.Home.route
@@ -73,9 +78,42 @@ private fun MainScaffold(app: AirpayApplication) {
 
     val sessionActive = payVmSession is SessionState.Running ||
         balanceVmSession is SessionState.Running
+
+    val shakeEnabled by app.prefsRepo.shakeToScanEnabled.collectAsState(initial = false)
+    val openScannerOnLaunch by app.prefsRepo.openScannerOnLaunch.collectAsState(initial = false)
+
+    // ── Shake to Scan Sensor Listener ───────────────────────────────
+    DisposableEffect(shakeEnabled, sessionActive, currentRoute) {
+        if (!shakeEnabled) return@DisposableEffect onDispose {}
+        val detector = ShakeDetector(context) {
+            if (!sessionActive && currentRoute != Screen.Scan.route) {
+                navController.navigate(Screen.Scan.route) {
+                    launchSingleTop = true
+                }
+            }
+        }
+        detector.start()
+        onDispose {
+            detector.stop()
+        }
+    }
+
+    // ── Open Scanner on Launch ──────────────────────────────────────
+    var hasLaunchedScannerOnStart by remember { mutableStateOf(false) }
+    LaunchedEffect(openScannerOnLaunch) {
+        if (openScannerOnLaunch && !hasLaunchedScannerOnStart && currentRoute == Screen.Home.route) {
+            hasLaunchedScannerOnStart = true
+            navController.navigate(Screen.Scan.route) {
+                launchSingleTop = true
+            }
+        }
+    }
+
     val hideBottomNav = sessionActive ||
         currentRoute == Screen.Scan.route ||
-        currentRoute == Screen.Faq.route ||
+        currentRoute == Screen.Settings.route ||
+        currentRoute == Screen.Support.route ||
+        currentRoute == Screen.About.route ||
         currentRoute == Screen.Legal.route ||
         currentRoute == Screen.MyQr.route ||
         currentRoute == Screen.Pay.route ||
@@ -136,7 +174,7 @@ private fun MainScaffold(app: AirpayApplication) {
                             }
                         },
                         onNavigateFaq = {
-                            navController.navigate(Screen.Faq.route) {
+                            navController.navigate(Screen.Settings.route) {
                                 launchSingleTop = true
                             }
                         },
@@ -171,7 +209,7 @@ private fun MainScaffold(app: AirpayApplication) {
                             }
                         },
                         onOpenFaq = {
-                            navController.navigate(Screen.Faq.route) {
+                            navController.navigate(Screen.Settings.route) {
                                 launchSingleTop = true
                             }
                         }
@@ -190,7 +228,7 @@ private fun MainScaffold(app: AirpayApplication) {
                         },
                         onClose = { navController.popBackStack() },
                         onOpenFaq = {
-                            navController.navigate(Screen.Faq.route) {
+                            navController.navigate(Screen.Settings.route) {
                                 launchSingleTop = true
                             }
                         }
@@ -201,7 +239,7 @@ private fun MainScaffold(app: AirpayApplication) {
                 composable(Screen.Alerts.route) {
                     AlertsScreen(
                         onOpenFaq = {
-                            navController.navigate(Screen.Faq.route) {
+                            navController.navigate(Screen.Settings.route) {
                                 launchSingleTop = true
                             }
                         },
@@ -251,7 +289,7 @@ private fun MainScaffold(app: AirpayApplication) {
                             }
                         },
                         onNavigateFaq = {
-                            navController.navigate(Screen.Faq.route) {
+                            navController.navigate(Screen.Settings.route) {
                                 launchSingleTop = true
                             }
                         },
@@ -268,7 +306,7 @@ private fun MainScaffold(app: AirpayApplication) {
                         },
                         onBack = { navController.popBackStack() },
                         onOpenFaq = {
-                            navController.navigate(Screen.Faq.route) { launchSingleTop = true }
+                            navController.navigate(Screen.Settings.route) { launchSingleTop = true }
                         }
                     )
                 }
@@ -283,7 +321,7 @@ private fun MainScaffold(app: AirpayApplication) {
                         },
                         onBack = { navController.popBackStack() },
                         onOpenFaq = {
-                            navController.navigate(Screen.Faq.route) { launchSingleTop = true }
+                            navController.navigate(Screen.Settings.route) { launchSingleTop = true }
                         }
                     )
                 }
@@ -302,44 +340,43 @@ private fun MainScaffold(app: AirpayApplication) {
                     MyQrScreen(
                         onClose = { navController.popBackStack() },
                         onOpenFaq = {
-                            navController.navigate(Screen.Faq.route) {
+                            navController.navigate(Screen.Settings.route) {
                                 launchSingleTop = true
                             }
                         }
                     )
                 }
 
-                // ── Settings Screen ─────────────────────────────────────
+                // ── Settings Screen (Only 6 Items) ──────────────────────
                 composable(Screen.Settings.route) {
                     SettingsScreen(
                         prefsRepo = app.prefsRepo,
                         historyViewModel = historyViewModel,
-                        permissions = permissions,
-                        versionName = "1.0.1",
-                        onClearAllData = { /* historyViewModel.clearHistory handled */ },
-                        onOpenFaq = {
-                            navController.navigate(Screen.Faq.route) {
+                        onOpenSupport = {
+                            navController.navigate(Screen.Support.route) {
                                 launchSingleTop = true
                             }
                         },
-                        onOpenHistory = {
-                            navController.navigate(Screen.History.route) {
+                        onOpenAbout = {
+                            navController.navigate(Screen.About.route) {
                                 launchSingleTop = true
                             }
                         },
-                        onOpenLegal = {
-                            navController.navigate(Screen.Legal.route) {
-                                launchSingleTop = true
-                            }
-                        }
+                        onBack = { navController.popBackStack() }
                     )
                 }
 
-                // ── FAQ / Help Center ───────────────────────────────────
-                composable(Screen.Faq.route) {
-                    FaqScreen(
-                        onClose = { navController.popBackStack() },
-                        onCheckPermissions = { navController.navigate(Screen.Home.route) }
+                // ── Support Us Dedicated Screen ─────────────────────────
+                composable(Screen.Support.route) {
+                    SupportScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                // ── About Airpay Dedicated Screen ───────────────────────
+                composable(Screen.About.route) {
+                    AboutScreen(
+                        onBack = { navController.popBackStack() }
                     )
                 }
 
@@ -407,26 +444,22 @@ private fun rememberPayViewModel(app: AirpayApplication): PayViewModel {
 
 @Composable
 private fun rememberBalanceViewModel(app: AirpayApplication): BalanceViewModel {
-    val context = LocalContext.current
     return remember {
         BalanceViewModel(
             actionRunner = app.actionRunner,
             prefsRepo = app.prefsRepo,
             carrierDetector = app.carrierDetector,
             jioVoiceGateway = app.jioVoiceGateway,
-            overlayController = app.overlayController,
-            onDialerFallback = { code ->
-                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$code"))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            },
-            clipboardWriter = { text -> writeToClipboard(context, text) },
-            systemToast = { text -> showSystemToast(context, text) }
+            overlayController = app.overlayController
         )
     }
 }
 
 @Composable
 private fun rememberHistoryViewModel(app: AirpayApplication): HistoryViewModel {
-    return remember { HistoryViewModel(app.historyRepo) }
+    return remember {
+        HistoryViewModel(
+            historyRepo = app.historyRepo
+        )
+    }
 }

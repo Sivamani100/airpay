@@ -37,10 +37,12 @@ import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,10 +66,12 @@ import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.PayViewModel
 import com.arkiolabs.airpay.presentation.bottomsheets.SetupBottomSheetCoordinator
 import com.arkiolabs.airpay.presentation.bottomsheets.SetupSheetType
+import com.arkiolabs.airpay.presentation.bottomsheets.ShakeSuggestionSheet
 import com.arkiolabs.airpay.presentation.permissions.PermissionStatus
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.airpay.presentation.ui.theme.Iconsax
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
+import kotlinx.coroutines.launch
 
 /**
  * Authentic Airpay Home Screen.
@@ -105,8 +109,12 @@ fun HomeScreen(
     val app = context.airpayApp
     val preferredSimSlot by app.prefsRepo.preferredSimSlot.collectAsState(initial = -1)
     val userBankName by app.prefsRepo.userBankName.collectAsState(initial = "")
+    val shakeToScanEnabled by app.prefsRepo.shakeToScanEnabled.collectAsState(initial = false)
+    val shakeSuggestionDismissed by app.prefsRepo.shakeSuggestionDismissed.collectAsState(initial = false)
 
+    val scope = rememberCoroutineScope()
     var activeSheetOverride by remember { mutableStateOf<SetupSheetType?>(null) }
+    var showShakeSuggestion by remember { mutableStateOf(false) }
 
     val isPhoneReady = permissions.callPhone && permissions.readPhoneState
     val isSmsReady = permissions.smsGranted
@@ -303,6 +311,34 @@ fun HomeScreen(
             activeSheetOverride = activeSheetOverride,
             onSheetDismissed = { activeSheetOverride = null }
         )
+
+        // Suggest Shake to Scan when user has made 3 or more transactions and permissions are complete
+        LaunchedEffect(transactions.size, completedCount, shakeToScanEnabled, shakeSuggestionDismissed) {
+            if (completedCount == totalCount && transactions.size >= 3 && !shakeToScanEnabled && !shakeSuggestionDismissed) {
+                showShakeSuggestion = true
+            }
+        }
+
+        if (showShakeSuggestion) {
+            ShakeSuggestionSheet(
+                onEnable = { alsoOpenOnLaunch ->
+                    showShakeSuggestion = false
+                    scope.launch {
+                        app.prefsRepo.setShakeToScanEnabled(true)
+                        if (alsoOpenOnLaunch) {
+                            app.prefsRepo.setOpenScannerOnLaunch(true)
+                        }
+                        app.prefsRepo.setShakeSuggestionDismissed(true)
+                    }
+                },
+                onDismiss = {
+                    showShakeSuggestion = false
+                    scope.launch {
+                        app.prefsRepo.setShakeSuggestionDismissed(true)
+                    }
+                }
+            )
+        }
     }
 }
 

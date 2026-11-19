@@ -16,7 +16,13 @@ class FrameFilter {
             "processing",
             "loading",
             "connecting",
-            "ussd code running"
+            "ussd code running",
+            "running ussd code",
+            "running ussd",
+            "running code",
+            "running...",
+            "running",
+            "ussd running"
         )
     }
 
@@ -26,11 +32,15 @@ class FrameFilter {
      */
     fun isSystemPlaceholder(text: String): Boolean {
         val normalized = text.trim().lowercase()
+        if (normalized.isEmpty()) return true
         return PLACEHOLDER_PATTERNS.any { pattern ->
             normalized == pattern ||
                 normalized.startsWith(pattern) ||
                 normalized.startsWith("$pattern…") ||
-                normalized.startsWith("$pattern...")
+                normalized.startsWith("$pattern...") ||
+                normalized.contains("running ussd") ||
+                normalized.contains("ussd code running") ||
+                normalized.contains("running code")
         }
     }
 

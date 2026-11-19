@@ -37,14 +37,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -129,8 +126,6 @@ fun MyQrScreen(
 
     var isActivating by remember { mutableStateOf(false) }
     var activationStatus by remember { mutableStateOf("Connecting to SIM…") }
-    var showEditDialog by remember { mutableStateOf(false) }
-    var editInput by remember { mutableStateOf("") }
 
     // Pre-load square app logo bitmap for center of QR
     val logoBitmap = remember(context) {
@@ -191,7 +186,6 @@ fun MyQrScreen(
                         )
                     }
                     is ActionEvent.Done -> {
-                        overlayController.hide()
                         val raw = event.resultText
                         val extracted = UpiParser.extractVpaFromText(raw)
                             ?: Regex("([a-zA-Z0-9.\\-_]{3,}@[a-zA-Z0-9.\\-_]{2,})").find(raw)?.value
@@ -206,15 +200,22 @@ fun MyQrScreen(
                             Toast.makeText(context, "QR Activated: $extracted", Toast.LENGTH_SHORT).show()
                         } else {
                             activationStatus = "Unable to read UPI ID from reply"
-                            Toast.makeText(context, "SIM response: $raw", Toast.LENGTH_LONG).show()
                         }
+
+                        // Ensure carrier dialog is dismissed completely while overlay is still covering it
+                        com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
+                        kotlinx.coroutines.delay(300)
+                        com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
+                        overlayController.hide()
                         isActivating = false
                     }
                     is ActionEvent.Error -> {
+                        com.arkiolabs.airpay.platform.UssdAccessibilityService.instance?.dismissDialog()
+                        kotlinx.coroutines.delay(200)
                         overlayController.hide()
                         isActivating = false
                         activationStatus = "Activation failed"
-                        Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Activation error: ${event.message}", Toast.LENGTH_SHORT).show()
                     }
                     else -> {}
                 }
@@ -572,12 +573,12 @@ fun MyQrScreen(
             Spacer(Modifier.height(20.dp))
 
             // ── Secondary Management Actions ────────────────────────────
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (isQrActivated) {
+            if (isQrActivated) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Row(
                         modifier = Modifier
                             .clickable {
@@ -601,120 +602,9 @@ fun MyQrScreen(
                             color = AirpayColors.Primary
                         )
                     }
-
-                    Spacer(Modifier.width(16.dp))
-                }
-
-                Row(
-                    modifier = Modifier
-                        .clickable {
-                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                            editInput = if (isQrActivated) effectiveUpiId else ""
-                            showEditDialog = true
-                        }
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = null,
-                        tint = AirpayColors.Primary,
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = if (isQrActivated) "Edit UPI ID" else "Enter UPI ID Manually",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = AirpayColors.Primary
-                    )
                 }
             }
         }
-    }
-
-    // ── Edit / Enter UPI ID Dialog ──────────────────────────────────
-    if (showEditDialog) {
-        AlertDialog(
-            onDismissRequest = { showEditDialog = false },
-            title = {
-                Text(
-                    text = "Enter Your UPI ID",
-                    fontFamily = ClashGrotesk,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 17.sp,
-                    color = AirpayColors.TextPrimary
-                )
-            },
-            text = {
-                Column {
-                    Text(
-                        text = "Enter your bank-registered UPI ID (e.g. 9849497911@upi or yourname@okhdfcbank):",
-                        fontSize = 13.sp,
-                        color = AirpayColors.TextSecondary,
-                        lineHeight = 18.sp
-                    )
-                    Spacer(Modifier.height(14.dp))
-                    BasicTextField(
-                        value = editInput,
-                        onValueChange = { editInput = it.trim() },
-                        textStyle = TextStyle(
-                            fontSize = 15.sp,
-                            color = AirpayColors.TextPrimary,
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        singleLine = true,
-                        cursorBrush = SolidColor(AirpayColors.Primary),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .border(1.5.dp, AirpayColors.Primary, RoundedCornerShape(10.dp))
-                            .background(Color(0xFFF9FAFB))
-                            .padding(12.dp)
-                    )
-                }
-            },
-            confirmButton = {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(AirpayColors.Primary)
-                        .clickable {
-                            if (editInput.contains("@") && editInput.length >= 5) {
-                                scope.launch {
-                                    prefsRepo.setUserUpiId(editInput)
-                                    cachedPrefs.edit().putString("user_upi_id", editInput).commit()
-                                    activeUpiId = editInput
-                                }
-                                showEditDialog = false
-                                Toast.makeText(context, "QR code updated: $editInput", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Please enter a valid UPI ID with @ symbol", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                        .padding(horizontal = 16.dp, vertical = 9.dp)
-                ) {
-                    Text(
-                        text = "Save",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-            },
-            dismissButton = {
-                Box(
-                    modifier = Modifier
-                        .clickable { showEditDialog = false }
-                        .padding(horizontal = 14.dp, vertical = 9.dp)
-                ) {
-                    Text(
-                        text = "Cancel",
-                        fontWeight = FontWeight.SemiBold,
-                        color = AirpayColors.TextSecondary
-                    )
-                }
-            }
-        )
     }
 }
 

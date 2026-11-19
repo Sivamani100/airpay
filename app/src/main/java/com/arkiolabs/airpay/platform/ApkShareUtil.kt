@@ -16,8 +16,8 @@ import java.io.File
  */
 object ApkShareUtil {
 
-    private const val SHARE_BODY = "Try Airpay — offline UPI payments without internet."
-    private const val FALLBACK_BODY = "Try Airpay — offline UPI payments without internet."
+    private const val SHARE_BODY = "Try Airpay — 100% offline UPI payments without internet! Send money, check balance, and pay anywhere directly via SIM."
+    private const val FALLBACK_BODY = "Try Airpay — 100% offline UPI payments without internet! Send money, check balance, and pay anywhere directly via SIM."
 
     /**
      * Shares the installed APK file. If the source APK can't be located
