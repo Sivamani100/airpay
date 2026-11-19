@@ -77,8 +77,8 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
             WindowManager.LayoutParams.MATCH_PARENT,
             type,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
@@ -378,12 +378,25 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
         val root = FrameLayout(context).apply {
             setBackgroundColor(AIRPAY_BG)
             isClickable = true
+            isFocusable = false
+            @Suppress("DEPRECATION")
+            systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+            )
+            setOnTouchListener { _, _ -> true }
         }
 
         val isBalanceCheck = amount.isBlank()
 
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
+            isClickable = true
+            setOnTouchListener { _, _ -> true }
             background = GradientDrawable().apply {
                 setColor(Color.WHITE)
                 cornerRadius = dp(16).toFloat()
@@ -579,13 +592,25 @@ class OverlayControllerImpl(private val context: Context) : OverlayController {
         // 100% OPAQUE background covering the entire display so carrier dialogs are 100% invisible!
         val dim = FrameLayout(context).apply {
             setBackgroundColor(AIRPAY_BG)
-            isClickable = false
+            isClickable = true
             isFocusable = false
+            @Suppress("DEPRECATION")
+            systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+            )
+            // Intercept and swallow ALL touches, swipes, notification pulls, and gestures
+            setOnTouchListener { _, _ -> true }
         }
 
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             isClickable = true
+            setOnTouchListener { _, _ -> true }
             background = GradientDrawable().apply {
                 setColor(Color.WHITE)
                 cornerRadius = dp(16).toFloat()

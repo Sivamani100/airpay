@@ -196,22 +196,22 @@ class UssdAccessibilityService : AccessibilityService() {
 
     /**
      * Dismisses the current USSD dialog by clicking any close-style button
-     * (ok/cancel/close/dismiss/done). Falls back to system back action.
+     * (ok/cancel/close/dismiss/done). Falls back to system back action ONLY if
+     * a confirmed USSD window is active. NEVER presses back when no USSD window exists.
      *
-     * @return true if the dialog was dismissed
+     * @return true if the dialog was dismissed or no dialog was present
      */
     fun dismissDialog(): Boolean {
-        val root = findUssdRoot()
+        val root = findUssdRoot() ?: return true // No USSD dialog on screen -> NOTHING to dismiss! Do not press BACK!
         var ok = false
-        if (root != null) {
-            val close = findClickableButton(root, DISMISS_LABELS)
-            if (close != null) {
-                val target = if (close.isClickable) close else (close.parent?.takeIf { it.isClickable } ?: close)
-                ok = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            }
+        val close = findClickableButton(root, DISMISS_LABELS)
+        if (close != null) {
+            val target = if (close.isClickable) close else (close.parent?.takeIf { it.isClickable } ?: close)
+            ok = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
-        if (!ok || findUssdRoot() != null) {
-            // Dismiss via system BACK action for ColorOS/Oppo/Xiaomi/Realme dialogs
+        // ONLY if root was confirmed to be a USSD window, and clicking close button failed,
+        // and findUssdRoot() STILL returns a USSD window, perform back:
+        if (!ok && findUssdRoot() != null) {
             ok = performGlobalAction(GLOBAL_ACTION_BACK)
         }
         lastEmittedText = null

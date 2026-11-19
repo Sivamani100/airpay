@@ -173,6 +173,21 @@ class UssdEngine(
 
     override fun isServiceEnabled(): Boolean = UssdAccessibilityService.instance != null
 
+    /** Check whether a USSD session is currently active. */
+    fun isSessionActive(): Boolean = sessionActive
+
+    /** Ensure MainActivity stays in the foreground and does not close. */
+    fun bringAppToFront() {
+        try {
+            val intent = Intent(context, com.arkiolabs.airpay.presentation.MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            context.startActivity(intent)
+        } catch (_: Exception) {}
+    }
+
     // ─── UssdFrameListener Implementation ──────────────────────────────────────
 
     /**
@@ -254,6 +269,9 @@ class UssdEngine(
 
         UssdAccessibilityService.instance?.dismissDialog()
         overlayController?.hide()
+
+        // Bring MainActivity back to foreground so the app stays open!
+        bringAppToFront()
 
         // Emit a terminal frame so ActionRunner knows the session ended.
         frameCounter++
