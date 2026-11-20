@@ -54,7 +54,7 @@ cd airpay/LocalPe
 
 - **Developer**: Siva Mallipurapu (MALLIPURAPUSIVAMANIKANTA)
 - **GitHub**: [@Sivamani100](https://github.com/Sivamani100)
-- **LinkedIn**: [Siva Mallipurapu](https://linkedin.com/in/sivamallipurapu)
+- **LinkedIn**: [Sivamanikanta Mallipurapu](https://www.linkedin.com/in/sivamanikanta-mallipurapu)
 - **Email**: mallipurapusiva@gmail.com
 
 ## License
