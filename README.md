@@ -1,4 +1,4 @@
-# Airpay — Sovereign Offline UPI Payment System
+# Airpay: Sovereign Offline UPI Payment System
 
 An open-source, zero-internet Android application that enables peer-to-peer Unified Payments Interface (UPI) transactions across India by communicating over standard cellular network signaling (*99# USSD).
 
