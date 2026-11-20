@@ -54,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -150,151 +151,158 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F8FA))
-            .statusBarsPadding()
+            .background(Color.White)
     ) {
-        // ── PhonePe Style Top Header (Avatar on Left, Help & Settings on Right) ──
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(24.dp))
-                    .clickable {
-                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                        onNavigateProfile()
-                    }
-                    .padding(4.dp)
-            ) {
-                // Profile Avatar with Tiny QR Badge on Bottom-Right
-                Box(modifier = Modifier.size(42.dp)) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.linearGradient(
-                                    listOf(Color(0xFF5F259F), Color(0xFF7C3AED))
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = (userName?.take(1)?.ifBlank { null } ?: "A").uppercase(),
-                            color = Color.White,
-                            fontFamily = ClashGrotesk,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 17.sp
-                        )
-                    }
-
-                    // Tiny QR Badge on Bottom-Right of Avatar
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .align(Alignment.BottomEnd),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_qr_scan),
-                            contentDescription = null,
-                            tint = Color(0xFF5F259F),
-                            modifier = Modifier.size(11.dp)
-                        )
-                    }
-                }
-
-                Spacer(Modifier.width(10.dp))
-
-                Column {
-                    Text(
-                        text = userName?.ifBlank { null } ?: "Airpay User",
-                        fontSize = 14.5.sp,
-                        fontFamily = ClashGrotesk,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
-                    )
-                    Text(
-                        text = if (isBankReady) (userBankName ?: "Offline SIM") else "Offline UPI • *99#",
-                        fontSize = 11.sp,
-                        color = Color(0xFF757575)
-                    )
-                }
-            }
-
-            // Top Right: Help ? & Settings
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Help icon (? in circular button)
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Color(0xFFEEEEEE), CircleShape)
-                        .clickable {
-                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                            onNavigateFaq()
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.outline_help_white),
-                        contentDescription = "Help",
-                        tint = Color(0xFF1C1C1E),
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-
-                Spacer(Modifier.width(10.dp))
-
-                // Settings icon button
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Color(0xFFEEEEEE), CircleShape)
-                        .clickable {
-                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                            onNavigateSettings()
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = Color(0xFF1C1C1E),
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-        }
-
         // ── Main Scrollable Body ────────────────────────────────────
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            // ── Hero Banner Placeholder (Black page area reserved for user's banner) ──
+            // ── Top Hero Banner (Edge-to-Edge with overlaid PhonePe Top Bar) ──
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                    .height(170.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF0F0F12))
-                    .border(1.dp, Color(0xFF26262B), RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                        onNavigateToMobile()
+                    }
             ) {
-                // Sleek empty dark placeholder ready for user's banner
+                Image(
+                    painter = painterResource(id = R.drawable.banner_instant_money),
+                    contentDescription = "Send & Receive Money Instantly - Get Started",
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Overlaid Top Bar (Avatar on Left, Help & Settings on Right)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Profile Avatar with Tiny QR Badge + Name
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(24.dp))
+                            .clickable {
+                                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                onNavigateProfile()
+                            }
+                            .padding(4.dp)
+                    ) {
+                        // Profile Avatar with Tiny QR Badge on Bottom-Right
+                        Box(modifier = Modifier.size(42.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        Brush.linearGradient(
+                                            listOf(Color(0xFF5F259F), Color(0xFF7C3AED))
+                                        )
+                                    )
+                                    .border(1.5.dp, Color.White, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = (userName?.take(1)?.ifBlank { null } ?: "A").uppercase(),
+                                    color = Color.White,
+                                    fontFamily = ClashGrotesk,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp
+                                )
+                            }
+
+                            // Tiny QR Badge on Bottom-Right of Avatar
+                            Box(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                                    .align(Alignment.BottomEnd),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_qr_scan),
+                                    contentDescription = null,
+                                    tint = Color(0xFF5F259F),
+                                    modifier = Modifier.size(11.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.width(10.dp))
+
+                        Column {
+                            Text(
+                                text = userName?.ifBlank { null } ?: "Airpay User",
+                                fontSize = 14.5.sp,
+                                fontFamily = ClashGrotesk,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = if (isBankReady) (userBankName ?: "Offline SIM") else "Offline UPI • *99#",
+                                fontSize = 11.sp,
+                                color = Color(0xFFE0F2FE),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    // Top Right: Help ? & Settings
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Help icon (? in circular button)
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.92f))
+                                .clickable {
+                                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                    onNavigateFaq()
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.outline_help_white),
+                                contentDescription = "Help",
+                                tint = Color(0xFF1C1C1E),
+                                modifier = Modifier.size(19.dp)
+                            )
+                        }
+
+                        Spacer(Modifier.width(8.dp))
+
+                        // Settings icon button
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.92f))
+                                .clickable {
+                                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                    onNavigateSettings()
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = Color(0xFF1C1C1E),
+                                modifier = Modifier.size(19.dp)
+                            )
+                        }
+                    }
+                }
             }
 
             Spacer(Modifier.height(8.dp))
@@ -321,11 +329,11 @@ fun HomeScreen(
                 Spacer(Modifier.height(8.dp))
             }
 
-            // ── Money Transfers: 4 Core Offline Actions (PhonePe Circular Style) ──
+            // ── Money Transfers & Core Actions (Unified, no separate section boxes) ──
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -340,7 +348,7 @@ fun HomeScreen(
                         color = Color(0xFF1C1C1E)
                     )
 
-                    // Pill Chip (like PhonePe's Refer -> 100)
+                    // Pill Chip
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
@@ -359,6 +367,7 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(16.dp))
 
+                // Row 1: Core Money Transfers (Circular Purple PhonePe Tiles)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -429,337 +438,139 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f)
                     )
                 }
-            }
 
-            Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(18.dp))
 
-            // ── Side-by-Side Quick Explore Cards (PhonePe Style) ──
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                // Card 1: Scan Any QR
+                // Row 2: UPI Services (Direct on page, cleanly arranged)
                 Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White)
-                        .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(12.dp))
-                        .clickable {
-                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                            onNavigateScan()
-                        }
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(34.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFEDE7F6)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_qr_scan),
-                            contentDescription = null,
-                            tint = Color(0xFF5F259F),
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    Column {
-                        Text(
-                            text = "Scan Any QR",
-                            fontSize = 12.5.sp,
-                            fontFamily = ClashGrotesk,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1C1C1E)
-                        )
-                        Text(
-                            text = "Offline Camera",
-                            fontSize = 10.5.sp,
-                            color = Color(0xFF757575)
-                        )
-                    }
-                }
-
-                // Card 2: My QR Code
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White)
-                        .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(12.dp))
-                        .clickable {
-                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                            onNavigateMyQr()
-                        }
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(34.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFE8F5E9)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.QrCode,
-                            contentDescription = null,
-                            tint = Color(0xFF2E7D32),
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    Column {
-                        Text(
-                            text = "Receive Money",
-                            fontSize = 12.5.sp,
-                            fontFamily = ClashGrotesk,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1C1C1E)
-                        )
-                        Text(
-                            text = "My Offline QR",
-                            fontSize = 10.5.sp,
-                            color = Color(0xFF757575)
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(6.dp))
-
-            // ── UPI Services Card Container (PhonePe Recharge & Bills Card Style) ──
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(16.dp))
-                    .padding(16.dp)
-            ) {
-                Column {
-                    Text(
-                        text = "UPI Services",
-                        fontFamily = ClashGrotesk,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
+                    // Service 1: Request Money
+                    PhonePeServiceCardTile(
+                        label = "Request\nMoney",
+                        vectorIcon = Icons.AutoMirrored.Filled.CallReceived,
+                        iconTint = Color(0xFF5F259F),
+                        iconBg = Color(0xFFEDE7F6),
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                else -> onNavigateRequestMoney()
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(Modifier.height(14.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // 1. Request Money
-                        PhonePeServiceCardTile(
-                            label = "Request\nMoney",
-                            vectorIcon = Icons.AutoMirrored.Filled.CallReceived,
-                            iconTint = Color(0xFF5F259F),
-                            iconBg = Color(0xFFEDE7F6),
-                            onClick = {
-                                when {
-                                    !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
-                                    !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
-                                    !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
-                                    else -> onNavigateRequestMoney()
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        // 2. Pending Requests
-                        PhonePeServiceCardTile(
-                            label = "Pending\nRequests",
-                            vectorIcon = Icons.Default.HourglassBottom,
-                            iconTint = Color(0xFFE65100),
-                            iconBg = Color(0xFFFFF3E0),
-                            onClick = {
-                                when {
-                                    !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
-                                    !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
-                                    !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
-                                    else -> onNavigatePendingRequests()
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        // 3. UPI PIN Settings
-                        PhonePeServiceCardTile(
-                            label = "UPI PIN\nSettings",
-                            vectorIcon = Icons.Default.LockReset,
-                            iconTint = Color(0xFF00838F),
-                            iconBg = Color(0xFFE0F7FA),
-                            onClick = {
-                                when {
-                                    !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
-                                    !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
-                                    !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
-                                    else -> onNavigateUpiPinManage()
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        // 4. Change Bank
-                        PhonePeServiceCardTile(
-                            label = "Change\nBank",
-                            vectorIcon = Icons.Default.AccountBalance,
-                            iconTint = Color(0xFF1565C0),
-                            iconBg = Color(0xFFE3F2FD),
-                            onClick = {
-                                when {
-                                    !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
-                                    !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
-                                    !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
-                                    else -> onNavigateChangeBank()
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Spacer(Modifier.height(14.dp))
-                    HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
-                    Spacer(Modifier.height(10.dp))
-
-                    // Bottom strip inside card: Network Statement & Rewards Link
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { onNavigateNetworkTxns() }
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
-                                contentDescription = null,
-                                tint = Color(0xFF5F259F),
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = "View Recent Network Statement (*99*6#)",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF1C1C1E)
-                            )
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable { onNavigateRewards() }
-                        ) {
-                            Text(
-                                text = "Rewards",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF5F259F)
-                            )
-                            Spacer(Modifier.width(2.dp))
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = null,
-                                tint = Color(0xFF5F259F),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(6.dp))
-
-            // ── Extra Offline Tools Card Container (PhonePe Loans Card Style) ──
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(16.dp))
-                    .padding(16.dp)
-            ) {
-                Column {
-                    Text(
-                        text = "Offline Statements & Extras",
-                        fontFamily = ClashGrotesk,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C1C1E)
+                    // Service 2: Pending Requests
+                    PhonePeServiceCardTile(
+                        label = "Pending\nRequests",
+                        vectorIcon = Icons.Default.HourglassBottom,
+                        iconTint = Color(0xFFE65100),
+                        iconBg = Color(0xFFFFF3E0),
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                else -> onNavigatePendingRequests()
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(Modifier.height(14.dp))
+                    // Service 3: UPI PIN Settings
+                    PhonePeServiceCardTile(
+                        label = "UPI PIN\nSettings",
+                        vectorIcon = Icons.Default.LockReset,
+                        iconTint = Color(0xFF00838F),
+                        iconBg = Color(0xFFE0F7FA),
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                else -> onNavigateUpiPinManage()
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // 1. Past Transactions
-                        PhonePeServiceCardTile(
-                            label = "Past\nTxns",
-                            vectorIcon = Icons.AutoMirrored.Filled.ReceiptLong,
-                            iconTint = Color(0xFF2E7D32),
-                            iconBg = Color(0xFFE8F5E9),
-                            onClick = { onNavigateNetworkTxns() },
-                            modifier = Modifier.weight(1f)
-                        )
+                    // Service 4: Change Bank
+                    PhonePeServiceCardTile(
+                        label = "Change\nBank",
+                        vectorIcon = Icons.Default.AccountBalance,
+                        iconTint = Color(0xFF1565C0),
+                        iconBg = Color(0xFFE3F2FD),
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                else -> onNavigateChangeBank()
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
 
-                        // 2. View Rewards
-                        PhonePeServiceCardTile(
-                            label = "View\nRewards",
-                            vectorIcon = Icons.Default.CardGiftcard,
-                            iconTint = Color(0xFFC2185B),
-                            iconBg = Color(0xFFFCE4EC),
-                            onClick = { onNavigateRewards() },
-                            modifier = Modifier.weight(1f)
-                        )
+                Spacer(Modifier.height(18.dp))
 
-                        // 3. SIM Slot Preferences
-                        PhonePeServiceCardTile(
-                            label = "SIM\nPreferences",
-                            vectorIcon = Icons.Default.SimCard,
-                            iconTint = Color(0xFFEF6C00),
-                            iconBg = Color(0xFFFFF3E0),
-                            onClick = { activeSheetOverride = SetupSheetType.SIM_PREFERENCE },
-                            modifier = Modifier.weight(1f)
-                        )
+                // Row 3: Statements & Offline Tools (Direct on page, cleanly arranged)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Service 5: Past Transactions (*99*6*1#)
+                    PhonePeServiceCardTile(
+                        label = "Past\nTxns",
+                        vectorIcon = Icons.AutoMirrored.Filled.ReceiptLong,
+                        iconTint = Color(0xFF2E7D32),
+                        iconBg = Color(0xFFE8F5E9),
+                        onClick = { onNavigateNetworkTxns() },
+                        modifier = Modifier.weight(1f)
+                    )
 
-                        // 4. My Profile Details
-                        PhonePeServiceCardTile(
-                            label = "My\nProfile",
-                            vectorIcon = Icons.Default.Person,
-                            iconTint = Color(0xFF5F259F),
-                            iconBg = Color(0xFFEDE7F6),
-                            onClick = onNavigateProfile,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                    // Service 6: View Rewards (*99*6*2#)
+                    PhonePeServiceCardTile(
+                        label = "View\nRewards",
+                        vectorIcon = Icons.Default.CardGiftcard,
+                        iconTint = Color(0xFFC2185B),
+                        iconBg = Color(0xFFFCE4EC),
+                        onClick = { onNavigateRewards() },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Service 7: My QR Code
+                    PhonePeServiceCardTile(
+                        label = "My QR\nCode",
+                        vectorIcon = Icons.Default.QrCode,
+                        iconTint = Color(0xFF00838F),
+                        iconBg = Color(0xFFE0F7FA),
+                        onClick = onNavigateMyQr,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Service 8: SIM Preferences
+                    PhonePeServiceCardTile(
+                        label = "SIM\nSlot",
+                        vectorIcon = Icons.Default.SimCard,
+                        iconTint = Color(0xFFEF6C00),
+                        iconBg = Color(0xFFFFF3E0),
+                        onClick = { activeSheetOverride = SetupSheetType.SIM_PREFERENCE },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(12.dp))
 
-            // ── Recent Transfers Container ──
-            Box(
+            // ── Recent Transfers (Clean horizontal list directly on page) ──
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(16.dp))
-                    .padding(16.dp)
             ) {
                 RecentTransfersSection(
                     transactions = transactions,
