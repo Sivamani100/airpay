@@ -26,7 +26,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.CallReceived
+import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.ElectricBolt
+import androidx.compose.material.icons.filled.HourglassBottom
+import androidx.compose.material.icons.filled.LockReset
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -80,8 +86,16 @@ fun HomeScreen(
     historyViewModel: HistoryViewModel,
     permissions: PermissionStatus,
     onNavigatePay: () -> Unit,
+    onNavigateContactChat: () -> Unit = onNavigatePay,
     onNavigateToMobile: () -> Unit = onNavigatePay,
     onNavigateToUpi: () -> Unit = onNavigatePay,
+    onNavigateToBank: () -> Unit = onNavigatePay,
+    onNavigateRequestMoney: () -> Unit = onNavigatePay,
+    onNavigateNetworkTxns: () -> Unit = onNavigatePay,
+    onNavigateRewards: () -> Unit = onNavigatePay,
+    onNavigateUpiPinManage: () -> Unit = onNavigatePay,
+    onNavigateChangeBank: () -> Unit = onNavigatePay,
+    onNavigatePendingRequests: () -> Unit = onNavigatePay,
     onNavigateScan: () -> Unit,
     onNavigateBalance: () -> Unit,
     onNavigateMyQr: () -> Unit,
@@ -275,7 +289,23 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f)
                     )
 
-                    // Action 3: Check Balance
+                    // Action 3: To Bank Account (IFSC & A/c)
+                    AirpayActionTile(
+                        label = "To Bank\nAccount",
+                        iconResId = R.drawable.ic_to_bank_account,
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                !isSimReady -> activeSheetOverride = SetupSheetType.SIM_PREFERENCE
+                                else -> onNavigateToBank()
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Action 4: Check Balance
                     AirpayActionTile(
                         label = "Check\nBalance",
                         iconResId = R.drawable.check_balance_v1,
@@ -291,14 +321,122 @@ fun HomeScreen(
                         },
                         modifier = Modifier.weight(1f)
                     )
+                }
 
-                    // Action 4: My QR Code
+                Spacer(Modifier.height(24.dp))
+
+                // ── UPI Services & Tools ────────────────────────────────
+                Text(
+                    text = "UPI Services & Tools",
+                    fontFamily = ClashGrotesk,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AirpayColors.TextPrimary
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Service 1: Request Money
                     AirpayActionTile(
-                        label = "My QR\nCode",
-                        iconResId = R.drawable.ic_airpay_qr_icon_monochrome,
-                        onClick = onNavigateMyQr,
+                        label = "Request\nMoney",
+                        vectorIcon = Icons.Default.CallReceived,
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                else -> onNavigateRequestMoney()
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     )
+
+                    // Service 2: Pending Requests
+                    AirpayActionTile(
+                        label = "Pending\nRequests",
+                        vectorIcon = Icons.Default.HourglassBottom,
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                else -> onNavigatePendingRequests()
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Service 3: UPI PIN Settings
+                    AirpayActionTile(
+                        label = "UPI PIN\nSettings",
+                        vectorIcon = Icons.Default.LockReset,
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                else -> onNavigateUpiPinManage()
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Service 4: Change Linked Bank
+                    AirpayActionTile(
+                        label = "Change\nBank",
+                        vectorIcon = Icons.Default.AccountBalance,
+                        onClick = {
+                            when {
+                                !isPhoneReady -> activeSheetOverride = SetupSheetType.PHONE
+                                !isAccessibilityReady -> activeSheetOverride = SetupSheetType.ACCESSIBILITY
+                                !isOverlayReady -> activeSheetOverride = SetupSheetType.OVERLAY
+                                else -> onNavigateChangeBank()
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                // Quick Service Chips Row: Network Statement & Rewards & My QR
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFF4F5F8))
+                            .clickable { onNavigateNetworkTxns() }
+                            .padding(horizontal = 10.dp, vertical = 8.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.ReceiptLong, contentDescription = null, tint = AirpayColors.Primary, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(text = "Network Statement", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = AirpayColors.TextPrimary, maxLines = 1)
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFF4F5F8))
+                            .clickable { onNavigateRewards() }
+                            .padding(horizontal = 10.dp, vertical = 8.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.CardGiftcard, contentDescription = null, tint = AirpayColors.Primary, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(text = "Rewards (*99*6#)", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = AirpayColors.TextPrimary, maxLines = 1)
+                        }
+                    }
                 }
             }
 
@@ -320,9 +458,14 @@ fun HomeScreen(
             ) {
                 RecentTransfersSection(
                     transactions = transactions,
-                    onSelectRecipient = { vpa, amount, name ->
-                        payViewModel.prefillFromTransaction(vpa = vpa, amount = amount, note = "", payeeName = name)
-                        onNavigatePay()
+                    onSelectRecipient = { vpa, amount ->
+                        payViewModel.prefillFromTransaction(vpa = vpa, amount = amount, note = "")
+                        val digits = vpa.replace(Regex("[^0-9]"), "")
+                        if (digits.length >= 10 && !vpa.contains("@")) {
+                            onNavigateContactChat()
+                        } else {
+                            onNavigatePay()
+                        }
                     },
                     onViewAll = onNavigateHistory
                 )
@@ -455,7 +598,8 @@ private fun AirpaySetupProgressCard(
 @Composable
 private fun AirpayActionTile(
     label: String,
-    @DrawableRes iconResId: Int,
+    @DrawableRes iconResId: Int? = null,
+    vectorIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -480,11 +624,20 @@ private fun AirpayActionTile(
                 .background(AirpayColors.PurpleTint),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = iconResId),
-                contentDescription = label.replace("\n", " "),
-                modifier = Modifier.size(34.dp)
-            )
+            if (vectorIcon != null) {
+                Icon(
+                    imageVector = vectorIcon,
+                    contentDescription = label.replace("\n", " "),
+                    tint = AirpayColors.Primary,
+                    modifier = Modifier.size(26.dp)
+                )
+            } else if (iconResId != null) {
+                Image(
+                    painter = painterResource(id = iconResId),
+                    contentDescription = label.replace("\n", " "),
+                    modifier = Modifier.size(34.dp)
+                )
+            }
         }
 
         Spacer(Modifier.height(8.dp))
@@ -507,10 +660,9 @@ private fun AirpayActionTile(
 @Composable
 private fun RecentTransfersSection(
     transactions: List<TransactionEntity>,
-    onSelectRecipient: (String, String, String) -> Unit,
+    onSelectRecipient: (String, String) -> Unit,
     onViewAll: () -> Unit
 ) {
-    val context = LocalContext.current
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -571,17 +723,20 @@ private fun RecentTransfersSection(
                 }
             }
         } else {
+            val context = LocalContext.current
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(transactions.take(8)) { txn ->
-                    val displayName = ContactsHelper.resolveDisplayName(context, txn.vpa, txn.payeeName)
+                    val displayName = remember(txn) {
+                        ContactsHelper.resolveDisplayName(context, txn.vpa, txn.payeeName)
+                    }
                     RecipientBubbleItem(
                         recipientName = displayName,
                         vpa = txn.vpa,
                         amount = txn.amount,
-                        onClick = { onSelectRecipient(txn.vpa, txn.amount, displayName) }
+                        onClick = { onSelectRecipient(txn.vpa, txn.amount) }
                     )
                 }
             }

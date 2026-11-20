@@ -31,19 +31,29 @@ import com.arkiolabs.airpay.platform.ShakeDetector
 import com.arkiolabs.airpay.presentation.BalanceViewModel
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.PayViewModel
+import com.arkiolabs.airpay.presentation.ServicesViewModel
 import com.arkiolabs.airpay.presentation.permissions.rememberPermissionStatus
 import com.arkiolabs.airpay.presentation.screens.AboutScreen
 import com.arkiolabs.airpay.presentation.screens.BalanceScreen
+import com.arkiolabs.airpay.presentation.screens.ChangeBankScreen
+import com.arkiolabs.airpay.presentation.screens.ContactChatScreen
 import com.arkiolabs.airpay.presentation.screens.HistoryScreen
 import com.arkiolabs.airpay.presentation.screens.HomeScreen
 import com.arkiolabs.airpay.presentation.screens.LegalScreen
 import com.arkiolabs.airpay.presentation.screens.MyQrScreen
+import com.arkiolabs.airpay.presentation.screens.NetworkTransactionsScreen
 import com.arkiolabs.airpay.presentation.screens.PayScreen
+import com.arkiolabs.airpay.presentation.screens.PendingRequestsScreen
+import com.arkiolabs.airpay.presentation.screens.ProfileScreen
+import com.arkiolabs.airpay.presentation.screens.RequestMoneyScreen
+import com.arkiolabs.airpay.presentation.screens.RewardsScreen
 import com.arkiolabs.airpay.presentation.screens.ScanScreen
 import com.arkiolabs.airpay.presentation.screens.SettingsScreen
 import com.arkiolabs.airpay.presentation.screens.SupportScreen
+import com.arkiolabs.airpay.presentation.screens.ToBankScreen
 import com.arkiolabs.airpay.presentation.screens.ToMobileScreen
 import com.arkiolabs.airpay.presentation.screens.ToUpiScreen
+import com.arkiolabs.airpay.presentation.screens.UpiPinManageScreen
 import com.arkiolabs.airpay.presentation.ui.components.AirpayBottomNav
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 
@@ -70,12 +80,15 @@ private fun MainScaffold(app: AirpayApplication) {
     val payViewModel = rememberPayViewModel(app)
     val balanceViewModel = rememberBalanceViewModel(app)
     val historyViewModel = rememberHistoryViewModel(app)
+    val servicesViewModel = rememberServicesViewModel(app)
 
     val payVmSession by payViewModel.sessionState.collectAsState()
     val balanceVmSession by balanceViewModel.sessionState.collectAsState()
+    val servicesVmSession by servicesViewModel.sessionState.collectAsState()
 
     val sessionActive = payVmSession is SessionState.Running ||
-        balanceVmSession is SessionState.Running
+        balanceVmSession is SessionState.Running ||
+        servicesVmSession is SessionState.Running
 
     val shakeEnabled by app.prefsRepo.shakeToScanEnabled.collectAsState(initial = false)
     val openScannerOnLaunch by app.prefsRepo.openScannerOnLaunch.collectAsState(initial = false)
@@ -115,9 +128,17 @@ private fun MainScaffold(app: AirpayApplication) {
         currentRoute == Screen.Legal.route ||
         currentRoute == Screen.MyQr.route ||
         currentRoute == Screen.Pay.route ||
+        currentRoute == Screen.ContactChat.route ||
         currentRoute == Screen.Balance.route ||
         currentRoute == Screen.ToMobile.route ||
-        currentRoute == Screen.ToUpi.route
+        currentRoute == Screen.ToUpi.route ||
+        currentRoute == Screen.ToBank.route ||
+        currentRoute == Screen.RequestMoney.route ||
+        currentRoute == Screen.NetworkTransactions.route ||
+        currentRoute == Screen.Rewards.route ||
+        currentRoute == Screen.UpiPinManage.route ||
+        currentRoute == Screen.ChangeBank.route ||
+        currentRoute == Screen.PendingRequests.route
 
     Column(
         Modifier
@@ -141,6 +162,11 @@ private fun MainScaffold(app: AirpayApplication) {
                                 launchSingleTop = true
                             }
                         },
+                        onNavigateContactChat = {
+                            navController.navigate(Screen.ContactChat.route) {
+                                launchSingleTop = true
+                            }
+                        },
                         onNavigateToMobile = {
                             navController.navigate(Screen.ToMobile.route) {
                                 launchSingleTop = true
@@ -148,6 +174,41 @@ private fun MainScaffold(app: AirpayApplication) {
                         },
                         onNavigateToUpi = {
                             navController.navigate(Screen.ToUpi.route) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onNavigateToBank = {
+                            navController.navigate(Screen.ToBank.route) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onNavigateRequestMoney = {
+                            navController.navigate(Screen.RequestMoney.route) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onNavigateNetworkTxns = {
+                            navController.navigate(Screen.NetworkTransactions.route) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onNavigateRewards = {
+                            navController.navigate(Screen.Rewards.route) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onNavigateUpiPinManage = {
+                            navController.navigate(Screen.UpiPinManage.route) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onNavigateChangeBank = {
+                            navController.navigate(Screen.ChangeBank.route) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onNavigatePendingRequests = {
+                            navController.navigate(Screen.PendingRequests.route) {
                                 launchSingleTop = true
                             }
                         },
@@ -216,11 +277,17 @@ private fun MainScaffold(app: AirpayApplication) {
                             payViewModel.prefillFromTransaction(
                                 vpa = txn.vpa,
                                 amount = txn.amount,
-                                note = txn.note,
-                                payeeName = txn.payeeName
+                                note = txn.note
                             )
-                            navController.navigate(Screen.Pay.route) {
-                                launchSingleTop = true
+                            val digits = txn.vpa.replace(Regex("[^0-9]"), "")
+                            if (digits.length >= 10 && !txn.vpa.contains("@")) {
+                                navController.navigate(Screen.ContactChat.route) {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                navController.navigate(Screen.Pay.route) {
+                                    launchSingleTop = true
+                                }
                             }
                         },
                         onClose = { navController.popBackStack() }
@@ -231,8 +298,6 @@ private fun MainScaffold(app: AirpayApplication) {
                 composable(Screen.Pay.route) {
                     PayScreen(
                         viewModel = payViewModel,
-                        historyViewModel = historyViewModel,
-                        onBack = { navController.popBackStack() },
                         onNavigateScan = {
                             navController.navigate(Screen.Scan.route) {
                                 launchSingleTop = true
@@ -256,8 +321,8 @@ private fun MainScaffold(app: AirpayApplication) {
                 composable(Screen.ToMobile.route) {
                     ToMobileScreen(
                         onContactSelected = { phone, name ->
-                            payViewModel.prefillFromTransaction(vpa = phone, amount = "", note = "", payeeName = name)
-                            navController.navigate(Screen.Pay.route) { launchSingleTop = true }
+                            payViewModel.prefillFromTransaction(vpa = phone, amount = "", note = "")
+                            navController.navigate(Screen.ContactChat.route) { launchSingleTop = true }
                         },
                         onBack = { navController.popBackStack() },
                         onOpenFaq = {
@@ -266,12 +331,25 @@ private fun MainScaffold(app: AirpayApplication) {
                     )
                 }
 
+                // ── Contact Payment Chat Screen (PhonePe Style) ─────────
+                composable(Screen.ContactChat.route) {
+                    ContactChatScreen(
+                        viewModel = payViewModel,
+                        historyViewModel = historyViewModel,
+                        onBack = { navController.popBackStack() },
+                        onOpenFaq = {
+                            navController.navigate(Screen.Settings.route) { launchSingleTop = true }
+                        },
+                        permissions = permissions
+                    )
+                }
+
                 // ── To Bank / UPI ID Screen ─────────────────────────────
                 composable(Screen.ToUpi.route) {
                     ToUpiScreen(
                         historyViewModel = historyViewModel,
                         onUpiValidated = { vpa, payeeName ->
-                            payViewModel.prefillFromTransaction(vpa = vpa, amount = "", note = "", payeeName = payeeName)
+                            payViewModel.prefillFromTransaction(vpa = vpa, amount = "", note = "")
                             navController.navigate(Screen.Pay.route) { launchSingleTop = true }
                         },
                         onBack = { navController.popBackStack() },
@@ -345,6 +423,79 @@ private fun MainScaffold(app: AirpayApplication) {
                 composable(Screen.Terms.route) {
                     LegalScreen(onClose = { navController.popBackStack() })
                 }
+
+                // ── Send to Bank Account (IFSC) Screen ───────────────────
+                composable(Screen.ToBank.route) {
+                    ToBankScreen(
+                        servicesViewModel = servicesViewModel,
+                        onBack = { navController.popBackStack() },
+                        onOpenFaq = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                    )
+                }
+
+                // ── Request Money Screen ────────────────────────────────
+                composable(Screen.RequestMoney.route) {
+                    RequestMoneyScreen(
+                        servicesViewModel = servicesViewModel,
+                        onBack = { navController.popBackStack() },
+                        onOpenFaq = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                    )
+                }
+
+                // ── Network Transactions Screen (*99*6*1#) ───────────────
+                composable(Screen.NetworkTransactions.route) {
+                    NetworkTransactionsScreen(
+                        servicesViewModel = servicesViewModel,
+                        onBack = { navController.popBackStack() },
+                        onOpenFaq = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                    )
+                }
+
+                // ── Rewards Screen (*99*6*2#) ───────────────────────────
+                composable(Screen.Rewards.route) {
+                    RewardsScreen(
+                        servicesViewModel = servicesViewModel,
+                        onBack = { navController.popBackStack() },
+                        onOpenFaq = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                    )
+                }
+
+                // ── UPI PIN Settings Screen (*99*7#) ─────────────────────
+                composable(Screen.UpiPinManage.route) {
+                    UpiPinManageScreen(
+                        servicesViewModel = servicesViewModel,
+                        onBack = { navController.popBackStack() },
+                        onOpenFaq = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                    )
+                }
+
+                // ── Change Linked Bank Screen (*99*4*1#) ─────────────────
+                composable(Screen.ChangeBank.route) {
+                    ChangeBankScreen(
+                        servicesViewModel = servicesViewModel,
+                        onBack = { navController.popBackStack() },
+                        onOpenFaq = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                    )
+                }
+
+                // ── Pending Requests Screen (*99*5#) ─────────────────────
+                composable(Screen.PendingRequests.route) {
+                    PendingRequestsScreen(
+                        servicesViewModel = servicesViewModel,
+                        onBack = { navController.popBackStack() },
+                        onOpenFaq = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                    )
+                }
+
+                // ── Profile / My Details Screen (*99*4#) ─────────────────
+                composable(Screen.Profile.route) {
+                    ProfileScreen(
+                        servicesViewModel = servicesViewModel,
+                        onNavigateMyQr = { navController.navigate(Screen.MyQr.route) { launchSingleTop = true } },
+                        onNavigateSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
+                        onOpenFaq = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                    )
+                }
             }
         }
 
@@ -413,6 +564,20 @@ private fun rememberHistoryViewModel(app: AirpayApplication): HistoryViewModel {
     return remember {
         HistoryViewModel(
             historyRepo = app.historyRepo
+        )
+    }
+}
+
+@Composable
+private fun rememberServicesViewModel(app: AirpayApplication): ServicesViewModel {
+    val context = LocalContext.current
+    return remember {
+        ServicesViewModel(
+            actionRunner = app.actionRunner,
+            prefsRepo = app.prefsRepo,
+            historyRepo = app.historyRepo,
+            overlayController = app.overlayController,
+            context = context
         )
     }
 }

@@ -268,4 +268,289 @@ object Actions {
         failurePatterns = COMMON_FAILURES,
         timeoutMs = 18_000L
     )
+
+    /**
+     * Send money to bank account using IFSC & Account Number (*99*1*5#).
+     */
+    val SendToBank = Action(
+        code = "*99*1*5#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("(ifsc|branch|code)", RegexOption.IGNORE_CASE),
+                reply = "{ifsc}",
+                label = "Entering IFSC"
+            ),
+            ActionStep(
+                match = Regex("(account|a/c|beneficiary.*acc)", RegexOption.IGNORE_CASE),
+                reply = "{account}",
+                label = "Entering Account Number"
+            ),
+            ActionStep(
+                match = Regex("(enter\\s*amount|amount\\s*in\\s*rs|\\bamount\\b)", RegexOption.IGNORE_CASE),
+                reply = "{amount}",
+                label = "Entering Amount"
+            ),
+            ActionStep(
+                match = Regex("\\b(remark|comment|note)\\b", RegexOption.IGNORE_CASE),
+                reply = "{note}",
+                label = "Adding Remarks"
+            ),
+            ActionStep(
+                match = Regex("\\b(confirm|press\\s*1|1\\s*to\\s*confirm|1\\s*to\\s*proceed|are\\s*you\\s*sure|1\\s*[:.]\\s*confirm)\\b", RegexOption.IGNORE_CASE),
+                reply = "1",
+                label = "Confirming Transfer"
+            ),
+            ActionStep(
+                match = Regex("\\b(upi\\s*pin|mpin|\\d+\\s*digit.*pin|enter.*pin)\\b", RegexOption.IGNORE_CASE),
+                reply = "{pin}",
+                label = "Entering UPI PIN"
+            ),
+            ActionStep(
+                match = Regex("successful|transferred|debited|completed|ref(?:erence)?|payment\\s+done", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Transfer Complete"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 40_000L
+    )
+
+    /**
+     * Request money using Mobile Number (*99*2*1#).
+     */
+    val RequestMoneyByPhone = Action(
+        code = "*99*2*1#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("(mobile|phone|number)", RegexOption.IGNORE_CASE),
+                reply = "{phone}",
+                label = "Entering Mobile Number"
+            ),
+            ActionStep(
+                match = Regex("(enter\\s*amount|amount\\s*in\\s*rs|\\bamount\\b)", RegexOption.IGNORE_CASE),
+                reply = "{amount}",
+                label = "Entering Amount"
+            ),
+            ActionStep(
+                match = Regex("\\b(remark|comment|note)\\b", RegexOption.IGNORE_CASE),
+                reply = "{note}",
+                label = "Adding Remarks"
+            ),
+            ActionStep(
+                match = Regex("\\b(confirm|press\\s*1|1\\s*to\\s*confirm|1\\s*to\\s*proceed|are\\s*you\\s*sure)\\b", RegexOption.IGNORE_CASE),
+                reply = "1",
+                label = "Confirming Request"
+            ),
+            ActionStep(
+                match = Regex("request\\s*(sent|successful|completed)|ref(?:erence)?|successful", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Request Sent"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 30_000L
+    )
+
+    /**
+     * Request money using UPI ID (*99*2*2#).
+     */
+    val RequestMoneyByVpa = Action(
+        code = "*99*2*2#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("(vpa|upi\\s*id|address|virtual)", RegexOption.IGNORE_CASE),
+                reply = "{vpa}",
+                label = "Entering UPI ID"
+            ),
+            ActionStep(
+                match = Regex("(enter\\s*amount|amount\\s*in\\s*rs|\\bamount\\b)", RegexOption.IGNORE_CASE),
+                reply = "{amount}",
+                label = "Entering Amount"
+            ),
+            ActionStep(
+                match = Regex("\\b(remark|comment|note)\\b", RegexOption.IGNORE_CASE),
+                reply = "{note}",
+                label = "Adding Remarks"
+            ),
+            ActionStep(
+                match = Regex("\\b(confirm|press\\s*1|1\\s*to\\s*confirm|1\\s*to\\s*proceed|are\\s*you\\s*sure)\\b", RegexOption.IGNORE_CASE),
+                reply = "1",
+                label = "Confirming Request"
+            ),
+            ActionStep(
+                match = Regex("request\\s*(sent|successful|completed)|ref(?:erence)?|successful", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Request Sent"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 30_000L
+    )
+
+    /**
+     * View recent transactions across the UPI network (*99*6*1#).
+     */
+    val ViewRecentTransactions = Action(
+        code = "*99*6*1#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("txn|trans|statement|rs\\.?|inr|no\\s*txn|last|recent|ref|dr|cr", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Fetching Recent Transactions"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 25_000L
+    )
+
+    /**
+     * View rewards information from carrier gateway (*99*6*2#).
+     */
+    val ViewRewards = Action(
+        code = "*99*6*2#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("reward|point|coupon|offer|cashback|bonus|balance|no\\s*reward|info", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Fetching Rewards"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 25_000L
+    )
+
+    /**
+     * Set or reset UPI PIN using Debit Card (*99*7*1#).
+     */
+    val ResetUpiPin = Action(
+        code = "*99*7*1#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("(debit\\s*card|last\\s*6|card\\s*no|digits)", RegexOption.IGNORE_CASE),
+                reply = "{debitDigits}",
+                label = "Entering Card Digits"
+            ),
+            ActionStep(
+                match = Regex("(expiry|valid|mm/yy|mmyy|valid\\s*thru)", RegexOption.IGNORE_CASE),
+                reply = "{expiry}",
+                label = "Entering Expiry Date"
+            ),
+            ActionStep(
+                match = Regex("(new\\s*pin|set\\s*pin|enter\\s*pin|enter.*new)", RegexOption.IGNORE_CASE),
+                reply = "{newPin}",
+                label = "Entering New PIN"
+            ),
+            ActionStep(
+                match = Regex("(confirm\\s*pin|re-?enter\\s*pin|confirm.*new)", RegexOption.IGNORE_CASE),
+                reply = "{confirmPin}",
+                label = "Confirming New PIN"
+            ),
+            ActionStep(
+                match = Regex("successful|changed|set|completed|pin\\s*created", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "PIN Updated"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 40_000L
+    )
+
+    /**
+     * Change existing UPI PIN (*99*7*2#).
+     */
+    val ChangeUpiPin = Action(
+        code = "*99*7*2#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("(old\\s*pin|existing\\s*pin|current\\s*pin)", RegexOption.IGNORE_CASE),
+                reply = "{oldPin}",
+                label = "Entering Old PIN"
+            ),
+            ActionStep(
+                match = Regex("(new\\s*pin|enter\\s*pin|enter.*new)", RegexOption.IGNORE_CASE),
+                reply = "{newPin}",
+                label = "Entering New PIN"
+            ),
+            ActionStep(
+                match = Regex("(confirm\\s*pin|re-?enter\\s*pin|confirm.*new)", RegexOption.IGNORE_CASE),
+                reply = "{confirmPin}",
+                label = "Confirming New PIN"
+            ),
+            ActionStep(
+                match = Regex("successful|changed|updated|completed", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "PIN Changed"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 35_000L
+    )
+
+    /**
+     * Change linked bank account (*99*4*1#).
+     */
+    val ChangeLinkedBank = Action(
+        code = "*99*4*1#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("(select\\s*bank|enter\\s*bank|name\\s*bank|3\\s*letter|ifsc|search)", RegexOption.IGNORE_CASE),
+                reply = "{bankName}",
+                label = "Selecting Bank"
+            ),
+            ActionStep(
+                match = Regex("(select\\s*account|choose\\s*account|1\\s*[:.])", RegexOption.IGNORE_CASE),
+                reply = "1",
+                label = "Selecting Account"
+            ),
+            ActionStep(
+                match = Regex("linked|changed|set\\s*as\\s*primary|successful|completed|updated", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Bank Account Updated"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 35_000L
+    )
+
+    /**
+     * Fetch pending collect requests (*99*5#).
+     */
+    val PendingRequests = Action(
+        code = "*99*5#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("pending|request|no\\s*pending|collect|approve|reject|decline", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Fetching Pending Requests"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 25_000L
+    )
+
+    /**
+     * Fetch user profile details (*99*4#).
+     */
+    val FetchMyDetails = Action(
+        code = "*99*4#",
+        steps = listOf(
+            ActionStep(
+                match = Regex("(welcome|select\\s*option|send\\s*money|1\\s*[:.]\\s*send)", RegexOption.IGNORE_CASE),
+                reply = "4",
+                label = "Opening Profile"
+            ),
+            ActionStep(
+                match = Regex("(my\\s*profile|profile|change\\s*bank|change\\s*language|select\\s*option|1\\s*[:.])", RegexOption.IGNORE_CASE),
+                reply = "4",
+                label = "Selecting My Details"
+            ),
+            ActionStep(
+                match = Regex("(name|upi\\s*id|vpa|account|bank|primary|payment\\s*address|@[a-zA-Z0-9]+)", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Fetching Profile Details"
+            )
+        ),
+        failurePatterns = COMMON_FAILURES,
+        timeoutMs = 25_000L
+    )
 }

@@ -88,8 +88,8 @@ fun SettingsScreen(
     val biometricEnabled by prefsRepo.biometricEnabled.collectAsState(initial = false)
     val shakeToScanEnabled by prefsRepo.shakeToScanEnabled.collectAsState(initial = false)
     val openScannerOnLaunch by prefsRepo.openScannerOnLaunch.collectAsState(initial = false)
-    val preferredSimSlot by prefsRepo.preferredSimSlot.collectAsState(initial = 0)
-    val preferredSimCarrier by prefsRepo.preferredSimCarrier.collectAsState(initial = null)
+    val preferredSlot by prefsRepo.preferredSimSlot.collectAsState(initial = null)
+    val preferredCarrier by prefsRepo.preferredSimCarrier.collectAsState(initial = null)
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -218,19 +218,22 @@ fun SettingsScreen(
 
             HorizontalDivider(color = Color(0xFFF0F0F2), thickness = 0.8.dp)
 
-            // ── Item: Payment SIM Card (Switch SIM) ─────────────────
-            val simSlotText = (preferredSimSlot ?: 0) + 1
-            val simSubtitle = if (!preferredSimCarrier.isNullOrBlank()) {
-                "SIM $simSlotText: $preferredSimCarrier · Tap to switch active SIM"
-            } else {
-                "SIM $simSlotText · Tap to switch active payment SIM"
+            // ── Item 3: Primary SIM Card & Switching ────────────────
+            val currentSimDisplay = remember(preferredSlot, preferredCarrier) {
+                val slotNum = (preferredSlot ?: 0) + 1
+                if (!preferredCarrier.isNullOrBlank()) {
+                    "SIM $slotNum ($preferredCarrier) · Tap to switch"
+                } else {
+                    "SIM $slotNum · Tap to switch"
+                }
             }
+
             SettingsClickableRow(
                 icon = Icons.Default.SimCard,
-                iconBg = Color(0xFFFFF3E0),
-                iconTint = Color(0xFFE65100),
-                title = "Payment SIM Card",
-                subtitle = simSubtitle,
+                iconBg = Color(0xFFF3E5F5),
+                iconTint = AirpayColors.Primary,
+                title = "Primary SIM Card",
+                subtitle = currentSimDisplay,
                 onClick = {
                     view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     showSimSheet = true
@@ -332,6 +335,21 @@ fun SettingsScreen(
             Spacer(Modifier.height(40.dp))
         }
 
+        // ── SIM Switcher Bottom Sheet ─────────────────────────────
+        if (showSimSheet) {
+            SimPreferenceSheet(
+                currentSlot = preferredSlot,
+                onSimSelected = { slot, carrier, subId ->
+                    showSimSheet = false
+                    scope.launch {
+                        prefsRepo.setPreferredSim(slot, carrier, subId)
+                    }
+                    Toast.makeText(context, "Primary SIM switched to SIM ${slot + 1}", Toast.LENGTH_SHORT).show()
+                },
+                onDismiss = { showSimSheet = false }
+            )
+        }
+
         // ── Logout Confirmation Bottom Sheet ───────────────────────
         if (showLogoutSheet) {
             LogoutConfirmationSheet(
@@ -355,23 +373,6 @@ fun SettingsScreen(
                     }
                 },
                 onDismiss = { showLogoutSheet = false }
-            )
-        }
-
-        // ── SIM Preference Bottom Sheet (Switch SIM) ────────────────
-        if (showSimSheet) {
-            SimPreferenceSheet(
-                currentSlot = preferredSimSlot ?: 0,
-                onSimSelected = { slot, carrier, subId ->
-                    scope.launch {
-                        prefsRepo.setPreferredSim(slot, carrier, subId)
-                        val cachedPrefs = context.getSharedPreferences("airpay_fast_cache", Context.MODE_PRIVATE)
-                        cachedPrefs.edit().putInt("preferred_sim_slot", slot).commit()
-                        val carrierName = carrier ?: "SIM ${slot + 1}"
-                        Toast.makeText(context, "Switched payment SIM to $carrierName (Slot ${slot + 1})", Toast.LENGTH_SHORT).show()
-                    }
-                    showSimSheet = false
-                }
             )
         }
     }

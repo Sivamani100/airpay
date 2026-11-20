@@ -113,8 +113,11 @@ fun MyQrScreen(
     val overlayController = app.overlayController
 
     val savedUpiIdFlow by prefsRepo.userUpiId.collectAsState(initial = null)
+    val savedUserName by prefsRepo.userName.collectAsState(initial = null)
     val cachedUpiId = remember { cachedPrefs.getString("user_upi_id", null) }
     var activeUpiId by remember { mutableStateOf(cachedUpiId?.takeIf { it.isNotBlank() && it.contains("@") }) }
+
+    val effectiveName = savedUserName?.ifBlank { null } ?: "Airpay User"
 
     // Sync state if DataStore emits an update
     LaunchedEffect(savedUpiIdFlow) {
@@ -137,8 +140,9 @@ fun MyQrScreen(
     }
 
     // Generate smooth rounded QR code bitmap
-    val qrBitmap = remember(effectiveUpiId, logoBitmap) {
-        val upiUri = "upi://pay?pa=$effectiveUpiId&pn=Airpay%20User&cu=INR"
+    val qrBitmap = remember(effectiveUpiId, effectiveName, logoBitmap) {
+        val encodedName = java.net.URLEncoder.encode(effectiveName, "UTF-8")
+        val upiUri = "upi://pay?pa=$effectiveUpiId&pn=$encodedName&cu=INR"
         generateSmoothQrBitmap(content = upiUri, size = 600, logoBitmap = logoBitmap)
     }
 
@@ -345,7 +349,17 @@ fun MyQrScreen(
                         )
                     }
 
-                    Spacer(Modifier.height(20.dp))
+                    Spacer(Modifier.height(14.dp))
+
+                    Text(
+                        text = effectiveName,
+                        fontSize = 17.sp,
+                        fontFamily = ClashGrotesk,
+                        fontWeight = FontWeight.Bold,
+                        color = AirpayColors.TextPrimary
+                    )
+
+                    Spacer(Modifier.height(14.dp))
 
                     // ── QR Code Viewport (Smooth Rounded QR with center square logo) ──
                     Box(

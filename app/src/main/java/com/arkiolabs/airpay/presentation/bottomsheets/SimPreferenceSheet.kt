@@ -57,6 +57,7 @@ data class SimOption(
 fun SimPreferenceSheet(
     onSimSelected: (slot: Int, carrier: String?, subId: Int?) -> Unit,
     currentSlot: Int? = null,
+    onDismiss: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -100,6 +101,11 @@ fun SimPreferenceSheet(
 
     val selectedOption = detectedSims.find { it.slotIndex == selectedSlot } ?: detectedSims.firstOrNull()
 
+    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { onDismiss != null }
+    )
+
     BaseBottomSheetContainer(
         title = "Select Primary SIM",
         primaryButtonText = "Confirm SIM",
@@ -110,6 +116,7 @@ fun SimPreferenceSheet(
                 selectedOption?.subscriptionId?.takeIf { it >= 0 }
             )
         },
+        sheetState = sheetState,
         modifier = modifier
     ) {
         // SIM Options List Only (Clean Multiple Choice)

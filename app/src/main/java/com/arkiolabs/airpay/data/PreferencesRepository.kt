@@ -42,6 +42,16 @@ object PreferencesKeys {
     val OPEN_SCANNER_ON_LAUNCH = booleanPreferencesKey("open_scanner_on_launch")
     val BIOMETRIC_SUGGESTION_DISMISSED = booleanPreferencesKey("biometric_suggestion_dismissed")
     val SHAKE_SUGGESTION_DISMISSED = booleanPreferencesKey("shake_suggestion_dismissed")
+
+    // Profile & NUUP Extended Services
+    val USER_NAME = stringPreferencesKey("user_name")
+    val USER_ACCOUNT_MASKED = stringPreferencesKey("user_account_masked")
+    val USER_ACCOUNT_FULL = stringPreferencesKey("user_account_full")
+    val LAST_NETWORK_TXNS = stringPreferencesKey("last_network_txns")
+    val LAST_NETWORK_TXNS_TIMESTAMP = longPreferencesKey("last_network_txns_timestamp")
+    val LAST_REWARDS_TEXT = stringPreferencesKey("last_rewards_text")
+    val LAST_PENDING_REQUESTS_TEXT = stringPreferencesKey("last_pending_requests_text")
+    val LAST_PENDING_REQUESTS_TIMESTAMP = longPreferencesKey("last_pending_requests_timestamp")
 }
 
 class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
@@ -280,6 +290,84 @@ class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
     suspend fun setShakeSuggestionDismissed(dismissed: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHAKE_SUGGESTION_DISMISSED] = dismissed
+        }
+    }
+
+    // ── Profile Details ──────────────────────────────────────────────
+
+    val userName: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.USER_NAME]
+    }
+
+    suspend fun setUserName(name: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USER_NAME] = name
+        }
+    }
+
+    val userAccountMasked: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.USER_ACCOUNT_MASKED]
+    }
+
+    suspend fun setUserAccountMasked(account: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USER_ACCOUNT_MASKED] = account
+        }
+    }
+
+    val userAccountFull: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.USER_ACCOUNT_FULL]
+    }
+
+    suspend fun setUserAccountFull(account: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USER_ACCOUNT_FULL] = account
+        }
+    }
+
+    // ── Network Transactions Cache ───────────────────────────────────
+
+    val lastNetworkTxns: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_NETWORK_TXNS]
+    }
+
+    val lastNetworkTxnsTimestamp: Flow<Long?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_NETWORK_TXNS_TIMESTAMP]
+    }
+
+    suspend fun setLastNetworkTxns(text: String, timestamp: Long) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_NETWORK_TXNS] = text
+            preferences[PreferencesKeys.LAST_NETWORK_TXNS_TIMESTAMP] = timestamp
+        }
+    }
+
+    // ── Rewards Cache ────────────────────────────────────────────────
+
+    val lastRewardsText: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_REWARDS_TEXT]
+    }
+
+    suspend fun setLastRewardsText(text: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_REWARDS_TEXT] = text
+        }
+    }
+
+    // ── Pending Requests Cache ───────────────────────────────────────
+
+    val lastPendingRequestsText: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_PENDING_REQUESTS_TEXT]
+    }
+
+    val lastPendingRequestsTimestamp: Flow<Long?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_PENDING_REQUESTS_TIMESTAMP]
+    }
+
+    suspend fun setLastPendingRequestsText(text: String, timestamp: Long) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_PENDING_REQUESTS_TEXT] = text
+            preferences[PreferencesKeys.LAST_PENDING_REQUESTS_TIMESTAMP] = timestamp
         }
     }
 

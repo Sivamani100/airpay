@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkiolabs.airpay.R
 import com.arkiolabs.airpay.data.TransactionEntity
-import com.arkiolabs.airpay.platform.ContactsHelper
 import com.arkiolabs.airpay.presentation.HistoryViewModel
 import com.arkiolabs.airpay.presentation.ui.theme.ClashGrotesk
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
@@ -76,13 +75,12 @@ fun HistoryScreen(
 
     val filteredTxns = remember(searchQuery, txns) {
         if (searchQuery.isBlank()) txns else {
-            txns.filter {
-                val resolvedName = ContactsHelper.resolveDisplayName(context, it.vpa, it.payeeName)
-                resolvedName.contains(searchQuery, ignoreCase = true) ||
-                    it.vpa.contains(searchQuery, ignoreCase = true) ||
-                    it.amount.contains(searchQuery) ||
-                    (it.payeeName?.contains(searchQuery, ignoreCase = true) == true) ||
-                    (it.note?.contains(searchQuery, ignoreCase = true) == true)
+            txns.filter { txn ->
+                val resolvedName = com.arkiolabs.airpay.platform.ContactsHelper.resolveDisplayName(context, txn.vpa, txn.payeeName)
+                txn.vpa.contains(searchQuery, ignoreCase = true) ||
+                    txn.amount.contains(searchQuery) ||
+                    resolvedName.contains(searchQuery, ignoreCase = true) ||
+                    (txn.note?.contains(searchQuery, ignoreCase = true) == true)
             }
         }
     }
@@ -249,15 +247,15 @@ private fun CleanHistoryItem(
     txn: TransactionEntity,
     onPayAgain: () -> Unit
 ) {
+    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
     val formattedDate = remember(txn.timestamp) {
         SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(txn.timestamp))
     }
 
     val displayName = remember(txn.vpa, txn.payeeName) {
-        ContactsHelper.resolveDisplayName(context, txn.vpa, txn.payeeName)
+        com.arkiolabs.airpay.platform.ContactsHelper.resolveDisplayName(context, txn.vpa, txn.payeeName)
     }
 
     Column(

@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,10 +42,11 @@ import com.arkiolabs.airpay.presentation.navigation.Screen
 import com.arkiolabs.airpay.presentation.ui.theme.AirpayColors
 
 /**
- * Streamlined 3-Tab Bottom Navigation Bar:
+ * 4-Tab Bottom Navigation Bar:
  *  - Home (Left)
+ *  - History (Mid-Left)
  *  - Scanner (Center elevated button)
- *  - History (Right)
+ *  - Profile (Right - My Details)
  */
 @Composable
 fun AirpayBottomNav(
@@ -86,10 +90,23 @@ fun AirpayBottomNav(
                 modifier = Modifier.weight(1f)
             )
 
-            // Tab 2: Center QR Scanner Button
+            // Tab 2: History (Mid-Left)
+            NavTabItem(
+                label = "History",
+                isActive = currentRoute == Screen.History.route,
+                activeResId = R.drawable.bottom_nav_history_selected,
+                inactiveResId = R.drawable.bottom_nav_history_unselected,
+                onClick = {
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    onNavigate(Screen.History.route)
+                },
+                modifier = Modifier.weight(1f)
+            )
+
+            // Tab 3: Center QR Scanner Button
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(1.1f)
                     .height(64.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -117,15 +134,14 @@ fun AirpayBottomNav(
                 }
             }
 
-            // Tab 3: History (Right)
+            // Tab 4: Profile / My Details (Right)
             NavTabItem(
-                label = "History",
-                isActive = currentRoute == Screen.History.route,
-                activeResId = R.drawable.bottom_nav_history_selected,
-                inactiveResId = R.drawable.bottom_nav_history_unselected,
+                label = "Profile",
+                isActive = currentRoute == Screen.Profile.route,
+                vectorIcon = if (currentRoute == Screen.Profile.route) Icons.Default.Person else Icons.Outlined.Person,
                 onClick = {
                     view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                    onNavigate(Screen.History.route)
+                    onNavigate(Screen.Profile.route)
                 },
                 modifier = Modifier.weight(1f)
             )
@@ -137,8 +153,9 @@ fun AirpayBottomNav(
 private fun NavTabItem(
     label: String,
     isActive: Boolean,
-    activeResId: Int,
-    inactiveResId: Int,
+    activeResId: Int? = null,
+    inactiveResId: Int? = null,
+    vectorIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -157,12 +174,21 @@ private fun NavTabItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            painter = painterResource(id = if (isActive) activeResId else inactiveResId),
-            contentDescription = label,
-            tint = tint,
-            modifier = Modifier.size(24.dp)
-        )
+        if (vectorIcon != null) {
+            Icon(
+                imageVector = vectorIcon,
+                contentDescription = label,
+                tint = tint,
+                modifier = Modifier.size(24.dp)
+            )
+        } else if (activeResId != null && inactiveResId != null) {
+            Icon(
+                painter = painterResource(id = if (isActive) activeResId else inactiveResId),
+                contentDescription = label,
+                tint = tint,
+                modifier = Modifier.size(24.dp)
+            )
+        }
         Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = label,
