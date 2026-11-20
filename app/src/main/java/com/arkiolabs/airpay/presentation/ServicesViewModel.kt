@@ -300,23 +300,57 @@ class ServicesViewModel(
             if (digits.length >= 4) {
                 val last4 = digits.takeLast(4)
                 prefsRepo.setUserAccountMasked("•••• •••• $last4")
-                prefsRepo.setUserAccountFull(digits)
+                if (digits.length >= 9) {
+                    prefsRepo.setUserAccountFull(digits)
+                }
             }
         }
 
-        // Find Name (lines with 'name' or 1st non-menu line)
-        val nameLine = lines.firstOrNull { line ->
-            line.contains("name", ignoreCase = true) && !line.contains("bank", ignoreCase = true)
+        // Find Name:
+        // 1. Check for explicit "name" or "customer" prefix
+        var extractedName: String? = null
+        for (line in lines) {
+            val lower = line.lowercase()
+            if ((lower.contains("name") || lower.contains("customer")) &&
+                !lower.contains("bank") &&
+                !lower.contains("enter") &&
+                !lower.contains("select")
+            ) {
+                val candidate = line
+                    .replace(Regex("^(customer\\s+name|your\\s+name|name)\\s*[:=-]\\s*", RegexOption.IGNORE_CASE), "")
+                    .replace(Regex("^[0-9]+[.:-]\\s*"), "")
+                    .trim()
+                if (candidate.length in 2..40 && candidate.any { it.isLetter() }) {
+                    extractedName = candidate
+                    break
+                }
+            }
         }
-        val extractedName = if (nameLine != null) {
-            nameLine.substringAfter(":").substringAfter("-").trim()
-        } else {
-            lines.firstOrNull { l ->
-                !l.contains("select", ignoreCase = true) &&
-                    !l.contains("welcome", ignoreCase = true) &&
-                    !l.contains("@") &&
-                    !l.all { it.isDigit() } &&
-                    l.length in 3..25
+
+        // 2. Fallback: line that looks like a person's name
+        if (extractedName == null) {
+            for (line in lines) {
+                val clean = line.replace(Regex("^[0-9]+[.:-]\\s*"), "").trim()
+                val lower = clean.lowercase()
+                if (!lower.contains("welcome") &&
+                    !lower.contains("select") &&
+                    !lower.contains("option") &&
+                    !lower.contains("bank") &&
+                    !lower.contains("profile") &&
+                    !lower.contains("details") &&
+                    !lower.contains("a/c") &&
+                    !lower.contains("acc") &&
+                    !lower.contains("account") &&
+                    !lower.contains("upi") &&
+                    !lower.contains("success") &&
+                    !lower.contains("@") &&
+                    clean.length in 3..35 &&
+                    clean.all { it.isLetter() || it.isWhitespace() || it == '.' } &&
+                    clean.any { it.isLetter() }
+                ) {
+                    extractedName = clean
+                    break
+                }
             }
         }
 
@@ -337,6 +371,9 @@ class ServicesViewModel(
             val cleanBank = bankLine.substringAfter(":").trim()
             prefsRepo.setUserBankName(cleanBank)
         }
+
+        // Update last profile timestamp (4-day cache cycle)
+        prefsRepo.setLastProfileTimestamp(System.currentTimeMillis())
     }
 
     /**

@@ -52,6 +52,7 @@ object PreferencesKeys {
     val LAST_REWARDS_TEXT = stringPreferencesKey("last_rewards_text")
     val LAST_PENDING_REQUESTS_TEXT = stringPreferencesKey("last_pending_requests_text")
     val LAST_PENDING_REQUESTS_TIMESTAMP = longPreferencesKey("last_pending_requests_timestamp")
+    val LAST_PROFILE_TIMESTAMP = longPreferencesKey("last_profile_timestamp")
 }
 
 class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
@@ -368,6 +369,18 @@ class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.LAST_PENDING_REQUESTS_TEXT] = text
             preferences[PreferencesKeys.LAST_PENDING_REQUESTS_TIMESTAMP] = timestamp
+        }
+    }
+
+    // ── Profile Timestamp Cache (4-Day Refresh Cycle) ────────────────
+
+    val lastProfileTimestamp: Flow<Long?> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_PROFILE_TIMESTAMP]
+    }
+
+    suspend fun setLastProfileTimestamp(timestamp: Long) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_PROFILE_TIMESTAMP] = timestamp
         }
     }
 

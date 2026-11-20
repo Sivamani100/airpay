@@ -529,25 +529,34 @@ object Actions {
     )
 
     /**
-     * Fetch user profile details (*99*4#).
+     * Fetch user profile details (*99*4*3# for My Details including Name, Bank, Account, UPI ID).
      */
     val FetchMyDetails = Action(
-        code = "*99*4#",
+        code = "*99*4*3#",
         steps = listOf(
+            // Direct response when carrier supports direct *99*4*3#
+            ActionStep(
+                match = Regex("(name|upi\\s*id|vpa|account|a/c|bank|primary|payment\\s*address|@[a-zA-Z0-9]+)", RegexOption.IGNORE_CASE),
+                done = true,
+                label = "Profile Details Fetched"
+            ),
+            // Fallback 1: Carrier lands on main menu
             ActionStep(
                 match = Regex("(welcome|select\\s*option|send\\s*money|1\\s*[:.]\\s*send)", RegexOption.IGNORE_CASE),
                 reply = "4",
                 label = "Opening Profile"
             ),
+            // Fallback 2: Carrier lands on Profile menu (Option 3 = My Details)
             ActionStep(
-                match = Regex("(my\\s*profile|profile|change\\s*bank|change\\s*language|select\\s*option|1\\s*[:.])", RegexOption.IGNORE_CASE),
-                reply = "4",
+                match = Regex("(my\\s*profile|profile|change\\s*bank|change\\s*language|select\\s*option|1\\s*[:.]|3\\s*[:.]\\s*my\\s*details)", RegexOption.IGNORE_CASE),
+                reply = "3",
                 label = "Selecting My Details"
             ),
+            // Fallback 3: Details frame
             ActionStep(
-                match = Regex("(name|upi\\s*id|vpa|account|bank|primary|payment\\s*address|@[a-zA-Z0-9]+)", RegexOption.IGNORE_CASE),
+                match = Regex("(name|upi\\s*id|vpa|account|a/c|bank|primary|payment\\s*address|@[a-zA-Z0-9]+)", RegexOption.IGNORE_CASE),
                 done = true,
-                label = "Fetching Profile Details"
+                label = "Profile Details Fetched"
             )
         ),
         failurePatterns = COMMON_FAILURES,

@@ -115,7 +115,7 @@ fun AirpayBottomNav(
                         .size(52.dp)
                         .shadow(elevation = 4.dp, shape = CircleShape)
                         .clip(CircleShape)
-                        .background(AirpayColors.Primary)
+                        .background(Color(0xFF5F259F))
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
@@ -128,7 +128,7 @@ fun AirpayBottomNav(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_qr_scan),
                         contentDescription = "Scan any QR",
-                        tint = AirpayColors.Saffron,
+                        tint = Color.White,
                         modifier = Modifier.size(26.dp)
                     )
                 }
@@ -160,7 +160,7 @@ private fun NavTabItem(
     modifier: Modifier = Modifier
 ) {
     val tint by animateColorAsState(
-        targetValue = if (isActive) AirpayColors.Primary else Color(0xFF8E8E93),
+        targetValue = if (isActive) Color(0xFF5F259F) else Color(0xFF757575),
         label = "nav_tint_$label"
     )
 

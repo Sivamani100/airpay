@@ -212,6 +212,11 @@ private fun MainScaffold(app: AirpayApplication) {
                                 launchSingleTop = true
                             }
                         },
+                        onNavigateProfile = {
+                            navController.navigate(Screen.Profile.route) {
+                                launchSingleTop = true
+                            }
+                        },
                         onNavigateScan = {
                             navController.navigate(Screen.Scan.route) {
                                 launchSingleTop = true

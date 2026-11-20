@@ -24,9 +24,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
@@ -34,17 +36,21 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +59,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.input.KeyboardType
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,6 +93,7 @@ fun ProfileScreen(
     val context = LocalContext.current
     val view = LocalView.current
     val app = context.airpayApp
+    val scope = rememberCoroutineScope()
     val session by servicesViewModel.sessionState.collectAsState()
 
     val userName by app.prefsRepo.userName.collectAsState(initial = null)
@@ -92,12 +101,21 @@ fun ProfileScreen(
     val userBankName by app.prefsRepo.userBankName.collectAsState(initial = null)
     val userAccountMasked by app.prefsRepo.userAccountMasked.collectAsState(initial = null)
     val userAccountFull by app.prefsRepo.userAccountFull.collectAsState(initial = null)
+    val lastProfileTimestamp by app.prefsRepo.lastProfileTimestamp.collectAsState(initial = null)
 
     var isAccountUnmasked by remember { mutableStateOf(false) }
+    var showEditAccountDialog by remember { mutableStateOf(false) }
+    var showEditNameDialog by remember { mutableStateOf(false) }
 
-    // Auto-fetch profile on launch if details are empty
-    LaunchedEffect(Unit) {
-        if (userName.isNullOrBlank() && userUpiId.isNullOrBlank()) {
+    // 4-Day Cache Cycle:
+    // When newly opened (no local data) OR if last sync was > 4 days ago, auto-fetch profile.
+    // Otherwise, immediately use the saved offline local storage details.
+    val fourDaysMs = 4L * 24 * 60 * 60 * 1000L
+    LaunchedEffect(lastProfileTimestamp, userName, userUpiId) {
+        val now = System.currentTimeMillis()
+        val isDataEmpty = userName.isNullOrBlank() && userUpiId.isNullOrBlank()
+        val isExpired = lastProfileTimestamp == null || (now - lastProfileTimestamp!!) > fourDaysMs
+        if (isDataEmpty || isExpired) {
             servicesViewModel.fetchMyDetails()
         }
     }
@@ -105,8 +123,14 @@ fun ProfileScreen(
     val displayName = userName?.ifBlank { null } ?: "Airpay User"
     val displayUpi = userUpiId?.ifBlank { null } ?: "Not Registered"
     val displayBank = userBankName?.ifBlank { null } ?: "Offline SIM Bank"
+
+    // Account display formatting:
     val displayAccount = if (isAccountUnmasked) {
-        userAccountFull ?: userAccountMasked ?: "•••• •••• ••••"
+        if (!userAccountFull.isNullOrBlank() && userAccountFull!!.length > 4) {
+            userAccountFull!!.chunked(4).joinToString(" ")
+        } else {
+            userAccountMasked ?: "•••• •••• ••••"
+        }
     } else {
         userAccountMasked ?: "•••• •••• ••••"
     }
@@ -199,13 +223,31 @@ fun ProfileScreen(
 
                         Spacer(Modifier.height(12.dp))
 
-                        Text(
-                            text = displayName,
-                            fontSize = 18.sp,
-                            fontFamily = ClashGrotesk,
-                            fontWeight = FontWeight.Bold,
-                            color = AirpayColors.TextPrimary
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable {
+                                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                    showEditNameDialog = true
+                                }
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = displayName,
+                                fontSize = 18.sp,
+                                fontFamily = ClashGrotesk,
+                                fontWeight = FontWeight.Bold,
+                                color = AirpayColors.TextPrimary
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Name",
+                                tint = AirpayColors.Primary,
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
 
                         Spacer(Modifier.height(4.dp))
 
@@ -317,13 +359,13 @@ fun ProfileScreen(
                         HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 0.8.dp)
                         Spacer(Modifier.height(12.dp))
 
-                        // Account Number Row with Eye Toggle
+                        // Account Number Row with Eye Toggle & Edit Icon
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
+                            Column(Modifier.weight(1f)) {
                                 Text(
                                     text = "Account Number",
                                     fontSize = 11.sp,
@@ -340,24 +382,56 @@ fun ProfileScreen(
                                 )
                             }
 
-                            // Eye Icon Button
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFFF4F5F8))
-                                    .clickable {
-                                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                                        isAccountUnmasked = !isAccountUnmasked
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = if (isAccountUnmasked) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = if (isAccountUnmasked) "Hide Account Number" else "Show Full Account Number",
-                                    tint = AirpayColors.Primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                // Eye Icon Button
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFFF4F5F8))
+                                        .clickable {
+                                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                            if (!isAccountUnmasked) {
+                                                if (userAccountFull.isNullOrBlank() || userAccountFull!!.length <= 4) {
+                                                    showEditAccountDialog = true
+                                                } else {
+                                                    isAccountUnmasked = true
+                                                }
+                                            } else {
+                                                isAccountUnmasked = false
+                                            }
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = if (isAccountUnmasked) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                        contentDescription = if (isAccountUnmasked) "Hide Account Number" else "Show Full Account Number",
+                                        tint = AirpayColors.Primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+
+                                Spacer(Modifier.width(8.dp))
+
+                                // Edit Account Number Button
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFFF4F5F8))
+                                        .clickable {
+                                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                            showEditAccountDialog = true
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Edit Full Account Number",
+                                        tint = AirpayColors.Primary,
+                                        modifier = Modifier.size(17.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -394,7 +468,37 @@ fun ProfileScreen(
                     onClick = onNavigateSettings
                 )
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(18.dp))
+
+                // 4-Day Cache Status Info Card
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFFF4F5F8))
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Security,
+                            contentDescription = null,
+                            tint = AirpayColors.Primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        val daysAgo = lastProfileTimestamp?.let {
+                            val diff = (System.currentTimeMillis() - it) / (1000L * 60 * 60 * 24)
+                            if (diff == 0L) "today" else "$diff days ago"
+                        } ?: "just now"
+                        Text(
+                            text = "Stored offline in local storage (synced $daysAgo). Automatically refreshes every 4 days.",
+                            fontSize = 11.5.sp,
+                            color = Color(0xFF616161)
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(14.dp))
 
                 // Refresh Details Button
                 Box(
@@ -427,6 +531,115 @@ fun ProfileScreen(
                 Spacer(Modifier.height(30.dp))
             }
         }
+    }
+
+    // Edit Bank Account Number Dialog
+    if (showEditAccountDialog) {
+        var inputAccount by remember { mutableStateOf(userAccountFull ?: "") }
+        AlertDialog(
+            onDismissRequest = { showEditAccountDialog = false },
+            title = {
+                Text(
+                    text = "Bank Account Number",
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = ClashGrotesk,
+                    color = Color(0xFF1C1C1E)
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Carrier masks your account digits for security. Enter your complete account number to view or unmask it anytime offline.",
+                        fontSize = 13.sp,
+                        color = Color(0xFF616161)
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    OutlinedTextField(
+                        value = inputAccount,
+                        onValueChange = { inputAccount = it.filter { ch -> ch.isDigit() }.take(20) },
+                        label = { Text("Complete Account Number") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val clean = inputAccount.trim()
+                        if (clean.isNotBlank()) {
+                            scope.launch {
+                                app.prefsRepo.setUserAccountFull(clean)
+                                app.prefsRepo.setUserAccountMasked("•••• •••• ${clean.takeLast(4)}")
+                                isAccountUnmasked = true
+                            }
+                        }
+                        showEditAccountDialog = false
+                    }
+                ) {
+                    Text("Save", color = AirpayColors.Primary, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditAccountDialog = false }) {
+                    Text("Cancel", color = Color(0xFF757575))
+                }
+            }
+        )
+    }
+
+    // Edit Name Dialog
+    if (showEditNameDialog) {
+        var inputName by remember { mutableStateOf(userName ?: "") }
+        AlertDialog(
+            onDismissRequest = { showEditNameDialog = false },
+            title = {
+                Text(
+                    text = "Edit Your Name",
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = ClashGrotesk,
+                    color = Color(0xFF1C1C1E)
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Your name is displayed on your offline QR code and used for UPI transfers.",
+                        fontSize = 13.sp,
+                        color = Color(0xFF616161)
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    OutlinedTextField(
+                        value = inputName,
+                        onValueChange = { inputName = it.take(40) },
+                        label = { Text("Full Name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val clean = inputName.trim()
+                        if (clean.isNotBlank()) {
+                            scope.launch {
+                                app.prefsRepo.setUserName(clean)
+                            }
+                        }
+                        showEditNameDialog = false
+                    }
+                ) {
+                    Text("Save", color = AirpayColors.Primary, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditNameDialog = false }) {
+                    Text("Cancel", color = Color(0xFF757575))
+                }
+            }
+        )
     }
 }
 
