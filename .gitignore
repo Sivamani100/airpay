@@ -15,30 +15,41 @@ bin/
 gen/
 out/
 build/
+app/build/
+.cxx/
 
 # Gradle files
 .gradle/
 .kotlin/
 local.properties
 
-# Android Studio
+# Android Studio & IDEs
 *.iml
 .idea/
+.vscode/
 .DS_Store
+Thumbs.db
+Desktop.ini
+*.hprof
+captures/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.log
 
 # NDK
 obj/
-
-# Local configuration file (sdk path, etc)
-local.properties
 
 # Release signing (never commit these)
 keystore.properties
 *.jks
 *.keystore
+signing.properties
 
-# Local design mockups in root
-/*.png
-
-
-
+# Temporary files
+*.bak
+*.orig
+*.swp
+*~
